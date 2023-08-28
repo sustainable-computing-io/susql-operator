@@ -1,0 +1,12 @@
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
+  labels:
+    app.kubernetes.io/name: labelgroup
+    app.kubernetes.io/instance: labelgroup-sample
+    app.kubernetes.io/part-of: operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: operator
+  name: labelgroup-sample
+spec:
+  # TODO(user): Add fields here

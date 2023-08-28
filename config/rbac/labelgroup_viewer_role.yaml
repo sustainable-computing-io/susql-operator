@@ -1,0 +1,27 @@
+# permissions for end users to view labelgroups.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: labelgroup-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: operator
+    app.kubernetes.io/part-of: operator
+    app.kubernetes.io/managed-by: kustomize
+  name: labelgroup-viewer-role
+rules:
+- apiGroups:
+  - susql.ibm.com
+  resources:
+  - labelgroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - susql.ibm.com
+  resources:
+  - labelgroups/status
+  verbs:
+  - get
