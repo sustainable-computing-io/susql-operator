@@ -18,6 +18,9 @@ package controller
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -31,7 +34,13 @@ import (
 type LabelGroupReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	KeplerPrometheusUrl string
 }
+
+const (
+	energyMetricName = "kepler_container_joules_total" // Kepler metric to query
+	samplingRate = 2 * time.Second // Sampling rate for all the label groups
+)
 
 //+kubebuilder:rbac:groups=susql.ibm.com,resources=labelgroups,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=susql.ibm.com,resources=labelgroups/status,verbs=get;update;patch
@@ -58,7 +67,60 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 	}
 	
-	return ctrl.Result{Requeue: true}, nil
+	// Get list of pods matching the label group
+	podNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
+
+	if err != nil {
+		fmt.Println("Error getting pods")
+		return ctrl.Result{}, err
+	}
+
+	// Aggregate Kepler measurements for these set of pods
+	metricValues, err := r.GetMetricValuesForPodNames(energyMetricName, podNames)
+
+	// Compute total energy
+	// 1) Get the current total energy from ETCD
+	var totalEnergy float64
+
+	if value, err := strconv.ParseFloat(labelGroup.Status.TotalEnergy, 64); err == nil {
+		totalEnergy = value
+	} else {
+		totalEnergy = 0.0
+	}
+
+	if labelGroup.Status.ActiveContainerIds == nil {
+		// First pass with this pod group
+		labelGroup.Status.ActiveContainerIds = make(map[string]float64)
+	}
+
+	// 2) Check if the active containers are still active by comparing them to the current ones
+	//    - In the set of new containers, remove all containers that are active
+	for containerId, oldValue := range labelGroup.Status.ActiveContainerIds {
+		if newValue, found := metricValues[containerId]; found {
+			totalEnergy += (newValue - oldValue)
+			labelGroup.Status.ActiveContainerIds[containerId] = newValue
+			delete(metricValues, containerId)
+		} else {
+			// Delete inactive container since it doesn't appear in queried containers
+			delete(labelGroup.Status.ActiveContainerIds, containerId)
+		}
+	}
+
+	// 3) Add the values of the remaining new containers to the total energy and to the active containers
+	for containerId, newValue := range metricValues {
+		totalEnergy += newValue
+		labelGroup.Status.ActiveContainerIds[containerId] = newValue
+	}
+
+	// 4) Update ETCD with the values
+	labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
+
+	if err := r.Status().Update(ctx, labelGroup); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Requeue
+	return ctrl.Result{RequeueAfter: samplingRate}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

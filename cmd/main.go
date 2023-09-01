@@ -56,8 +56,8 @@ func main() {
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. "+ "Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&keplerPrometheusUrl, "keplerPrometheusUrl", "", "The URL for the Prometheus server where Kepler stores the energy data")
+	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", "", "The URL for the Prometheus server where Kepler stores the energy data")
 
 	opts := zap.Options{
 		Development: true,
@@ -94,6 +94,7 @@ func main() {
 	if err = (&controller.LabelGroupReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		KeplerPrometheusUrl: keplerPrometheusUrl,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "LabelGroup")
 		os.Exit(1)

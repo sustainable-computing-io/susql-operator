@@ -41,7 +41,7 @@ type LabelGroupStatus struct {
 	TotalEnergy string `json:"totalEnergy"`
 
 	// Active containers associated with these set of labels
-	ContainerIds map[string]float32 `json:"containerIds"`
+	ActiveContainerIds map[string]float64 `json:"activeContainerIds"`
 }
 
 //+kubebuilder:object:root=true
