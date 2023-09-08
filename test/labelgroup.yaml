@@ -1,0 +1,11 @@
+---
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
+    name: group-1
+    namespace: default
+spec:
+    labels:
+        project: model-1
+        experiment: exp-1
+        group: grp-1
