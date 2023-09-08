@@ -26,5 +26,4 @@ Dockerfile.cross
 *~
 
 # Custom files and directories to ignore
-test
 volume

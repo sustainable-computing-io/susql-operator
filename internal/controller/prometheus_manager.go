@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	//"net/http"
 	"os"
 	"strings"
 	"time"
@@ -26,6 +27,8 @@ import (
 	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/common/model"
 
+	"github.com/prometheus/client_golang/prometheus"
+	//"github.com/prometheus/client_golang/prometheus/promhttp"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
@@ -41,11 +44,11 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	}
 
 	v1api := v1.NewAPI(client)
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	queryString := fmt.Sprintf("%s{pod_name=~\"%s\",mode=\"dynamic\"}", metricName, strings.Join(podNames, "|"))
-	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0 * time.Second))
+	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
 	if err != nil {
 		fmt.Printf("Error querying Prometheus: %v\n", err)
@@ -63,4 +66,39 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	}
 
 	return metricValues, nil
+}
+
+type SusqlMetrics struct {
+	totalEnergy *prometheus.GaugeVec
+}
+
+func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) (error) {
+	/*client, err := api.NewClient(api.Config{
+		Address: r.SusQLPrometheusUrl,
+	})
+
+	v1api := v1.NewAPI(client)
+	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+
+	v1api.Series()
+
+	if err != nil {
+		fmt.Printf("Error creating client: %v\n", err)
+		os.Exit(1)
+	}*/
+
+	/*susqlMetrics := &SusqlMetrics{
+		totalEnergy: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: "susql",
+			Name: "total_energy_joules",
+			Help: "Accumulated energy over time for set of labels",
+		},  susqlPrometheusLabelNames),
+	}
+
+	fmt.Println(susqlMetrics)
+
+	http.Handle("/metrics", promhttp.Handler())*/
+
+	return nil
 }

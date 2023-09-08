@@ -6,6 +6,6 @@ metadata:
     namespace: default
 spec:
     labels:
-        project: model-1
-        experiment: exp-1
-        group: grp-1
+        - model-1
+        - exp-1
+        - grp-1

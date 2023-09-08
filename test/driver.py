@@ -6,12 +6,9 @@ SusQL testing
 
 import os
 import sys
-import json
 import yaml
-import math
 import time
 import threading
-import subprocess
 
 from datetime import datetime
 from cloud import *
@@ -151,7 +148,7 @@ def main():
                num_gpus_per_pod = 8, \
                total_memory_per_pod = "0Gi", \
                shell_commands = ["sleep infinity"], \
-               custom_labels = { "experiment": "exp-1", "group": "grp-1", "project": "model-1" }, \
+               custom_labels = { "susql.label/1": "model-1", "susql.label/2": "exp-1", "susql.label/3": "grp-1" }, \
                quota_labels = { "quota-tree": "A" }, \
                apply_yaml = True)
 

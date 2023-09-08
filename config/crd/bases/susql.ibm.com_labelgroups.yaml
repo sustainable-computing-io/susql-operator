@@ -35,10 +35,11 @@ spec:
             description: LabelGroupSpec defines the desired state of LabelGroup
             properties:
               labels:
-                additionalProperties:
+                description: List of labels to be tracked for energy measurments (up
+                  to 3)
+                items:
                   type: string
-                description: Set of labels to be tracked for energy measurments
-                type: object
+                type: array
             type: object
           status:
             description: LabelGroupStatus defines the observed state of LabelGroup
@@ -48,13 +49,18 @@ spec:
                   type: number
                 description: Active containers associated with these set of labels
                 type: object
+              phase:
+                description: Transition phase of the label group
+                type: string
+              prometheusLabels:
+                additionalProperties:
+                  type: string
+                description: SusQL labels constructed from the spec
+                type: object
               totalEnergy:
                 description: TotalEnergy keeps track of the accumulated energy over
                   time
                 type: string
-            required:
-            - activeContainerIds
-            - totalEnergy
             type: object
         type: object
     served: true

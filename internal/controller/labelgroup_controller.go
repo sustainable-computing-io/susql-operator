@@ -33,13 +33,19 @@ import (
 // LabelGroupReconciler reconciles a LabelGroup object
 type LabelGroupReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme              *runtime.Scheme
 	KeplerPrometheusUrl string
+	SusQLPrometheusUrl  string
 }
 
 const (
 	energyMetricName = "kepler_container_joules_total" // Kepler metric to query
-	samplingRate = 2 * time.Second // Sampling rate for all the label groups
+	samplingRate     = 2 * time.Second                 // Sampling rate for all the label groups
+	fixingDelay      = 15 * time.Second                // Time to wait in the even the label group was badly constructed
+)
+
+var (
+	susqlPrometheusLabelNames = []string{"susql.label/1", "susql.label/2", "susql.label/3"} // Names of the SusQL Prometheus labels
 )
 
 //+kubebuilder:rbac:groups=susql.ibm.com,resources=labelgroups,verbs=get;list;watch;create;update;patch;delete
@@ -66,61 +72,114 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// LabelGroup not found
 		return ctrl.Result{}, nil
 	}
-	
-	// Get list of pods matching the label group
-	podNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
 
-	if err != nil {
-		fmt.Println("Error getting pods")
-		return ctrl.Result{}, err
-	}
+	// Check that the susql prometheus labels are created
+	if len(labelGroup.Status.PrometheusLabels) == 0 && labelGroup.Status.Phase != susql.Initializing {
+		fmt.Printf("WARNING: The SusQL prometheus labels have not been created. Reinitializing this label group.")
 
-	// Aggregate Kepler measurements for these set of pods
-	metricValues, err := r.GetMetricValuesForPodNames(energyMetricName, podNames)
+		labelGroup.Status.Phase = susql.Initializing
 
-	// Compute total energy
-	// 1) Get the current total energy from ETCD
-	var totalEnergy float64
-
-	if value, err := strconv.ParseFloat(labelGroup.Status.TotalEnergy, 64); err == nil {
-		totalEnergy = value
-	} else {
-		totalEnergy = 0.0
-	}
-
-	if labelGroup.Status.ActiveContainerIds == nil {
-		// First pass with this pod group
-		labelGroup.Status.ActiveContainerIds = make(map[string]float64)
-	}
-
-	// 2) Check if the active containers are still active by comparing them to the current ones
-	//    - In the set of new containers, remove all containers that are active
-	for containerId, oldValue := range labelGroup.Status.ActiveContainerIds {
-		if newValue, found := metricValues[containerId]; found {
-			totalEnergy += (newValue - oldValue)
-			labelGroup.Status.ActiveContainerIds[containerId] = newValue
-			delete(metricValues, containerId)
-		} else {
-			// Delete inactive container since it doesn't appear in queried containers
-			delete(labelGroup.Status.ActiveContainerIds, containerId)
+		if err := r.Status().Update(ctx, labelGroup); err != nil {
+			fmt.Printf("ERROR: Couldn't update the phase")
 		}
+
+		return ctrl.Result{}, nil
 	}
 
-	// 3) Add the values of the remaining new containers to the total energy and to the active containers
-	for containerId, newValue := range metricValues {
-		totalEnergy += newValue
-		labelGroup.Status.ActiveContainerIds[containerId] = newValue
+	// Decide what action to take based on the state of the labelGroup
+	switch labelGroup.Status.Phase {
+	case susql.Initializing:
+		if len(labelGroup.Labels) > len(susqlPrometheusLabelNames) {
+			fmt.Printf("ERROR: The number of provided labels is greater than the maximum number of supported labels (e.g., up to %d labels)", len(susqlPrometheusLabelNames))
+			return ctrl.Result{RequeueAfter: fixingDelay}, nil
+		}
+
+		susqlPrometheusLabels := make(map[string]string)
+
+		for ldx := 0; ldx < len(labelGroup.Spec.Labels); ldx++ {
+			susqlPrometheusLabels[susqlPrometheusLabelNames[ldx]] = labelGroup.Spec.Labels[ldx]
+		}
+
+		labelGroup.Status.PrometheusLabels = susqlPrometheusLabels
+		labelGroup.Status.Phase = susql.Aggregating
+
+		if err := r.Status().Update(ctx, labelGroup); err != nil {
+			fmt.Printf("ERROR: Couldn't update prometheus labels")
+			return ctrl.Result{RequeueAfter: fixingDelay}, nil
+		}
+
+		// Requeue
+		return ctrl.Result{}, nil
+
+	case susql.Aggregating:
+		// Get list of pods matching the label group
+		podNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
+
+		if err != nil {
+			fmt.Println("Error getting pods")
+			return ctrl.Result{}, err
+		}
+
+		// Aggregate Kepler measurements for these set of pods
+		metricValues, err := r.GetMetricValuesForPodNames(energyMetricName, podNames)
+
+		// Compute total energy
+		// 1) Get the current total energy from ETCD
+		var totalEnergy float64
+
+		if value, err := strconv.ParseFloat(labelGroup.Status.TotalEnergy, 64); err == nil {
+			totalEnergy = value
+		} else {
+			totalEnergy = 0.0
+		}
+
+		if labelGroup.Status.ActiveContainerIds == nil {
+			// First pass with this pod group
+			labelGroup.Status.ActiveContainerIds = make(map[string]float64)
+		}
+
+		// 2) Check if the active containers are still active by comparing them to the current ones
+		//    - In the set of new containers, remove all containers that are active
+		for containerId, oldValue := range labelGroup.Status.ActiveContainerIds {
+			if newValue, found := metricValues[containerId]; found {
+				totalEnergy += (newValue - oldValue)
+				labelGroup.Status.ActiveContainerIds[containerId] = newValue
+				delete(metricValues, containerId)
+			} else {
+				// Delete inactive container since it doesn't appear in queried containers
+				delete(labelGroup.Status.ActiveContainerIds, containerId)
+			}
+		}
+
+		// 3) Add the values of the remaining new containers to the total energy and update the list of active containers
+		for containerId, newValue := range metricValues {
+			totalEnergy += newValue
+			labelGroup.Status.ActiveContainerIds[containerId] = newValue
+		}
+
+		// 4) Update ETCD with the values
+		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
+
+		if err := r.Status().Update(ctx, labelGroup); err != nil {
+			return ctrl.Result{}, err
+		}
+
+		// 5) Add energy aggregation to Prometheus table
+		r.SetAggregatedEnergyForLabels(totalEnergy, labelGroup.Status.PrometheusLabels)
+
+		// Requeue
+		return ctrl.Result{RequeueAfter: samplingRate}, nil
+
+	default:
+		// First time seeing this object
+		labelGroup.Status.Phase = susql.Initializing
+
+		if err := r.Status().Update(ctx, labelGroup); err != nil {
+			fmt.Printf("ERROR: Couldn't set object to 'Initializing'")
+		}
+
+		return ctrl.Result{}, nil
 	}
-
-	// 4) Update ETCD with the values
-	labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
-
-	if err := r.Status().Update(ctx, labelGroup); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Requeue
-	return ctrl.Result{RequeueAfter: samplingRate}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
