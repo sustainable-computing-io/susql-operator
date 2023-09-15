@@ -1,0 +1,25 @@
+#####################
+# Namespace and priority
+#####################
+name: susql-controller
+namespace: susql
+priority: high-priority
+
+#####################
+# Container image to be used
+#####################
+containerImage: docker.io/metalcycling/susql-controller
+
+#####################
+# Runtime hardware specifications
+#####################
+requests:
+    cpu: 500m
+    memory: 200Mi
+
+#####################
+# Communication with Kepler and Prometheus
+#####################
+keplerPrometheusUrl: prometheus-k8s.monitoring.svc.cluster.local:9090
+susqlPrometheusDatabaseUrl: prometheus-susql.susql.svc.cluster.local:9090
+susqlPrometheusMetricsUrl: prometheus-susql.susql.svc.cluster.local:8080

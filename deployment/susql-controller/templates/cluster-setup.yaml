@@ -1,0 +1,96 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: system:controller:susql-controller
+    labels:
+        kubernetes.io/bootstrapping: rbac-defaults
+    annotations:
+        rbac.authorization.kubernetes.io/autoupdate: "true"
+rules:
+- apiGroups:
+      - susql.ibm.com
+  resources:
+      - labelgroups
+      - labelgroups/finalizers
+      - labelgroups/status
+  verbs:
+      - create
+      - delete
+      - deletecollection
+      - get
+      - list
+      - patch
+      - update
+      - watch
+- apiGroups:
+      - ""
+  resources:
+      - persistentvolumes
+      - namespaces
+  verbs:
+      - create
+      - delete
+      - deletecollection
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+    name: {{ required "Please specify a 'name' in the user file" .Values.name }}
+    namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: system:controller:susql-controller
+    labels:
+        kubernetes.io/bootstrapping: rbac-defaults
+    annotations:
+        rbac.authorization.kubernetes.io/autoupdate: "true"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: system:controller:susql-controller
+subjects:
+    - kind: ServiceAccount
+      name: {{ .Values.name }}
+      namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: system:controller:susql-controller-edit
+    labels:
+        kubernetes.io/bootstrapping: rbac-defaults
+    annotations:
+        rbac.authorization.kubernetes.io/autoupdate: "true"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: edit
+subjects:
+    - kind: ServiceAccount
+      name: {{ .Values.name }}
+      namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: system:controller:susql-controller-kube-scheduler
+    labels:
+        kubernetes.io/bootstrapping: rbac-defaults
+    annotations:
+        rbac.authorization.kubernetes.io/autoupdate: "true"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: system:kube-scheduler
+subjects:
+    - kind: ServiceAccount
+      name: {{ .Values.name }}
+      namespace: {{ .Values.namespace }}
