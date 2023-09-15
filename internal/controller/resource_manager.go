@@ -21,8 +21,8 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	v1 "k8s.io/api/core/v1"
 	susql "github.com/metalcycling/susql/api/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 // Functions to get data from the cluster

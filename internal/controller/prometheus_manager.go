@@ -118,7 +118,7 @@ var (
 	}
 
 	prometheusRegistry *prometheus.Registry
-	prometheusHandler http.Handler
+	prometheusHandler   http.Handler
 )
 
 func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) error {
