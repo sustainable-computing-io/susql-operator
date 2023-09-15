@@ -29,7 +29,7 @@ import (
 func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susql.LabelGroup) ([]string, error) {
 	pods := &v1.PodList{}
 
-	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.PrometheusLabels)); err != nil {
+	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.KubernetesLabels)); err != nil {
 		return nil, err
 	}
 

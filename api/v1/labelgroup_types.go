@@ -28,6 +28,9 @@ type LabelGroupSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// Do not use the most recent value stored in the database
+	DisableUsingMostRecentValue bool `json:"disableUsingMostRecentValue,omitempty"`
+
 	// List of labels to be tracked for energy measurments (up to 3)
 	Labels []string `json:"labels,omitempty"`
 }
@@ -40,11 +43,17 @@ type LabelGroupStatus struct {
 	// Transition phase of the label group
 	Phase LabelGroupPhase `json:"phase,omitempty"`
 
-	// SusQL labels constructed from the spec
+	// SusQL Kubernetes labels constructed from the spec
+	KubernetesLabels map[string]string `json:"kubernetesLabels,omitempty"`
+
+	// SusQL Prometheus labels constructed from the spec
 	PrometheusLabels map[string]string `json:"prometheusLabels,omitempty"`
 
 	// TotalEnergy keeps track of the accumulated energy over time
 	TotalEnergy string `json:"totalEnergy,omitempty"`
+
+	// Prometheus query to get the total energy for this label group
+	SusQLPrometheusQuery string `json:"susqlPrometheusQuery,omitempty"`
 
 	// Active containers associated with these set of labels
 	ActiveContainerIds map[string]float64 `json:"activeContainerIds,omitempty"`
@@ -56,6 +65,9 @@ type LabelGroupPhase string
 const (
 	// Initializing: The label group is picked up for the first time and setup
 	Initializing LabelGroupPhase = "Initializing"
+
+	// Reloading: Use most recent value in the database if requested
+	Reloading LabelGroupPhase = "Reloading"
 
 	// Aggregating: The label group is aggregating the energy for the registered labels
 	Aggregating LabelGroupPhase = "Aggregating"

@@ -33,19 +33,22 @@ import (
 // LabelGroupReconciler reconciles a LabelGroup object
 type LabelGroupReconciler struct {
 	client.Client
-	Scheme              *runtime.Scheme
-	KeplerPrometheusUrl string
-	SusQLPrometheusUrl  string
+	Scheme                     *runtime.Scheme
+	KeplerPrometheusUrl        string
+	SusQLPrometheusDatabaseUrl string
+	SusQLPrometheusMetricsUrl  string
 }
 
 const (
-	energyMetricName = "kepler_container_joules_total" // Kepler metric to query
+	keplerMetricName = "kepler_container_joules_total" // Kepler metric to query
+	susqlMetricName  = "susql_total_energy_joules"     // SusQL metric to query
 	samplingRate     = 2 * time.Second                 // Sampling rate for all the label groups
 	fixingDelay      = 15 * time.Second                // Time to wait in the even the label group was badly constructed
 )
 
 var (
-	susqlPrometheusLabelNames = []string{"susql.label/1", "susql.label/2", "susql.label/3"} // Names of the SusQL Prometheus labels
+	susqlKubernetesLabelNames = []string{"susql.label/1", "susql.label/2", "susql.label/3", "susql.label/4"} // Names of the SusQL Kubernetes labels
+	susqlPrometheusLabelNames = []string{"susql_label_1", "susql_label_2", "susql_label_3", "susql_label_4"} // Names of the SusQL Prometheus labels
 )
 
 //+kubebuilder:rbac:groups=susql.ibm.com,resources=labelgroups,verbs=get;list;watch;create;update;patch;delete
@@ -89,22 +92,72 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	// Decide what action to take based on the state of the labelGroup
 	switch labelGroup.Status.Phase {
 	case susql.Initializing:
-		if len(labelGroup.Labels) > len(susqlPrometheusLabelNames) {
+		if len(labelGroup.Spec.Labels) > len(susqlPrometheusLabelNames) {
 			fmt.Printf("ERROR: The number of provided labels is greater than the maximum number of supported labels (e.g., up to %d labels)", len(susqlPrometheusLabelNames))
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
 		}
 
-		susqlPrometheusLabels := make(map[string]string)
+		susqlKubernetesLabels := make(map[string]string)
 
 		for ldx := 0; ldx < len(labelGroup.Spec.Labels); ldx++ {
-			susqlPrometheusLabels[susqlPrometheusLabelNames[ldx]] = labelGroup.Spec.Labels[ldx]
+			susqlKubernetesLabels[susqlKubernetesLabelNames[ldx]] = labelGroup.Spec.Labels[ldx]
 		}
 
+		susqlPrometheusLabels := make(map[string]string)
+
+		for ldx := 0; ldx < len(susqlKubernetesLabelNames); ldx++ {
+			if ldx < len(labelGroup.Spec.Labels) {
+				susqlPrometheusLabels[susqlPrometheusLabelNames[ldx]] = labelGroup.Spec.Labels[ldx]
+			} else {
+				susqlPrometheusLabels[susqlPrometheusLabelNames[ldx]] = ""
+			}
+		}
+
+		var susqlPrometheusQuery string
+		susqlPrometheusQuery = susqlMetricName
+		susqlPrometheusQuery += "{"
+		for ldx := 0; ldx < len(susqlKubernetesLabelNames); ldx++ {
+			if ldx < len(labelGroup.Spec.Labels) {
+				susqlPrometheusQuery += fmt.Sprintf("%s=\"%s\"", susqlPrometheusLabelNames[ldx], labelGroup.Spec.Labels[ldx])
+			} else {
+				susqlPrometheusQuery += fmt.Sprintf("%s=\"\"", susqlPrometheusLabelNames[ldx])
+			}
+			if ldx < len(susqlKubernetesLabelNames) - 1 {
+				susqlPrometheusQuery += ","
+			}
+		}
+		susqlPrometheusQuery += "}"
+
+		labelGroup.Status.KubernetesLabels = susqlKubernetesLabels
 		labelGroup.Status.PrometheusLabels = susqlPrometheusLabels
+		labelGroup.Status.SusQLPrometheusQuery = susqlPrometheusQuery
+		labelGroup.Status.Phase = susql.Reloading
+
+		if err := r.Status().Update(ctx, labelGroup); err != nil {
+			fmt.Printf("ERROR: Couldn't update status of the LabelGroup")
+			return ctrl.Result{RequeueAfter: fixingDelay}, nil
+		}
+
+		// Requeue
+		return ctrl.Result{}, nil
+
+	case susql.Reloading:
+
+		if !labelGroup.Spec.DisableUsingMostRecentValue {
+			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusQuery)
+
+			if err != nil {
+				fmt.Printf("ERROR: Couldn't retrieve most recent value")
+				return ctrl.Result{RequeueAfter: fixingDelay}, nil
+			}
+
+			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
+		}
+
 		labelGroup.Status.Phase = susql.Aggregating
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
-			fmt.Printf("ERROR: Couldn't update prometheus labels")
+			fmt.Printf("ERROR: Couldn't update status of the LabelGroup")
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
 		}
 
@@ -121,7 +174,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		}
 
 		// Aggregate Kepler measurements for these set of pods
-		metricValues, err := r.GetMetricValuesForPodNames(energyMetricName, podNames)
+		metricValues, err := r.GetMetricValuesForPodNames(keplerMetricName, podNames)
 
 		// Compute total energy
 		// 1) Get the current total energy from ETCD

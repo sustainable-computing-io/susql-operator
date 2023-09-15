@@ -1,0 +1,29 @@
+---
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
+    name: lgroup-1
+    namespace: default
+spec:
+    labels:
+        - label-1
+        - label-2
+---
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
+    name: lgroup-2
+    namespace: default
+spec:
+    labels:
+        - label-1
+---
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
+    name: lgroup-3
+    namespace: default
+spec:
+    labels:
+        - label-1
+        - label-3

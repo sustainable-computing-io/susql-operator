@@ -34,6 +34,9 @@ spec:
           spec:
             description: LabelGroupSpec defines the desired state of LabelGroup
             properties:
+              disableUsingMostRecentValue:
+                description: Do not use the most recent value stored in the database
+                type: boolean
               labels:
                 description: List of labels to be tracked for energy measurments (up
                   to 3)
@@ -49,14 +52,23 @@ spec:
                   type: number
                 description: Active containers associated with these set of labels
                 type: object
+              kubernetesLabels:
+                additionalProperties:
+                  type: string
+                description: SusQL Kubernetes labels constructed from the spec
+                type: object
               phase:
                 description: Transition phase of the label group
                 type: string
               prometheusLabels:
                 additionalProperties:
                   type: string
-                description: SusQL labels constructed from the spec
+                description: SusQL Prometheus labels constructed from the spec
                 type: object
+              susqlPrometheusQuery:
+                description: Prometheus query to get the total energy for this label
+                  group
+                type: string
               totalEnergy:
                 description: TotalEnergy keeps track of the accumulated energy over
                   time

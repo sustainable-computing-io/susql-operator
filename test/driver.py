@@ -152,6 +152,34 @@ def main():
                quota_labels = { "quota-tree": "A" }, \
                apply_yaml = True)
 
+    # %% SusQL operator development
+
+    create_job(job_name = "job-1", \
+               namespace = "default", \
+               priority = "default-priority", \
+               container_image = "ubuntu", \
+               num_pods = 2, \
+               num_cpus_per_pod = "0m", \
+               num_gpus_per_pod = 8, \
+               total_memory_per_pod = "0Gi", \
+               shell_commands = ["sleep infinity"], \
+               custom_labels = { "susql.label/1": "label-1", "susql.label/2": "label-2" }, \
+               quota_labels = { "quota-tree": "A" }, \
+               apply_yaml = True)
+
+    create_job(job_name = "job-2", \
+               namespace = "default", \
+               priority = "default-priority", \
+               container_image = "ubuntu", \
+               num_pods = 2, \
+               num_cpus_per_pod = "0m", \
+               num_gpus_per_pod = 8, \
+               total_memory_per_pod = "0Gi", \
+               shell_commands = ["sleep infinity"], \
+               custom_labels = { "susql.label/1": "label-1", "susql.label/2": "label-3" }, \
+               quota_labels = { "quota-tree": "B" }, \
+               apply_yaml = True)
+
     # %%
 
     create_job(job_name = "job-2", \
@@ -186,7 +214,7 @@ def main():
     #bash("oc -n org-2 delete appwrappers --all")
     #bash("oc -n namespace-1 delete appwrappers --all")
 
-    bash("kubectl -n default delete appwrappers --all", stdout = True)
+    bash("kubectl -n default delete appwrappers --all")
 
 # %% Main program
 
