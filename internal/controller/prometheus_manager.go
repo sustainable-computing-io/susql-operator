@@ -118,7 +118,7 @@ var (
 	}
 
 	prometheusRegistry *prometheus.Registry
-	prometheusHandler   http.Handler
+	prometheusHandler  http.Handler
 )
 
 func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) error {
@@ -131,9 +131,9 @@ func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64,
 		http.Handle("/metrics", prometheusHandler)
 
 		if metricsUrl, parseErr := url.Parse(r.SusQLPrometheusMetricsUrl); parseErr == nil {
-			fmt.Printf("Serving metrics at '%s:%s'...", metricsUrl.Hostname(), metricsUrl.Port())
+			fmt.Printf("Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port())
 
-			go func () {
+			go func() {
 				err := http.ListenAndServe(metricsUrl.Hostname() + ":" + metricsUrl.Port(), nil)
 
 				if err != nil {
