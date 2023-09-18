@@ -40,7 +40,7 @@ spec:
             containers:
                 - name: {{ .Values.name }}
                   image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
-                  imagePullPolicy: IfNotPresent
+                  imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
                   args:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
                   resources:

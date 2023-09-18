@@ -41,7 +41,8 @@ do
     elif [[ ${action} = "susql-deploy" ]]; then
         #cd ${SUSQL_DIR} && make install && cd -
         #kubectl apply -f ${SUSQL_DIR}/config/rbac/labelgroup_editor_role.yaml
-        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace susql
+        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace susql \
+            --set imagePullPolicy="IfNotPresent"
         #helm template --debug ${SUSQL_DIR}/deployment/susql-controller --namespace susql
 
     else
