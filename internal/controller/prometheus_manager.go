@@ -45,7 +45,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	})
 
 	if err != nil {
-		fmt.Printf("Error creating client: %v\n", err)
+		fmt.Printf("ERROR [GetMostRecentValue]: Couldn't create HTTP client: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -58,11 +58,11 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
 	if len(warnings) > 0 {
-		fmt.Printf("Warnings: %v\n", warnings)
+		fmt.Printf("WARNING [GetMostRecentValue]: %v\n", warnings)
 	}
 
 	if err != nil {
-		fmt.Printf("Error querying Prometheus: %v\n", err)
+		fmt.Printf("ERROR [GetMostRecentValue]: Querying Prometheus didn't work: %v\n", err)
 		return 0.0, err
 	}
 
@@ -75,7 +75,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	})
 
 	if err != nil {
-		fmt.Printf("Error creating client: %v\n", err)
+		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Couldn't created an HTTP client: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -87,12 +87,12 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
 	if err != nil {
-		fmt.Printf("Error querying Prometheus: %v\n", err)
+		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Querying Prometheus didn't work: %v\n", err)
 		return nil, err
 	}
 
 	if len(warnings) > 0 {
-		fmt.Printf("Warnings: %v\n", warnings)
+		fmt.Printf("WARNING [GetMetricValuesForPodNames]: %v\n", warnings)
 	}
 
 	metricValues := make(map[string]float64, len(results.(model.Vector)))
