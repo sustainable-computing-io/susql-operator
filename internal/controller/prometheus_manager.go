@@ -137,9 +137,11 @@ func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64,
 				err := http.ListenAndServe(metricsUrl.Hostname() + ":" + metricsUrl.Port(), nil)
 
 				if err != nil {
-					panic("ListenAndServe: " + err.Error())
+					panic("PANIC [SetAggregatedEnergyForLabels]: ListenAndServe: " + err.Error())
 				}
 			}()
+		} else {
+			panic(fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels]: Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
 		}
 	}
 
