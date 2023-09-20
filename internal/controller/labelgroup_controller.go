@@ -79,7 +79,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	// Check that the susql prometheus labels are created
 	if len(labelGroup.Status.PrometheusLabels) == 0 && labelGroup.Status.Phase != susql.Initializing {
-		fmt.Printf("WARNING [Reconcile]: The SusQL prometheus labels have not been created. Reinitializing this label group.\n")
+		fmt.Printf("WARNING [Reconcile]: The SusQL prometheus labels for LabelGroup '%s' in namespace '%s' have not been created. Reinitializing this LabelGroup.\n", labelGroup.Name, labelGroup.Namespace)
 
 		labelGroup.Status.Phase = susql.Initializing
 
@@ -143,7 +143,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 
 	case susql.Reloading:
-
+		// Reload data from existing database
 		if !labelGroup.Spec.DisableUsingMostRecentValue {
 			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusQuery)
 
@@ -243,7 +243,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *LabelGroupReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
+	controllerManager := ctrl.NewControllerManagedBy(mgr).
 		For(&susql.LabelGroup{}).
 		Complete(r)
+
+	// Start server to export metrics
+	r.InitializeMetricsExporter()
+
+	return controllerManager
 }

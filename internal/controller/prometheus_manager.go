@@ -28,7 +28,7 @@ import (
 	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/common/model"
 
-	"github.com/prometheus/client_golang/api/prometheus/v1"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -121,7 +121,7 @@ var (
 	prometheusHandler  http.Handler
 )
 
-func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) error {
+func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 	// Initiate the exporting of prometheus metrics for the energy
 	if prometheusRegistry == nil {
 		prometheusRegistry = prometheus.NewRegistry()
@@ -144,7 +144,10 @@ func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64,
 			panic(fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels]: Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
 		}
 	}
+}
 
+func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) error {
+	// Save aggregated energy to Prometheus table
 	susqlMetrics.totalEnergy.With(prometheusLabels).Set(totalEnergy)
 
 	return nil
