@@ -21,3 +21,9 @@ server:
         runAsNonRoot:
         runAsGroup:
         fsGroup:
+extraScrapeConfigs: |
+    - job_name: susql
+      metrics_path: /metrics
+      static_configs:
+          - targets:
+              - susql-controller.susql.svc.cluster.local:8082

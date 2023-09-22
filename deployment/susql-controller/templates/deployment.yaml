@@ -26,7 +26,7 @@ spec:
     replicas: 1
     selector:
         matchLabels:
-            deployment.apps: susql-controller
+            deployment.apps: {{ .Values.name }}
     template:
         metadata:
             name: {{ .Values.name }}
@@ -43,6 +43,11 @@ spec:
                   imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
                   args:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
+                      - "--susql-prometheus-database-url={{ .Values.susqlPrometheusDatabaseUrl }}"
+                      - "--susql-prometheus-metrics-url={{ .Values.susqlPrometheusMetricsUrl }}"
+                  ports:
+                      - name: metrics
+                        containerPort: 8082
                   resources:
                       requests:
                           cpu: {{ .Values.requests.cpu }}

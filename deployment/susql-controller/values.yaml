@@ -20,6 +20,6 @@ requests:
 #####################
 # Communication with Kepler and Prometheus
 #####################
-keplerPrometheusUrl: prometheus-k8s.monitoring.svc.cluster.local:9090
-susqlPrometheusDatabaseUrl: prometheus-susql.susql.svc.cluster.local:9090
-susqlPrometheusMetricsUrl: prometheus-susql.susql.svc.cluster.local:8080
+keplerPrometheusUrl: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
+susqlPrometheusDatabaseUrl: "http://prometheus-susql.susql.svc.cluster.local:9090"
+susqlPrometheusMetricsUrl: "http://0.0.0.0:8082"
