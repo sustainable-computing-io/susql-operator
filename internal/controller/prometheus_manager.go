@@ -53,7 +53,6 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	//queryString := fmt.Sprintf("max_over_time(%s[%s])", susqlPrometheusQuery, maxQueryTime)
 	queryString := fmt.Sprintf("max_over_time(%s[%s])", susqlPrometheusQuery, maxQueryTime)
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
@@ -66,7 +65,11 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 		return 0.0, err
 	}
 
-	return float64(results.(model.Vector)[0].Value), err
+	if len(results.(model.Vector)) > 0 {
+		return float64(results.(model.Vector)[0].Value), err
+	} else {
+		return 0.0, err
+	}
 }
 
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
