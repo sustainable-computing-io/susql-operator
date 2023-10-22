@@ -14,7 +14,6 @@ spec:
                 susql.label/1: model-1
                 susql.label/2: exp-2
         spec:
-            priorityClassName: "default-priority"
             terminationGracePeriodSeconds: 1
             restartPolicy: Never
             containers:
