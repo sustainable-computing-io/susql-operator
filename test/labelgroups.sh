@@ -1,13 +1,15 @@
 #!/bin/bash
 
+namespace=metalcycling
+
 t_start=$(date +%s.%N)
 
-for labelgroup in $(kubectl get labelgroups -o custom-columns=':{.metadata.name}')
+for labelgroup in $(kubectl -n ${namespace} get labelgroups -o custom-columns=':{.metadata.name}')
 do
-    totalEnergy=$(kubectl get labelgroup ${labelgroup} -o jsonpath='{.status.totalEnergy}')
-    susqlPrometheusQuery=$(kubectl get labelgroup ${labelgroup} -o jsonpath='{.status.susqlPrometheusQuery}')
-    phase=$(kubectl get labelgroup ${labelgroup} -o jsonpath='{.status.phase}')
-    labels=$(kubectl get labelgroup ${labelgroup} -o jsonpath='{.spec.labels}')
+    totalEnergy=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.status.totalEnergy}')
+    susqlPrometheusQuery=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.status.susqlPrometheusQuery}')
+    phase=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.status.phase}')
+    labels=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.spec.labels}')
 
     echo "LabelGroup: ${labelgroup}"
     echo "    - Labels: ${labels}"
