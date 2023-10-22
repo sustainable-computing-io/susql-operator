@@ -60,16 +60,21 @@ do
 
     elif [[ ${action} = "prometheus-deploy" ]]; then
         # Install prometheus from community helm charts
+        echo "Deploying Prometheus controller to store susql data..."
+
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
         helm upgrade --install prometheus -f prometheus.yaml --namespace susql prometheus-community/prometheus
 
     elif [[ ${action} = "prometheus-undeploy" ]]; then
-        helm uninstall prometheus --namespace susql
+        echo "Undeploying Prometheus controller..."
+        echo "All data will be lost if the Prometheus deployment was not using a volume for permanent storage."
+        echo -n "Would you like to procceed? [y/n]: "
+        read response
 
-    elif [[ ${action} = "susql-undeploy" ]]; then
-        cd ${SUSQL_DIR} && make uninstall && cd -
-        helm -n susql uninstall susql-controller
+        if [[ ${response} == "Y" || ${response} == "y" ]]; then
+            helm uninstall prometheus --namespace susql
+        fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
         cd ${SUSQL_DIR} && make manifests && make install && cd -
@@ -77,8 +82,19 @@ do
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
             --set susqlPrometheusDatabaseUrl="http://prometheus-susql.susql.svc.cluster.local:9090" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
-            --set imagePullPolicy="IfNotPresent" \
+            --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
+
+    elif [[ ${action} = "susql-undeploy" ]]; then
+        echo "Undeploying SusQL controller..."
+        echo -n "Would you like to uninstall the CRD? WARNING: Doing this would remove ALL deployments for this CRD already in the cluster. [y/n]: "
+        read response
+
+        if [[ ${response} == "Y" || ${response} == "y" ]]; then
+            cd ${SUSQL_DIR} && make uninstall && cd -
+        fi
+
+        helm -n susql uninstall susql-controller
 
     else
         echo "Nothing to do"

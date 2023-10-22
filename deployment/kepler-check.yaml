@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+    name: kepler-check
+spec:
+    terminationGracePeriodSeconds: 1
+    restartPolicy: Never
+    containers:
+        - name: container
+          image: curlimages/curl
+          imagePullPolicy: IfNotPresent
+          args: ["--max-time", "1", "KEPLER_PROMETHEUS_URL"]
