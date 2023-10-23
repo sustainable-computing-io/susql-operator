@@ -4,16 +4,16 @@
 # Deploy SusQL controller using helm charts
 #
 
-# Get Kepler installation variables
-if [[ -z ${KEPLER_NAMESPACE} ]]; then
-    KEPLER_NAMESPACE="monitoring"
+# Get Kepler metrics variables
+if [[ -z ${PROMETHEUS_NAMESPACE} ]]; then
+    PROMETHEUS_NAMESPACE="monitoring"
 fi
 
-if [[ -z ${KEPLER_SERVICE} ]]; then
-    KEPLER_SERVICE="prometheus-k8s"
+if [[ -z ${PROMETHEUS_SERVICE} ]]; then
+    PROMETHEUS_SERVICE="prometheus-k8s"
 fi
 
-KEPLER_PROMETHEUS_URL="http://${KEPLER_SERVICE}.${KEPLER_NAMESPACE}.svc.cluster.local:9090"
+KEPLER_PROMETHEUS_URL="http://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.svc.cluster.local:9090"
 
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep susql) ]]; then
