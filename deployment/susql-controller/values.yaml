@@ -1,9 +1,8 @@
 #####################
-# Namespace and priority
+# JobName and Namespace
 #####################
 name: susql-controller
 namespace: susql
-priority: high-priority
 
 #####################
 # Container image to be used

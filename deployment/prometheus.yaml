@@ -8,7 +8,6 @@ prometheus-pushgateway:
     enabled: false
 server:
     name: susql
-    priorityClassName: high-priority
     service:
         enabled: true
         type: NodePort
