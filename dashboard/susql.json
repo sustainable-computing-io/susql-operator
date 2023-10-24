@@ -1,0 +1,251 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "d5e6f1d9-19d7-4499-80f2-ba64b7709d7a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 25,
+        "w": 15,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "d5e6f1d9-19d7-4499-80f2-ba64b7709d7a"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "susql_total_energy_joules{susql_label_1=~\"$susql_label_1\", susql_label_2=~\"$susql_label_2\", susql_label_3=~\"$susql_label_3\", susql_label_4=~\"$susql_label_4\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Panel Title",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": "(.*)",
+        "current": {
+          "selected": true,
+          "text": "label-1",
+          "value": "label-1"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "d5e6f1d9-19d7-4499-80f2-ba64b7709d7a"
+        },
+        "definition": "label_values(susql_total_energy_joules,susql_label_1)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "susql_label_1",
+        "options": [],
+        "query": {
+          "query": "label_values(susql_total_energy_joules,susql_label_1)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "(.*)",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "d5e6f1d9-19d7-4499-80f2-ba64b7709d7a"
+        },
+        "definition": "label_values(susql_total_energy_joules,susql_label_2)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "susql_label_2",
+        "options": [],
+        "query": {
+          "query": "label_values(susql_total_energy_joules,susql_label_2)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "(.*)",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "d5e6f1d9-19d7-4499-80f2-ba64b7709d7a"
+        },
+        "definition": "label_values(susql_total_energy_joules,susql_label_3)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "",
+        "multi": false,
+        "name": "susql_label_3",
+        "options": [],
+        "query": {
+          "query": "label_values(susql_total_energy_joules,susql_label_3)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "(.*)",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "d5e6f1d9-19d7-4499-80f2-ba64b7709d7a"
+        },
+        "definition": "label_values(susql_total_energy_joules,susql_label_4)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "susql_label_4",
+        "options": [],
+        "query": {
+          "query": "label_values(susql_total_energy_joules,susql_label_4)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-70h",
+    "to": "2023-09-25T13:24:58.000Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "SusQL Dashboard",
+  "uid": "b8f3c110-eccc-4ac1-acf8-70b8028b1cdc",
+  "version": 11,
+  "weekStart": ""
+}
