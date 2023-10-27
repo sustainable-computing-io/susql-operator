@@ -27,7 +27,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	susql "github.com/metalcycling/susql/api/v1"
+	susql "github.com/trent-s/susql-operator/api/v1"
 )
 
 // LabelGroupReconciler reconciles a LabelGroup object

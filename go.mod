@@ -1,4 +1,4 @@
-module github.com/metalcycling/susql
+module github.com/trent-s/susql-operator
 
 go 1.20
 

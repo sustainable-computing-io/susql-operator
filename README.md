@@ -22,13 +22,19 @@ To install SusQL go to the `deployment` directory and run the command `$ bash de
     * In general, Kepler metrics are exposed, clusterwide, at:
 
       ```
-      http://<PROMETHEUS_SERVICE>.<PROMETHEUS_NAMESPACE>.svc.cluster.local:9090
+      http://<PROMETHEUS_SERVICE>.<PROMETHEUS_NAMESPACE>.<PROMETHEUS_DOMAIN>:9090
       ```
 
-      The deployment script assumes `PROMETHEUS_SERVICE=prometheus-k8s` and `PROMETHEUS_NAMESPACE=monitoring`. If this is not the case, use the deployment script as:
+      The deployment script assumes `PROMETHEUS_SERVICE=prometheus-k8s`, `PROMETHEUS_NAMESPACE=monitoring`, and `PROMETHEUS_DOMAIN=svc.cluster.local`. If this is not the case, use the deployment script as:
 
       ```
-      $ PROMETHEUS_SERVICE=<prometheus-service> PROMETHEUS_NAMESPACE=<prometheus-namespace> bash deploy.sh
+      $ PROMETHEUS_SERVICE=<prometheus-service> PROMETHEUS_NAMESPACE=<prometheus-namespace> PROMETHEUS_DOMAIN=<prometheus-domain> bash deploy.sh
+      ```
+
+	Alternatively, with a very unusual cluster such as a single node OpenShift local cluster, it may be necessary to set KEPLER_PROMETHEUS_URL directly such as:
+
+      ```
+      $ KEPLER_PROMETHEUS_URL=http://prometheus-k8s-openshift-monitoring.apps-crc.testing/api:9091 bash deploy.sh
       ```
 
 * Create the namespace `susql`

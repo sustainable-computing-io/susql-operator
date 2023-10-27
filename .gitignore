@@ -27,3 +27,4 @@ Dockerfile.cross
 
 # Custom files and directories to ignore
 volume
+temp-prometheus.yaml

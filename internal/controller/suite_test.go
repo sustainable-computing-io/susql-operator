@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	susqlv1 "github.com/metalcycling/susql/api/v1"
+	susqlv1 "github.com/trent-s/susql-operator/api/v1"
 	//+kubebuilder:scaffold:imports
 )
 
