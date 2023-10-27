@@ -13,7 +13,19 @@ if [[ -z ${PROMETHEUS_SERVICE} ]]; then
     PROMETHEUS_SERVICE="prometheus-k8s"
 fi
 
-KEPLER_PROMETHEUS_URL="http://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.svc.cluster.local:9090"
+if [[ -z ${PROMETHEUS_DOMAIN} ]]; then
+    PROMETHEUS_DOMAIN="svc.cluster.local"
+    PROMETHEUS_YAML="prometheus.yaml"
+else
+    PROMETHEUS_YAML="temp-prometheus.yaml"
+    sed -e 's/svc.cluster.local/'${PROMETHEUS_DOMAIN}'/g' prometheus.yaml >${PROMETHEUS_YAML}
+    sed -i -e 's/svc.cluster.local/'${PROMETHEUS_DOMAIN}'/g' susql-controller/values.yaml
+fi
+
+if [[ -z ${KEPLER_PROMETHEUS_URL} ]]; then
+    KEPLER_PROMETHEUS_URL="http://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090"
+fi
+
 
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep susql) ]]; then
@@ -64,7 +76,7 @@ do
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
-        helm upgrade --install prometheus -f prometheus.yaml --namespace susql prometheus-community/prometheus
+        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace susql prometheus-community/prometheus
 
     elif [[ ${action} = "prometheus-undeploy" ]]; then
         echo "Undeploying Prometheus controller..."
@@ -77,10 +89,11 @@ do
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
-        cd ${SUSQL_DIR} && make manifests && make install && cd -
+        cd ${SUSQL_DIR} && make manifests && make install
+	cd -
         helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace susql \
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
-            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.susql.svc.cluster.local:9090" \
+            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.susql.${PRMOETHEUS_DOMAIN}:9090" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
@@ -91,7 +104,8 @@ do
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            cd ${SUSQL_DIR} && make uninstall && cd -
+            cd ${SUSQL_DIR} && make uninstall
+	    cd -
         fi
 
         helm -n susql uninstall susql-controller
