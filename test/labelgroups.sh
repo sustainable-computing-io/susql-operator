@@ -1,6 +1,6 @@
 #!/bin/bash
 
-namespace=metalcycling
+namespace=sustainablecomputing
 
 t_start=$(date +%s.%N)
 

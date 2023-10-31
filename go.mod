@@ -1,4 +1,4 @@
-module github.com/metalcycling/susql
+module github.com/sustainablecomputing/susql
 
 go 1.20
 
