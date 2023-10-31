@@ -21,7 +21,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	susql "github.com/sustainablecomputing/susql/api/v1"
+	susql "github.com/trent-s/susql-operator/api/v1"
 	v1 "k8s.io/api/core/v1"
 )
 

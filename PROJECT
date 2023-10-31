@@ -15,6 +15,6 @@ resources:
   domain: ibm.com
   group: susql
   kind: LabelGroup
-  path: github.com/systainablecomputing/susql/api/v1
+  path: github.com/trent-s/susql-operator/api/v1
   version: v1
 version: "3"
