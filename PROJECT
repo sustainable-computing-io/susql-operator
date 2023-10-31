@@ -6,7 +6,7 @@ domain: ibm.com
 layout:
 - go.kubebuilder.io/v4
 projectName: operator
-repo: github.com/metalcycling/susql
+repo: github.com/sustainablecomputing/susql-operator
 resources:
 - api:
     crdVersion: v1
@@ -15,6 +15,6 @@ resources:
   domain: ibm.com
   group: susql
   kind: LabelGroup
-  path: github.com/metalcycling/susql/api/v1
+  path: github.com/systainablecomputing/susql/api/v1
   version: v1
 version: "3"
