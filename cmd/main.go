@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	susqlv1 "github.com/sustainablecomputing/susql/api/v1"
-	"github.com/sustainablecomputing/susql-operator/internal/controller"
+	"github.com/trent-s/susql-operator/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 

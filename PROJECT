@@ -6,7 +6,7 @@ domain: ibm.com
 layout:
 - go.kubebuilder.io/v4
 projectName: operator
-repo: github.com/sustainablecomputing/susql-operator
+repo: github.com/trent-s/susql-operator
 resources:
 - api:
     crdVersion: v1

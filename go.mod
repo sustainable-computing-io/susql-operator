@@ -1,4 +1,4 @@
-module github.com/sustainablecomputing/susql
+module github.com/trent-s/susql
 
 go 1.20
 
