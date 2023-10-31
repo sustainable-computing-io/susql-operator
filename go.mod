@@ -1,4 +1,4 @@
-module github.com/trent-s/susql
+module github.com/trent-s/susql-operator
 
 go 1.20
 
