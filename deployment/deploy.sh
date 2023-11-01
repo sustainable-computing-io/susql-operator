@@ -41,6 +41,9 @@ SUSQL_REGISTRY="quay.io/trent_s/susql-controller"
 SUSQL_IMAGE_NAME="susql-controller"
 SUSQL_IMAGE_TAG="latest"
 
+# prepare service monitor for susql to access thanos querier 
+kubectl apply -f ../config/rbac/susql-rbac.yaml
+
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
 
@@ -115,3 +118,6 @@ do
 
     fi
 done
+
+# enable service monitor
+kubectl apply -f ../config/servicemonitor/susql-smon.yaml
