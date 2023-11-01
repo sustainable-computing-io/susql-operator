@@ -37,12 +37,12 @@ To install SusQL go to the `deployment` directory and run the command `$ bash de
       $ KEPLER_PROMETHEUS_URL=http://prometheus-k8s-openshift-monitoring.apps-crc.testing/api:9091 bash deploy.sh
       ```
 
-* Create the namespace `susql`
+* Create the namespace `openshift-kepler-operator`
 
-* Install the SusQL operator in the namespace `susql`
+* Install the SusQL operator in the namespace `openshift-kepler-operator`
     * This installation also deploys the CRD and sets the cluster permissions
 
-* Install a separate Prometheus instance in the namespace `susql`
+* Install a separate Prometheus instance in the namespace `openshift-kepler-operator`
 
 **NOTE**: This set of ***actions*** can be controlled by calling `$ bash deploy.sh susql-deploy`, for example, if only the SusQL deployment is needed. Check the script for all possible options or run it with the default set of actions.
 
@@ -82,5 +82,5 @@ spec:
 
 Energy of the group of pods is exposed in 2 ways:
 
-* Through Prometheus at `http://prometheus-susql.susql.svc.cluster.local:9090` using the query `susql_total_energy_joules{susql_label_1=my-label-1,susql_label_2=my-label-2}`
+* Through Prometheus at `http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090` using the query `susql_total_energy_joules{susql_label_1=my-label-1,susql_label_2=my-label-2}`
 * From `status` of the `LabelGroup` CRD given as `labelgroup.status.totalEnergy`

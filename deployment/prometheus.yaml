@@ -25,4 +25,4 @@ extraScrapeConfigs: |
       metrics_path: /metrics
       static_configs:
           - targets:
-              - susql-controller.susql.svc.cluster.local:8082
+              - susql-controller.openshift-kepler-operator.svc.cluster.local:8082

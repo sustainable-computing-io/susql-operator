@@ -7,7 +7,7 @@ namespace: susql
 #####################
 # Container image to be used
 #####################
-containerImage: quay.io/trent-s/susql-controller
+containerImage: quay.io/trent_s/susql-controller
 
 #####################
 # Runtime hardware specifications

@@ -28,16 +28,16 @@ fi
 
 
 # Check if namespace exists
-if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep susql) ]]; then
-    echo "Namespace 'susql' doesn't exist. Creating it."
+if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep openshift-kepler-operator) ]]; then
+    echo "Namespace 'openshift-kepler-operator' doesn't exist. Creating it."
     kubectl create namespace susql
 else
-    echo "Namespace 'susql' found. Deploying using it."
+    echo "Namespace 'openshift-kepler-operator' found. Deploying using it."
 fi
 
 # Set SusQL installation variables
 SUSQL_DIR=".."
-SUSQL_REGISTRY="quay.io/trent-s"
+SUSQL_REGISTRY="quay.io/trent_s/susql-controller"
 SUSQL_IMAGE_NAME="susql-controller"
 SUSQL_IMAGE_TAG="latest"
 
@@ -76,7 +76,7 @@ do
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
-        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace susql prometheus-community/prometheus
+        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace openshift-kepler-operator prometheus-community/prometheus
 
     elif [[ ${action} = "prometheus-undeploy" ]]; then
         echo "Undeploying Prometheus controller..."
@@ -85,15 +85,15 @@ do
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            helm uninstall prometheus --namespace susql
+            helm uninstall prometheus --namespace openshift-kepler-operator
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
         cd ${SUSQL_DIR} && make manifests && make install
 	cd -
-        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace susql \
+        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace openshift-kepler-operator \
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
-            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.susql.${PRMOETHEUS_DOMAIN}:9090" \
+            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.openshift-kepler-operator.${PRMOETHEUS_DOMAIN}:9090" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
@@ -108,7 +108,7 @@ do
 	    cd -
         fi
 
-        helm -n susql uninstall susql-controller
+        helm -n openshift-kepler-operator uninstall susql-controller
 
     else
         echo "Nothing to do"
