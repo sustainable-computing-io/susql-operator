@@ -37,6 +37,12 @@ To install SusQL go to the `deployment` directory and run the command `$ bash de
       $ KEPLER_PROMETHEUS_URL=http://prometheus-k8s-openshift-monitoring.apps-crc.testing/api:9091 bash deploy.sh
       ```
 
+	Alternatively, with a very unusual cluster such as a single node OpenShift local cluster, it may be necessary to set KEPLER_PROMETHEUS_URL directly such as:
+
+      ```
+      $ KEPLER_PROMETHEUS_URL=http://prometheus-k8s-openshift-monitoring.apps-crc.testing/api:9091 bash deploy.sh
+      ```
+
 * Create the namespace `openshift-kepler-operator`
 
 * Install the SusQL operator in the namespace `openshift-kepler-operator`

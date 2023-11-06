@@ -37,7 +37,7 @@ fi
 
 # Set SusQL installation variables
 SUSQL_DIR=".."
-SUSQL_REGISTRY="quay.io/trent_s/susql-controller"
+SUSQL_REGISTRY="quay.io/trent-s"
 SUSQL_IMAGE_NAME="susql-controller"
 SUSQL_IMAGE_TAG="latest"
 
