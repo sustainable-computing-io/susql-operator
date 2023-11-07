@@ -12,7 +12,7 @@ SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You
 
 ### Prerequisites
 
-Kepler is assumed to be installed in the cluster.
+Kepler is assumed to be installed in the cluster. `go`, `helm`, and `kubectl` are used to for deployment.
 
 ### Installation
 
