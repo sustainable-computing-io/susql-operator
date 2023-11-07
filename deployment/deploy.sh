@@ -4,8 +4,15 @@
 # Deploy SusQL controller using helm charts
 #
 
+# Caution: In addition to this file, the namespace is hardcoded here and there...
+export SUSQL_NAMESPACE="openshift-kepler-operator"
+
 if [[ -z ${PROMETHEUS_PROTOCOL} ]]; then
     PROMETHEUS_PROTOCOL="http"
+fi
+
+if [[ -z ${PROMETHEUS_PORT} ]]; then
+    PROMETHEUS_PORT="9090"
 fi
 
 # Get Kepler metrics variables
@@ -27,16 +34,16 @@ else
 fi
 
 if [[ -z ${KEPLER_PROMETHEUS_URL} ]]; then
-    KEPLER_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090"
+    KEPLER_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:${PROMETHEUS_PORT}"
 fi
 
 
 # Check if namespace exists
-if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep openshift-kepler-operator) ]]; then
-    echo "Namespace 'openshift-kepler-operator' doesn't exist. Creating it."
-    kubectl create namespace openshift-kepler-operator
+if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep ${SUSQL_NAMESPACE}) ]]; then
+    echo "Namespace '${SUSQL_NAMESPACE}' doesn't exist. Creating it."
+    kubectl create namespace ${SUSQL_NAMESPACE}
 else
-    echo "Namespace 'openshift-kepler-operator' found. Deploying using it."
+    echo "Namespace '${SUSQL_NAMESPACE}' found. Deploying using it."
 fi
 
 # Set SusQL installation variables
@@ -55,18 +62,19 @@ do
         # Check if Kepler is serving metrics through prometheus
         echo "Checking if Kepler is deployed..."
 
-        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply -f -
+        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply --namespace ${SUSQL_NAMESPACE} -f -
 
         while true
         do
-            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}')
+            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${SUSQL_NAMESPACE})
 
             if [[ ${phase} != "Pending" ]] && [[ ${phase} != "Running" ]]; then
                 break
             fi
         done
 
-        kubectl delete -f kepler-check.yaml
+	kubectl logs -f kepler-check --namespace ${SUSQL_NAMESPACE}
+        kubectl delete -f kepler-check.yaml --namespace ${SUSQL_NAMESPACE}
 
         if [[ ${phase} == "Failed" ]]; then
             echo "Kepler service at '${KEPLER_PROMETHEUS_URL}' was not found. Check values and try again."
@@ -83,7 +91,7 @@ do
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
-        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace openshift-kepler-operator prometheus-community/prometheus
+        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace ${SUSQL_NAMESPACE} prometheus-community/prometheus
 
     elif [[ ${action} = "prometheus-undeploy" ]]; then
         echo "Undeploying Prometheus controller..."
@@ -92,7 +100,7 @@ do
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            helm uninstall prometheus --namespace openshift-kepler-operator
+            helm uninstall prometheus --namespace ${SUSQL_NAMESPACE}
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
@@ -101,9 +109,9 @@ do
 
         cd ${SUSQL_DIR} && make manifests && make install
 	cd -
-        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace openshift-kepler-operator \
+        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace ${SUSQL_NAMESPACE}\
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
-            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.openshift-kepler-operator.${PROMETHEUS_DOMAIN}:9090" \
+            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.${SUSQL_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
@@ -120,7 +128,7 @@ do
 	    cd -
         fi
 
-        helm -n openshift-kepler-operator uninstall susql-controller
+        helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
         kubectl delete -f ../config/rbac/susql-rbac.yaml
         kubectl delete -f ../config/servicemonitor/susql-smon.yaml
 
