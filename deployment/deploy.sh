@@ -101,7 +101,7 @@ do
 	cd -
         helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace openshift-kepler-operator \
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
-            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.openshift-kepler-operator.${PRMOETHEUS_DOMAIN}:9090" \
+            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.openshift-kepler-operator.${PROMETHEUS_DOMAIN}:9090" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
