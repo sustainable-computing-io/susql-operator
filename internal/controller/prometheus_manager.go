@@ -114,8 +114,8 @@ type SusqlMetrics struct {
 var (
 	susqlMetrics = &SusqlMetrics{
 		totalEnergy: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: "openshift-kepler-operator",
-			Name:      "total_energy_joules",
+			Namespace: "kepler",
+			Name:      "node_platform_joules_total",
 			Help:      "Accumulated energy over time for set of labels",
 		}, susqlPrometheusLabelNames),
 	}
