@@ -10,4 +10,4 @@ spec:
         - name: container
           image: curlimages/curl
           imagePullPolicy: IfNotPresent
-          args: ["--max-time", "1", "KEPLER_PROMETHEUS_URL"]
+          args: ["-k", "--max-time", "1", "KEPLER_PROMETHEUS_URL"]
