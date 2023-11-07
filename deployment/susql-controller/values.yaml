@@ -2,7 +2,7 @@
 # JobName and Namespace
 #####################
 name: susql-controller
-namespace: susql
+namespace: openshift-kepler-operator
 
 #####################
 # Container image to be used
