@@ -4,6 +4,10 @@
 # Deploy SusQL controller using helm charts
 #
 
+if [[ -z ${PROMETHEUS_PROTOCOL} ]]; then
+    PROMETHEUS_PROTOCOL="http"
+fi
+
 # Get Kepler metrics variables
 if [[ -z ${PROMETHEUS_NAMESPACE} ]]; then
     PROMETHEUS_NAMESPACE="monitoring"
@@ -23,26 +27,24 @@ else
 fi
 
 if [[ -z ${KEPLER_PROMETHEUS_URL} ]]; then
-    KEPLER_PROMETHEUS_URL="http://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090"
+    KEPLER_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090"
 fi
 
 
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep openshift-kepler-operator) ]]; then
     echo "Namespace 'openshift-kepler-operator' doesn't exist. Creating it."
-    kubectl create namespace susql
+    kubectl create namespace openshift-kepler-operator
 else
     echo "Namespace 'openshift-kepler-operator' found. Deploying using it."
 fi
 
 # Set SusQL installation variables
 SUSQL_DIR=".."
-SUSQL_REGISTRY="quay.io/trent-s"
+SUSQL_REGISTRY="quay.io/trent_s"
 SUSQL_IMAGE_NAME="susql-controller"
 SUSQL_IMAGE_TAG="latest"
 
-# prepare service monitor for susql to access thanos querier 
-kubectl apply -f ../config/rbac/susql-rbac.yaml
 
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
@@ -92,6 +94,9 @@ do
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
+        # prepare service monitor for susql to access thanos querier 
+        kubectl apply -f ../config/rbac/susql-rbac.yaml
+
         cd ${SUSQL_DIR} && make manifests && make install
 	cd -
         helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace openshift-kepler-operator \
@@ -100,6 +105,8 @@ do
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
+        # enable service monitor
+        kubectl apply -f ../config/servicemonitor/susql-smon.yaml
 
     elif [[ ${action} = "susql-undeploy" ]]; then
         echo "Undeploying SusQL controller..."
@@ -112,6 +119,8 @@ do
         fi
 
         helm -n openshift-kepler-operator uninstall susql-controller
+        kubectl delete -f ../config/rbac/susql-rbac.yaml
+        kubectl delete -f ../config/servicemonitor/susql-smon.yaml
 
     else
         echo "Nothing to do"
@@ -119,5 +128,3 @@ do
     fi
 done
 
-# enable service monitor
-kubectl apply -f ../config/servicemonitor/susql-smon.yaml
