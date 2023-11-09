@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"crypto/tls"
 	"context"
 	"fmt"
 	"net/http"
@@ -42,6 +43,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	// Return the most recent value found in the table
 	client, err := api.NewClient(api.Config{
 		Address: r.SusQLPrometheusDatabaseUrl,
+		RoundTripper: &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}},
 	})
 
 	if err != nil {
@@ -75,6 +77,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
 	client, err := api.NewClient(api.Config{
 		Address: r.KeplerPrometheusUrl,
+		RoundTripper: &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}},
 	})
 
 	if err != nil {
