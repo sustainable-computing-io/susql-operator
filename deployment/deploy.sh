@@ -86,7 +86,6 @@ do
     elif [[ ${action} = "prometheus-deploy" ]]; then
         kubectl apply -f ../config/rbac/susql-rbac.yaml
         # Install prometheus from community helm charts
-        kubectl apply -f ../config/rbac/susql-rbac.yaml
         echo "Deploying Prometheus controller to store susql data..."
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -104,7 +103,7 @@ do
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
-        # prepare service monitor for susql to access thanos querier 
+        # prepare for susql to access thanos querier 
         kubectl apply -f ../config/rbac/susql-rbac.yaml
 
         cd ${SUSQL_DIR} && make manifests && make install
