@@ -26,8 +26,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prometheus/client_golang/api"
+	"github.com/prometheus/common/config"
 	"github.com/prometheus/common/model"
+	"github.com/prometheus/client_golang/api"
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/client_golang/prometheus"
@@ -41,9 +42,10 @@ var (
 // Functions to get data from the cluster
 func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (float64, error) {
 	// Return the most recent value found in the table
+	rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
 	client, err := api.NewClient(api.Config{
 		Address: r.SusQLPrometheusDatabaseUrl,
-		RoundTripper: &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}},
+		RoundTripper: config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls),
 	})
 
 	if err != nil {
@@ -75,9 +77,10 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 }
 
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
+	rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
 	client, err := api.NewClient(api.Config{
 		Address: r.KeplerPrometheusUrl,
-		RoundTripper: &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}},
+		RoundTripper: config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls),
 	})
 
 	if err != nil {
