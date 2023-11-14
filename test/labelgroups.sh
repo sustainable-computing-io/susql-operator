@@ -1,6 +1,7 @@
 #!/bin/bash
 
 namespace=sustainablecomputing
+namespace=default
 
 t_start=$(date +%s.%N)
 

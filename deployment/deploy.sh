@@ -4,6 +4,17 @@
 # Deploy SusQL controller using helm charts
 #
 
+# Caution: In addition to this file, the namespace is hardcoded here and there...
+export SUSQL_NAMESPACE="openshift-kepler-operator"
+
+if [[ -z ${PROMETHEUS_PROTOCOL} ]]; then
+    PROMETHEUS_PROTOCOL="http"
+fi
+
+if [[ -z ${PROMETHEUS_PORT} ]]; then
+    PROMETHEUS_PORT="9090"
+fi
+
 # Get Kepler metrics variables
 if [[ -z ${PROMETHEUS_NAMESPACE} ]]; then
     PROMETHEUS_NAMESPACE="monitoring"
@@ -23,23 +34,24 @@ else
 fi
 
 if [[ -z ${KEPLER_PROMETHEUS_URL} ]]; then
-    KEPLER_PROMETHEUS_URL="http://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090"
+    KEPLER_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:${PROMETHEUS_PORT}"
 fi
 
 
 # Check if namespace exists
-if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep susql) ]]; then
-    echo "Namespace 'susql' doesn't exist. Creating it."
-    kubectl create namespace susql
+if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep ${SUSQL_NAMESPACE}) ]]; then
+    echo "Namespace '${SUSQL_NAMESPACE}' doesn't exist. Creating it."
+    kubectl create namespace ${SUSQL_NAMESPACE}
 else
-    echo "Namespace 'susql' found. Deploying using it."
+    echo "Namespace '${SUSQL_NAMESPACE}' found. Deploying using it."
 fi
 
 # Set SusQL installation variables
 SUSQL_DIR=".."
-SUSQL_REGISTRY="quay.io/trent-s"
+SUSQL_REGISTRY="quay.io/trent_s"
 SUSQL_IMAGE_NAME="susql-controller"
 SUSQL_IMAGE_TAG="latest"
+
 
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
@@ -50,18 +62,19 @@ do
         # Check if Kepler is serving metrics through prometheus
         echo "Checking if Kepler is deployed..."
 
-        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply -f -
+        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply --namespace ${SUSQL_NAMESPACE} -f -
 
         while true
         do
-            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}')
+            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${SUSQL_NAMESPACE})
 
             if [[ ${phase} != "Pending" ]] && [[ ${phase} != "Running" ]]; then
                 break
             fi
         done
 
-        kubectl delete -f kepler-check.yaml
+	kubectl logs -f kepler-check --namespace ${SUSQL_NAMESPACE}
+        kubectl delete -f kepler-check.yaml --namespace ${SUSQL_NAMESPACE}
 
         if [[ ${phase} == "Failed" ]]; then
             echo "Kepler service at '${KEPLER_PROMETHEUS_URL}' was not found. Check values and try again."
@@ -71,12 +84,13 @@ do
         fi
 
     elif [[ ${action} = "prometheus-deploy" ]]; then
+        kubectl apply -f ../config/rbac/susql-rbac.yaml
         # Install prometheus from community helm charts
         echo "Deploying Prometheus controller to store susql data..."
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
-        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace susql prometheus-community/prometheus
+        helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace ${SUSQL_NAMESPACE} prometheus-community/prometheus
 
     elif [[ ${action} = "prometheus-undeploy" ]]; then
         echo "Undeploying Prometheus controller..."
@@ -85,18 +99,23 @@ do
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            helm uninstall prometheus --namespace susql
+            helm uninstall prometheus --namespace ${SUSQL_NAMESPACE}
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
+        # prepare for susql to access thanos querier 
+        kubectl apply -f ../config/rbac/susql-rbac.yaml
+
         cd ${SUSQL_DIR} && make manifests && make install
 	cd -
-        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace susql \
+        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace ${SUSQL_NAMESPACE}\
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
-            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.susql.${PRMOETHEUS_DOMAIN}:9090" \
+            --set susqlPrometheusDatabaseUrl="http://prometheus-susql.${SUSQL_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
+        # enable service monitor
+        kubectl apply -f ../config/servicemonitor/susql-smon.yaml
 
     elif [[ ${action} = "susql-undeploy" ]]; then
         echo "Undeploying SusQL controller..."
@@ -108,10 +127,13 @@ do
 	    cd -
         fi
 
-        helm -n susql uninstall susql-controller
+        helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
+        kubectl delete -f ../config/rbac/susql-rbac.yaml
+        kubectl delete -f ../config/servicemonitor/susql-smon.yaml
 
     else
         echo "Nothing to do"
 
     fi
 done
+
