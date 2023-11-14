@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl-pod
+  namespace: openshift-kepler-operator
+spec:
+  automountServiceAccountToken: true
+  containers:
+  - command:
+    - tail
+    - -f
+    - /dev/null
+    image: curlimages/curl:latest
+    name: curl-container
+  dnsPolicy: ClusterFirst
+  serviceAccount: prometheus-k8s
+  serviceAccountName: prometheus-k8s
