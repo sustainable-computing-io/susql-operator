@@ -77,7 +77,8 @@ do
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
-        cd ${SUSQL_DIR} && make manifests && make install && cd -
+        cd ${SUSQL_DIR} && make manifests && make install
+	cd -
         helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace susql \
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
             --set susqlPrometheusDatabaseUrl="http://prometheus-susql.susql.svc.cluster.local:9090" \
@@ -91,7 +92,8 @@ do
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            cd ${SUSQL_DIR} && make uninstall && cd -
+            cd ${SUSQL_DIR} && make uninstall
+	    cd -
         fi
 
         helm -n susql uninstall susql-controller
