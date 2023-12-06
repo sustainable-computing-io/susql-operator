@@ -25,7 +25,7 @@ fi
 
 # Set SusQL installation variables
 SUSQL_DIR=".."
-SUSQL_REGISTRY="docker.io/metalcycling"
+SUSQL_REGISTRY="quay.io/sustainable_computing_io"
 SUSQL_IMAGE_NAME="susql-controller"
 SUSQL_IMAGE_TAG="latest"
 

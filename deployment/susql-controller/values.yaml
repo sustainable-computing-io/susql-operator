@@ -7,7 +7,7 @@ namespace: susql
 #####################
 # Container image to be used
 #####################
-containerImage: docker.io/metalcycling/susql-controller
+containerImage: quay.io/sustainable_computing_io/susql-controller
 
 #####################
 # Runtime hardware specifications

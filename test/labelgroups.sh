@@ -1,6 +1,6 @@
 #!/bin/bash
 
-namespace=metalcycling
+namespace=default
 
 t_start=$(date +%s.%N)
 
