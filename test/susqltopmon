@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+echo gathering data... Then updating every 5 seconds
+
+d=$(dirname ${0})
+watch -n 5 --no-title  "${d}/susqltop ${1} ${2}"
