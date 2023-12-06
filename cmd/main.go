@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	susqlv1 "github.com/metalcycling/susql/api/v1"
-	"github.com/metalcycling/susql/internal/controller"
+	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
+	"github.com/sustainable-computing-io/susql-operator/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
