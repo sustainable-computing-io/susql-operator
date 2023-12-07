@@ -73,7 +73,7 @@ do
 
         while true
         do
-            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}')
+            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${SUSQL_NAMESPACE})
 
             if [[ ${phase} != "Pending" ]] && [[ ${phase} != "Running" ]]; then
                 break
@@ -84,7 +84,7 @@ do
         kubectl delete -f kepler-check.yaml --namespace ${SUSQL_NAMESPACE}
 
         if [[ ${phase} == "Failed" ]]; then
-	    echo ${logs}
+            echo ${logs}
             echo "Kepler service at '${KEPLER_PROMETHEUS_URL}' was not found. Check values and try again."
             exit 1
         else
@@ -106,18 +106,21 @@ do
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            helm uninstall prometheus --namespace susql
+            helm uninstall prometheus --namespace ${SUSQL_NAMESPACE}
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
+        kubectl apply -f ../config/rbac/susql-rbac.yaml
+
         cd ${SUSQL_DIR} && make manifests && make install
-	cd -
-	helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace ${SUSQL_NAMESPACE} \
+        cd -
+        helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace ${SUSQL_NAMESPACE} \
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
             --set susqlPrometheusDatabaseUrl="${SUSQL_PROMETHEUS_URL}" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
+        kubectl apply -f ../config/servicemonitor/susql-smon.yaml
 
     elif [[ ${action} = "susql-undeploy" ]]; then
         echo "Undeploying SusQL controller..."
@@ -126,10 +129,12 @@ do
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
             cd ${SUSQL_DIR} && make uninstall
-	    cd -
+            cd -
         fi
 
         helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
+        kubectl delete -f ../config/rbac/susql-rbac.yaml
+        kubectl delete -f ../config/servicemonitor/susql-smon.yaml
 
     else
         echo "Nothing to do"
