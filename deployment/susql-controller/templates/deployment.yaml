@@ -15,6 +15,8 @@ spec:
             labels:
                 deployment.apps: {{ .Values.name }}
         spec:
+            automountServiceAccountToken: true
+            serviceAccount: {{ .Values.name }}
             serviceAccountName: {{ .Values.name }}
             terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
             containers:

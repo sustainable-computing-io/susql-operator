@@ -4,10 +4,15 @@ kind: Pod
 metadata:
     name: kepler-check
 spec:
+    automountServiceAccountToken: true
     terminationGracePeriodSeconds: 1
     restartPolicy: Never
     containers:
         - name: container
           image: curlimages/curl
           imagePullPolicy: IfNotPresent
-          args: ["--max-time", "1", "KEPLER_PROMETHEUS_URL"]
+          command: ["sh"]
+          args: ["-c", 'curl -k --max-time 1 KEPLER_PROMETHEUS_URL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"']
+    dnsPolicy: ClusterFirst
+    serviceAccount: prometheus-k8s
+    serviceAccountName: prometheus-k8s
