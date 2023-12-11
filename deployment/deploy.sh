@@ -57,7 +57,7 @@ fi
 # Set SusQL installation variables
 SUSQL_DIR=".."
 SUSQL_REGISTRY="quay.io/sustainable_computing_io"
-SUSQL_IMAGE_NAME="susql-controller"
+SUSQL_IMAGE_NAME="susql_operator"
 SUSQL_IMAGE_TAG="latest"
 
 # Actions to perform, separated by comma

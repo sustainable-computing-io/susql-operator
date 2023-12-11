@@ -7,7 +7,7 @@ namespace: openshift-kepler-operator
 #####################
 # Container image to be used
 #####################
-containerImage: quay.io/sustainable_computing_io/susql-controller
+containerImage: quay.io/sustainable_computing_io/susql_operator
 
 #####################
 # Runtime hardware specifications
