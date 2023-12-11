@@ -2,11 +2,12 @@ name: Publish Images
 
 on:
   push:
-    branches: [ v1alpha1 ]
+    branches: [ main ]
 
 jobs:
   publish:
       name: Publish operator container images
+      environment: SusQL-Environment
       runs-on: ubuntu-latest
       steps:
         - name: Checkout source
@@ -24,13 +25,14 @@ jobs:
           id: additional_tags
           shell: bash
           run: |
-            echo "result=$(git rev-parse --short HEAD),v1alpha1" >> $GITHUB_OUTPUT
+            echo "result=$(git rev-parse --short HEAD),main" >> $GITHUB_OUTPUT
 
         - name: build and publish images to external registry
           uses: ./.github/publish-images
           with:
-            image_registry: ${{ vars.IMG_BASE }}
-            registry_login: ${{ secrets.BOT_NAME }}
-            registry_token: ${{ secrets.BOT_TOKEN }}
+            image_url: ${{ vars.IMG }}
+            image_registry: ${{ vars.REGISTRY }}
+            registry_login: ${{ secrets.QUAY_BOT_NAME }}
+            registry_token: ${{ secrets.QUAY_BOT_TOKEN }}
             version: ${{ steps.version.outputs.version }}
             additional_tags: ${{ steps.additional_tags.outputs.result }}
