@@ -4,12 +4,15 @@ namespace=default
 
 t_start=$(date +%s.%N)
 
-for labelgroup in $(kubectl -n ${namespace} get labelgroups -o custom-columns=':{.metadata.name}')
+alldata=$(kubectl -n ${namespace} get labelgroups -o json)
+
+for labelgroup in $(echo ${alldata} | jq -cr '.items[].metadata.name')
 do
-    totalEnergy=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.status.totalEnergy}')
-    susqlPrometheusQuery=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.status.susqlPrometheusQuery}')
-    phase=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.status.phase}')
-    labels=$(kubectl -n ${namespace} get labelgroup ${labelgroup} -o jsonpath='{.spec.labels}')
+    newdata=$(echo ${alldata} | jq '.items[] | select(.metadata.name=="'${labelgroup}'")')
+    totalEnergy=$(echo ${newdata} | jq -cr '.status.totalEnergy')
+    susqlPrometheusQuery=$(echo ${newdata} | jq -cr '.status.susqlPrometheusQuery')
+    phase=$(echo ${newdata} | jq -cr '.status.phase')
+    labels=$(echo ${newdata} | jq -cr '.spec.labels')
 
     echo "LabelGroup: ${labelgroup}"
     echo "    - Labels: ${labels}"
