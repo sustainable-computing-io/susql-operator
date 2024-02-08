@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- susql_v1_labelgroup.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples
