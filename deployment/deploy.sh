@@ -4,6 +4,22 @@
 # Deploy SusQL controller using helm charts
 #
 
+# Check if kubectl is installed
+if ! command -v kubectl &> /dev/null; then
+    echo "Error: kubectl is not installed. Please install kubectl to interact with Kubernetes clusters."
+    exit 1
+fi
+
+# Check if there is a current context
+current_context=$(kubectl config current-context)
+if [[ -z $current_context ]]; then # exit
+    echo "Error: You are not currently signed into any Kubernetes cluster."
+    exit 1
+else # continue
+    echo "You are currently signed into the following Kubernetes cluster:"
+    echo "$current_context"
+fi
+
 export SUSQL_NAMESPACE="openshift-kepler-operator"
 
 if [[ -z ${PROMETHEUS_PROTOCOL} ]]; then
