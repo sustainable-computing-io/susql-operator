@@ -10,6 +10,10 @@ if ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
+if [[ ! -z ${SUSQL_ENHANCED} ]]; then
+    echo "Deploying enhanced SusQL configuration."
+fi
+
 # Check if there is a current context
 current_context=$(kubectl config current-context)
 if [[ -z $current_context ]]; then # exit
@@ -72,9 +76,15 @@ fi
 
 # Set SusQL installation variables
 SUSQL_DIR=".."
-SUSQL_REGISTRY="quay.io/sustainable_computing_io"
-SUSQL_IMAGE_NAME="susql_operator"
-SUSQL_IMAGE_TAG="latest"
+if [[ -z ${SUSQL_REGISTRY} ]]; then
+    SUSQL_REGISTRY="quay.io/sustainable_computing_io"
+fi
+if [[ -z ${SUSQL_IMAGE_NAME} ]]; then
+    SUSQL_IMAGE_NAME="susql_operator"
+fi
+if [[ -z ${SUSQL_IMAGE_TAG} ]]; then
+    SUSQL_IMAGE_TAG="latest"
+fi
 
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
@@ -126,7 +136,9 @@ do
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
-        kubectl apply -f ../config/rbac/susql-rbac.yaml
+        if [[ ! -z ${SUSQL_ENHANCED} ]]; then
+            kubectl apply -f ../config/rbac/susql-rbac.yaml
+        fi
 
         cd ${SUSQL_DIR} && make manifests && make install
         cd -
@@ -136,7 +148,9 @@ do
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
-        kubectl apply -f ../config/servicemonitor/susql-smon.yaml
+        if [[ ! -z ${SUSQL_ENHANCED} ]]; then
+            kubectl apply -f ../config/servicemonitor/susql-smon.yaml
+        fi
 
     elif [[ ${action} = "susql-undeploy" ]]; then
         echo "Undeploying SusQL controller..."
@@ -149,8 +163,10 @@ do
         fi
 
         helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
-        kubectl delete -f ../config/rbac/susql-rbac.yaml
-        kubectl delete -f ../config/servicemonitor/susql-smon.yaml
+        if [[ ! -z ${SUSQL_ENHANCED} ]]; then
+            kubectl delete -f ../config/rbac/susql-rbac.yaml
+            kubectl delete -f ../config/servicemonitor/susql-smon.yaml
+        fi
 
     else
         echo "Nothing to do"
