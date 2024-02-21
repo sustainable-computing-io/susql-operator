@@ -12,7 +12,7 @@ SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You
 
 ### Prerequisites
 
-Kepler is assumed to be installed in the cluster. `go`, `helm`, and `kubectl` are used to for deployment.
+Kepler is assumed to be installed in the cluster. `helm` and `kubectl` are also required to deploy.
 
 ### Installation
 
@@ -31,16 +31,10 @@ To install SusQL go to the `deployment` directory and run the command `$ bash de
       $ PROMETHEUS_SERVICE=<prometheus-service> PROMETHEUS_NAMESPACE=<prometheus-namespace> PROMETHEUS_DOMAIN=<prometheus-domain> bash deploy.sh
       ```
 
-	Alternatively, with a unique cluster such as a single node OpenShift local cluster, it may be necessary to set KEPLER_PROMETHEUS_URL directly such as:
+      Or for example, the following works for a 4.12 single node OpenShift local cluster:
 
       ```
-      $ KEPLER_PROMETHEUS_URL=http://prometheus-k8s-openshift-monitoring.apps-crc.testing/api:9091 bash deploy.sh
-      ```
-
-	Alternatively, with a very unusual cluster such as a single node OpenShift local cluster, it may be necessary to set KEPLER_PROMETHEUS_URL directly such as:
-
-      ```
-      $ KEPLER_PROMETHEUS_URL=http://prometheus-k8s-openshift-monitoring.apps-crc.testing/api:9091 bash deploy.sh
+      $ PROMETHEUS_PROTOCOL=https PROMETHEUS_PORT=9091 PROMETHEUS_NAMESPACE=openshift-monitoring PROMETHEUS_SERVICE=thanos-querier SUSQL_ENHANCED=true bash deploy.sh
       ```
 
 * Create the namespace `openshift-kepler-operator`
