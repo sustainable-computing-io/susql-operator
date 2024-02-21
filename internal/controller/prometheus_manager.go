@@ -42,14 +42,20 @@ var (
 // Functions to get data from the cluster
 func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (float64, error) {
 	// Return the most recent value found in the table
-	rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
+	var roundtripper http.RoundTripper = nil
+	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
+		rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
+		roundtripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+	}
 	client, err := api.NewClient(api.Config{
 		Address: r.SusQLPrometheusDatabaseUrl,
-		RoundTripper: config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls),
+		RoundTripper: roundtripper,
 	})
 
 	if err != nil {
 		fmt.Printf("ERROR [GetMostRecentValue]: Couldn't create HTTP client: %v\n", err)
+		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
+		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
 		os.Exit(1)
 	}
 
@@ -62,10 +68,14 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 
 	if len(warnings) > 0 {
 		fmt.Printf("WARNING [GetMostRecentValue]: %v\n", warnings)
+		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
+		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
 	}
 
 	if err != nil {
 		fmt.Printf("ERROR [GetMostRecentValue]: Querying Prometheus didn't work: %v\n", err)
+		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
+		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
 		return 0.0, err
 	}
 
@@ -77,14 +87,20 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 }
 
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
-	rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
+	var roundtripper http.RoundTripper = nil
+	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
+		rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
+		roundtripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+	}
 	client, err := api.NewClient(api.Config{
 		Address: r.KeplerPrometheusUrl,
-		RoundTripper: config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls),
+		RoundTripper: roundtripper,
 	})
 
 	if err != nil {
 		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Couldn't created an HTTP client: %v\n", err)
+		fmt.Printf("metricName: %s\n", metricName)
+		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
 		os.Exit(1)
 	}
 
@@ -97,11 +113,15 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 
 	if err != nil {
 		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Querying Prometheus didn't work: %v\n", err)
+		fmt.Printf("metricName: %s\n", metricName)
+		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
 		return nil, err
 	}
 
 	if len(warnings) > 0 {
 		fmt.Printf("WARNING [GetMetricValuesForPodNames]: %v\n", warnings)
+		fmt.Printf("metricName: %s\n", metricName)
+		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
 	}
 
 	metricValues := make(map[string]float64, len(results.(model.Vector)))
