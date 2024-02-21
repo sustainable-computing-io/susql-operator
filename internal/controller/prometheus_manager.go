@@ -98,7 +98,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	})
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Couldn't created an HTTP client: %v\n", err)
+		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Couldn't create an HTTP client: %v\n", err)
 		fmt.Printf("metricName: %s\n", metricName)
 		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
 		os.Exit(1)
