@@ -25,6 +25,7 @@ else # continue
 fi
 
 export SUSQL_NAMESPACE="openshift-kepler-operator"
+export KEPLER_PROMETHEUS_NAMESPACE="openshift-monitoring"
 
 if [[ -z ${PROMETHEUS_PROTOCOL} ]]; then
     PROMETHEUS_PROTOCOL="http"
@@ -93,23 +94,33 @@ for action in $(echo ${actions} | tr ',' '\n')
 do
     if [[ ${action} = "kepler-check" ]]; then
         # Check if Kepler is serving metrics through prometheus
-        echo "Checking if Kepler is deployed..."
+        echo "->Checking if Kepler is deployed..."
 
-        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply --namespace ${SUSQL_NAMESPACE} -f -
+        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply --namespace ${KEPLER_PROMETHEUS_NAMESPACE} -f -
 
+        echo "->Checking kepler-check status";
         while true
         do
-            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${SUSQL_NAMESPACE})
+            echo -n "." && sleep 1;
+            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${KEPLER_PROMETHEUS_NAMESPACE})
 
             if [[ ${phase} != "Pending" ]] && [[ ${phase} != "Running" ]]; then
                 break
             fi
         done
 
-        logs=$(kubectl logs -f kepler-check --namespace ${SUSQL_NAMESPACE})
-        kubectl delete -f kepler-check.yaml --namespace ${SUSQL_NAMESPACE}
+        echo ""
+        echo "Kepler check '${phase}'"
 
+        logs=$(kubectl logs -f kepler-check --namespace ${KEPLER_PROMETHEUS_NAMESPACE})
+        echo "->Deleting kepler-check pod..."
+        kubectl delete -f kepler-check.yaml --namespace ${KEPLER_PROMETHEUS_NAMESPACE}
+
+        echo "->Kepler service"
         if [[ ${phase} == "Failed" ]]; then
+            echo "-----------------"
+            echo "Kepler check logs"
+            echo "-----------------"
             echo ${logs}
             echo "Kepler service at '${KEPLER_PROMETHEUS_URL}' was not found. Check values and try again."
             exit 1
