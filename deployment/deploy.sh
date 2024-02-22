@@ -137,13 +137,29 @@ do
         helm upgrade --install prometheus -f ${PROMETHEUS_YAML} --namespace ${SUSQL_NAMESPACE} prometheus-community/prometheus
 
     elif [[ ${action} = "prometheus-undeploy" ]]; then
-        echo "Undeploying Prometheus controller..."
+        echo "->Undeploying Prometheus controller..."
         echo "All data will be lost if the Prometheus deployment was not using a volume for permanent storage."
         echo -n "Would you like to procceed? [y/n]: "
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            helm uninstall prometheus --namespace ${SUSQL_NAMESPACE}
+            output=$(helm uninstall prometheus --namespace ${SUSQL_NAMESPACE} 2>&1)
+            if [ $? -ne 0 ]; then
+                # Extract the error message
+                error_message=$(echo "$output" | tail -n 1)
+
+                # Check if the error message contains "not found"
+                if [[ "$error_message" == *"not found"* ]]; then
+                    # Custom message if release not found
+                    echo "Prometheus: release: not found"
+                else
+                    # Display the original error message
+                    echo "$error_message"
+                fi
+            else
+                # Success message if the command was successful
+                echo "Prometheus uninstall successful."
+            fi
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
