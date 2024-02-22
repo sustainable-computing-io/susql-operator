@@ -130,7 +130,7 @@ do
 
     elif [[ ${action} = "prometheus-deploy" ]]; then
         # Install prometheus from community helm charts
-        echo "Deploying Prometheus controller to store susql data..."
+        echo "->Deploying Prometheus controller to store susql data..."
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
@@ -180,16 +180,31 @@ do
         fi
 
     elif [[ ${action} = "susql-undeploy" ]]; then
-        echo "Undeploying SusQL controller..."
+        echo "->Undeploying SusQL controller..."
         echo -n "Would you like to uninstall the CRD? WARNING: Doing this would remove ALL deployments for this CRD already in the cluster. [y/n]: "
         read response
 
         if [[ ${response} == "Y" || ${response} == "y" ]]; then
-            cd ${SUSQL_DIR} && make uninstall
-            cd -
+            output=$(cd ${SUSQL_DIR} && make uninstall 2>&1)
+            if [ $? -ne 0 ]; then
+                # Extract the error message
+                error_message=$(echo "$output" | tail -n 2)
+
+                # Check if the error message contains "not found"
+                if [[ "$error_message" == *"not found"* ]]; then
+                    # Custom message if release not found
+                    echo "Susql Controller not found"
+                else
+                    # Display the original error message
+                    echo "$error_message"
+                fi
+            else
+                # Success message if the command was successful
+                echo "Susql uninstall successful."
+                helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
+            fi
         fi
 
-        helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
             kubectl delete -f ../config/rbac/susql-rbac.yaml
             kubectl delete -f ../config/servicemonitor/susql-smon.yaml
