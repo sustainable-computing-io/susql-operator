@@ -11,7 +11,7 @@ if ! command -v kubectl &> /dev/null; then
 fi
 
 if [[ ! -z ${SUSQL_ENHANCED} ]]; then
-    echo "Deploying enhanced SusQL configuration."
+    echo "->Deploying enhanced SusQL configuration."
 fi
 
 # Check if there is a current context
@@ -87,6 +87,19 @@ if [[ -z ${SUSQL_IMAGE_TAG} ]]; then
     SUSQL_IMAGE_TAG="latest"
 fi
 
+# display configured variables 
+echo "==================================================================================================="
+echo "SUSQL_NAMESPACE - '${SUSQL_NAMESPACE}'"
+echo "KEPLER_PROMETHEUS_NAMESPACE - '${KEPLER_PROMETHEUS_NAMESPACE}'"
+echo "PROMETHEUS_PROTOCOL - '${PROMETHEUS_PROTOCOL}'"
+echo "PROMETHEUS_SERVICE - '${PROMETHEUS_SERVICE}'"
+echo "PROMETHEUS_NAMESPACE - '${PROMETHEUS_NAMESPACE}'"
+echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
+echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
+echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
+echo "SUSQL_PROMETHEUS_URL - '${SUSQL_PROMETHEUS_URL}'"
+echo "SUSQL_ENHANCED Enabled - '${SUSQL_ENHANCED}'"
+echo "==================================================================================================="
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
 
