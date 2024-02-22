@@ -163,6 +163,7 @@ do
         fi
 
     elif [[ ${action} = "susql-deploy" ]]; then
+        echo "->Deploying SusQL controller..."
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
             kubectl apply -f ../config/rbac/susql-rbac.yaml
         fi
