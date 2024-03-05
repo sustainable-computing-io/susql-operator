@@ -19,6 +19,8 @@ package controller
 import (
 	"context"
 
+	"fmt"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	susql "github.com/sustainable-computing-io/susql-operator/api/v1"
@@ -37,6 +39,7 @@ func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, la
 
 	for _, pod := range pods.Items {
 		podNames = append(podNames, pod.Name)
+		fmt.Printf("%+v\n", pod)
 	}
 
 	return podNames, nil
