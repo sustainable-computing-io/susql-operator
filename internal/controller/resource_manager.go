@@ -19,8 +19,6 @@ package controller
 import (
 	"context"
 
-	"fmt"
-
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	susql "github.com/sustainable-computing-io/susql-operator/api/v1"
@@ -28,19 +26,20 @@ import (
 )
 
 // Functions to get data from the cluster
-func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susql.LabelGroup) ([]string, error) {
+func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susql.LabelGroup) ([]string, []string, error) {
 	pods := &v1.PodList{}
 
 	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.KubernetesLabels)); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var podNames []string
+	var namespaceNames []string
 
 	for _, pod := range pods.Items {
 		podNames = append(podNames, pod.Name)
-		fmt.Printf("%+v\n", pod)
+		namespaceNames = append(namespaceNames, pod.Namespace)
 	}
 
-	return podNames, nil
+	return podNames, namespaceNames, nil
 }
