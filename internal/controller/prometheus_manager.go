@@ -86,7 +86,12 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	}
 }
 
-func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
+func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceNames[]string) (map[string]float64, error) {
+	if len(podNames) == 0 {
+		fmt.Printf("ERROR [GetMetricValuesForPodNames]: No pods under observation. Currently len(podNames)=0.\n")
+		return nil, nil
+	}
+
 	var roundtripper http.RoundTripper = nil
 	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
 		rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
@@ -108,13 +113,22 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	queryString := fmt.Sprintf("%s{pod_name=~\"%s\",mode=\"dynamic\"}", metricName, strings.Join(podNames, "|"))
+/* original query */
+/*	oldQueryString := fmt.Sprintf("%s{pod_name=~\"%s\",mode=\"dynamic\"}", metricName, strings.Join(podNames, "|")) */
+
+/* new query for issue 2: can improve runtime efficiency... */	
+	queryString := fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[0], namespaceNames[0])
+	for i := 1; i<len(podNames); i++ {
+		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[i], namespaceNames[i])
+	}
+
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
-	if err != nil {
+	if err != nil || results == nil {
 		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Querying Prometheus didn't work: %v\n", err)
 		fmt.Printf("metricName: %s\n", metricName)
 		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
+		fmt.Printf("queryString: %s\n", queryString)
 		return nil, err
 	}
 
@@ -122,6 +136,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 		fmt.Printf("WARNING [GetMetricValuesForPodNames]: %v\n", warnings)
 		fmt.Printf("metricName: %s\n", metricName)
 		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
+		fmt.Printf("queryString: %s\n", queryString)
 	}
 
 	metricValues := make(map[string]float64, len(results.(model.Vector)))

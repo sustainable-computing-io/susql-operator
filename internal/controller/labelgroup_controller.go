@@ -167,7 +167,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	case susql.Aggregating:
 		// Get list of pods matching the label group
-		podNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
+		podNames, namespaceNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
 
 		if err != nil {
 			fmt.Printf("ERROR [Reconcile]: Couldn't get pods for the labels provided\n")
@@ -175,7 +175,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		}
 
 		// Aggregate Kepler measurements for these set of pods
-		metricValues, err := r.GetMetricValuesForPodNames(keplerMetricName, podNames)
+		metricValues, err := r.GetMetricValuesForPodNames(keplerMetricName, podNames, namespaceNames)
 
 		if err != nil {
 			fmt.Printf("ERROR [Reconcile]: Querying Prometheus didn't work: %v\n", err)
