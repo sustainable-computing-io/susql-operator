@@ -48,8 +48,8 @@ spec:
             description: LabelGroupStatus defines the observed state of LabelGroup
             properties:
               activeContainerIds:
-                additionalProperties: 
-                 type: number
+                additionalProperties:
+                  type: number
                 description: Active containers associated with these set of labels
                 type: object
               kubernetesLabels:
