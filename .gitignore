@@ -28,3 +28,5 @@ Dockerfile.cross
 # Custom files and directories to ignore
 volume
 temp-prometheus.yaml
+.susql-deploy-info.txt
+.susql-deploy-info-last.txt
