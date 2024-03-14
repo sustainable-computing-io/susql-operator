@@ -98,10 +98,37 @@ echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
 echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
 echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
 echo "SUSQL_PROMETHEUS_URL - '${SUSQL_PROMETHEUS_URL}'"
-echo "SUSQL_ENHANCED Enabled - '${SUSQL_ENHANCED}'"
+echo "SUSQL_ENHANCED - '${SUSQL_ENHANCED}'"
+echo "SUSQL_REGISTRY - '${SUSQL_REGISTRY}'"
+echo "SUSQL_IMAGE_NAME - '${SUSQL_IMAGE_NAME}'"
+echo "SUSQL_IMAGE_TAG - '${SUSQL_IMAGE_TAG}'"
 echo "==================================================================================================="
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
+
+# output deploy information
+LOGFILE=.susql-deploy-info.txt
+LASTLOGFILE=.susql-deploy-info-last.txt
+if [[ -f ${LOGFILE} ]]
+then
+    mv -f ${LOGFILE} ${LASTLOGFILE}
+fi
+
+echo "# SusQL Deployment on "$(hostname)" at "$(date) > ${LOGFILE}
+echo "# deploy action was: '${action}'" >> ${LOGFILE}
+echo "export SUSQL_NAMESPACE=${SUSQL_NAMESPACE}" >> ${LOGFILE}
+echo "export KEPLER_PROMETHEUS_NAMESPACE=${KEPLER_PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
+echo "export PROMETHEUS_PROTOCOL=${PROMETHEUS_PROTOCOL}" >> ${LOGFILE}
+echo "export PROMETHEUS_SERVICE=${PROMETHEUS_SERVICE}" >> ${LOGFILE}
+echo "export PROMETHEUS_NAMESPACE=${PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
+echo "export PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}" >> ${LOGFILE}
+echo "export PROMETHEUS_PORT=${PROMETHEUS_PORT}" >> ${LOGFILE}
+echo "export KEPLER_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}" >> ${LOGFILE}
+echo "export SUSQL_PROMETHEUS_URL=${SUSQL_PROMETHEUS_URL}" >> ${LOGFILE}
+echo "export SUSQL_ENHANCED=${SUSQL_ENHANCED}" >> ${LOGFILE}
+echo "export SUSQL_REGISTRY=${SUSQL_REGISTRY}" >> ${LOGFILE}
+echo "export SUSQL_IMAGE_NAME=${SUSQL_IMAGE_NAME}" >> ${LOGFILE}
+echo "export SUSQL_IMAGE_TAG=${SUSQL_IMAGE_TAG}" >> ${LOGFILE}
 
 for action in $(echo ${actions} | tr ',' '\n')
 do
