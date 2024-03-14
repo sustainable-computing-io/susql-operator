@@ -49,7 +49,7 @@ spec:
             properties:
               activeContainerIds:
                 additionalProperties: 
-                  type: number
+                 type: number
                 description: Active containers associated with these set of labels
                 type: object
               kubernetesLabels:
