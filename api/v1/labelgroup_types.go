@@ -28,15 +28,50 @@ type LabelGroupSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of LabelGroup. Edit labelgroup_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Do not use the most recent value stored in the database
+	DisableUsingMostRecentValue bool `json:"disableUsingMostRecentValue,omitempty"`
+
+	// List of labels to be tracked for energy measurments (up to 3)
+	Labels []string `json:"labels,omitempty"`
 }
 
 // LabelGroupStatus defines the observed state of LabelGroup
 type LabelGroupStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Transition phase of the label group
+	Phase LabelGroupPhase `json:"phase,omitempty"`
+
+	// SusQL Kubernetes labels constructed from the spec
+	KubernetesLabels map[string]string `json:"kubernetesLabels,omitempty"`
+
+	// SusQL Prometheus labels constructed from the spec
+	PrometheusLabels map[string]string `json:"prometheusLabels,omitempty"`
+
+	// TotalEnergy keeps track of the accumulated energy over time
+	TotalEnergy string `json:"totalEnergy,omitempty"`
+
+	// Prometheus query to get the total energy for this label group
+	SusQLPrometheusQuery string `json:"susqlPrometheusQuery,omitempty"`
+
+	// Active containers associated with these set of labels
+	ActiveContainerIds map[string]float64 `json:"activeContainerIds,omitempty"`
 }
+
+// LabelGroupPhase defines the label for the LabelGroupStatus
+type LabelGroupPhase string
+
+const (
+	// Initializing: The label group is picked up for the first time and setup
+	Initializing LabelGroupPhase = "Initializing"
+
+	// Reloading: Use most recent value in the database if requested
+	Reloading LabelGroupPhase = "Reloading"
+
+	// Aggregating: The label group is aggregating the energy for the registered labels
+	Aggregating LabelGroupPhase = "Aggregating"
+)
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
