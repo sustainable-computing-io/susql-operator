@@ -1,0 +1,24 @@
+#####################
+# JobName and Namespace
+#####################
+name: susql-controller
+namespace: openshift-kepler-operator
+
+#####################
+# Container image to be used
+#####################
+containerImage: quay.io/sustainable_computing_io/susql_operator
+
+#####################
+# Runtime hardware specifications
+#####################
+requests:
+    cpu: 500m
+    memory: 200Mi
+
+#####################
+# Communication with Kepler and Prometheus
+#####################
+keplerPrometheusUrl: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
+susqlPrometheusDatabaseUrl: "http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090"
+susqlPrometheusMetricsUrl: "http://0.0.0.0:8082"

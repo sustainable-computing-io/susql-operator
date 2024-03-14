@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ required "Please specify a 'name' in the user file" .Values.name }}
+    namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            deployment.apps: {{ .Values.name }}
+    template:
+        metadata:
+            name: {{ .Values.name }}
+            namespace: {{ .Values.namespace }}
+            labels:
+                deployment.apps: {{ .Values.name }}
+        spec:
+            automountServiceAccountToken: true
+            serviceAccount: {{ .Values.name }}
+            serviceAccountName: {{ .Values.name }}
+            terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+            containers:
+                - name: {{ .Values.name }}
+                  image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
+                  imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+                  args:
+                      - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
+                      - "--susql-prometheus-database-url={{ .Values.susqlPrometheusDatabaseUrl }}"
+                      - "--susql-prometheus-metrics-url={{ .Values.susqlPrometheusMetricsUrl }}"
+                  ports:
+                      - name: metrics
+                        containerPort: 8082
+                  resources:
+                      requests:
+                          cpu: {{ .Values.requests.cpu }}
+                          memory: {{ .Values.requests.memory }}
+                      limits:
+                          cpu: {{ .Values.requests.cpu }}
+                          memory: {{ .Values.requests.memory }}

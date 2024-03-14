@@ -1,0 +1,28 @@
+alertmanager:
+    enabled: false
+kube-state-metrics:
+    enabled: false
+prometheus-node-exporter:
+    enabled: false
+prometheus-pushgateway:
+    enabled: false
+server:
+    name: susql
+    service:
+        enabled: true
+        type: NodePort
+        servicePort: 9090
+    persistentVolume:
+        existingClaim: prometheus-susql
+        enabled: false
+    securityContext:
+        runAsUser:
+        runAsNonRoot:
+        runAsGroup:
+        fsGroup:
+extraScrapeConfigs: |
+    - job_name: susql
+      metrics_path: /metrics
+      static_configs:
+          - targets:
+              - susql-controller.openshift-kepler-operator.svc.cluster.local:8082

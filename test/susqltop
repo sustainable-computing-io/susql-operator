@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# usage command -n "comma,delimited,list,of,namespaces" to limit to specified namespaces
+# usage command to display SusQL energy data on all namespaces that have such data
+
+alldata=$(kubectl get labelgroups -o json --all-namespaces)
+
+if [[ ${#} -gt 1 && ${1} -eq '-n' ]]
+then
+	ns=$(echo ${2} | tr ',' ' ')
+else
+	ns=$(echo ${alldata} | jq -r '.items[].metadata.namespace' | uniq)
+fi
+
+printf  '%-20s%-40s%-40s%-20s\n' NameSpace LabelGroup Labels TotalEnergy
+
+for namespace in ${ns}
+do
+    for labelgroup in $(echo ${alldata} | jq '.items[] | select(.metadata.namespace=="'${namespace}'")' | jq -r  '.metadata.name')
+    do
+        newdata=$(echo ${alldata} | jq '.items[] | select(.metadata.namespace=="'${namespace}'" and .metadata.name=="'${labelgroup}'")')
+	totalEnergy=$(echo ${newdata} | jq -cr '.status.totalEnergy')
+	labels=$(echo ${newdata} | jq -cr '.spec.labels')
+        printf '%-20s%-40s%-40s%-20s\n' ${namespace} ${labelgroup} ${labels} ${totalEnergy}
+    done
+done | sort -nr -k4 | head -n 20
