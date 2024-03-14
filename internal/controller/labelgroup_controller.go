@@ -68,11 +68,12 @@ var (
 func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// Get label group to process
+	// Get label group object to process if it exists
 	labelGroup := &susqlv1.LabelGroup{}
 
 	// Get deep copy of LabelGroup object in reconciler cache
-	if err := r.Get(ctx, req.NamespacedName, labelGroup); err != nil {
+	err := r.Get(ctx, req.NamespacedName, labelGroup)
+	if err != nil {
 		// LabelGroup not found
 		return ctrl.Result{}, nil
 	}
