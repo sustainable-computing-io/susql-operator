@@ -67,6 +67,11 @@ if [[ -z ${SUSQL_PROMETHEUS_URL} ]]; then
     fi
 fi
 
+if [[ -z ${SUSQL_SAMPLING_RATE} ]]; then
+    SUSQL_SAMPLING_RATE="2"
+fi
+
+
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep ${SUSQL_NAMESPACE}) ]]; then
     echo "Namespace '${SUSQL_NAMESPACE}' doesn't exist. Creating it."
@@ -98,6 +103,7 @@ echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
 echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
 echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
 echo "SUSQL_PROMETHEUS_URL - '${SUSQL_PROMETHEUS_URL}'"
+echo "SUSQL_SAMPLING_RATE - '${SUSQL_SAMPLING_RATE}'"
 echo "SUSQL_ENHANCED - '${SUSQL_ENHANCED}'"
 echo "SUSQL_REGISTRY - '${SUSQL_REGISTRY}'"
 echo "SUSQL_IMAGE_NAME - '${SUSQL_IMAGE_NAME}'"
@@ -125,6 +131,7 @@ echo "export PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}" >> ${LOGFILE}
 echo "export PROMETHEUS_PORT=${PROMETHEUS_PORT}" >> ${LOGFILE}
 echo "export KEPLER_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}" >> ${LOGFILE}
 echo "export SUSQL_PROMETHEUS_URL=${SUSQL_PROMETHEUS_URL}" >> ${LOGFILE}
+echo "export SUSQL_SAMPLING_RATE=${SUSQL_SAMPLING_RATE}" >> ${LOGFILE}
 echo "export SUSQL_ENHANCED=${SUSQL_ENHANCED}" >> ${LOGFILE}
 echo "export SUSQL_REGISTRY=${SUSQL_REGISTRY}" >> ${LOGFILE}
 echo "export SUSQL_IMAGE_NAME=${SUSQL_IMAGE_NAME}" >> ${LOGFILE}
@@ -214,6 +221,7 @@ do
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
             --set susqlPrometheusDatabaseUrl="${SUSQL_PROMETHEUS_URL}" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
+            --set samplingRate="${SUSQL_SAMPLING_RATE}" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
