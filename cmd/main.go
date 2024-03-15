@@ -19,6 +19,8 @@ package main
 import (
 	"flag"
 	"os"
+	"time"
+	"strconv"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -55,6 +57,7 @@ func main() {
 	var keplerPrometheusUrl string
 	var susqlPrometheusMetricsUrl string
 	var susqlPrometheusDatabaseUrl string
+	var samplingRate string
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -62,6 +65,7 @@ func main() {
 	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", "", "The URL for the Prometheus server where Kepler stores the energy data")
 	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", "", "The URL for the Prometheus database where SusQL stores the energy data")
 	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", "", "The URL for the Prometheus metrics where SusQL exposes the energy data")
+	flag.StringVar(&samplingRate, "sampling-rate", "", "Sampling rate in seconds")
 
 	opts := zap.Options{
 		Development: true,
@@ -95,12 +99,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	samplingRateInteger, err := strconv.Atoi(samplingRate)
+	if err != nil {
+		samplingRateInteger = 2
+	}
+
 	if err = (&controller.LabelGroupReconciler{
 		Client:                     mgr.GetClient(),
 		Scheme:                     mgr.GetScheme(),
 		KeplerPrometheusUrl:        keplerPrometheusUrl,
 		SusQLPrometheusDatabaseUrl: susqlPrometheusDatabaseUrl,
 		SusQLPrometheusMetricsUrl:  susqlPrometheusMetricsUrl,
+		SamplingRate:               time.Duration(samplingRateInteger) * time.Second,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "LabelGroup")
 		os.Exit(1)

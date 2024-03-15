@@ -27,6 +27,7 @@ spec:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
                       - "--susql-prometheus-database-url={{ .Values.susqlPrometheusDatabaseUrl }}"
                       - "--susql-prometheus-metrics-url={{ .Values.susqlPrometheusMetricsUrl }}"
+                      - "--sampling-rate={{ .Values.samplingRate }}"
                   ports:
                       - name: metrics
                         containerPort: 8082
