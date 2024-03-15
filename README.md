@@ -12,11 +12,11 @@ SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You
 
 ### Prerequisites
 
-Kepler is assumed to be installed in the cluster. `helm` and `kubectl` are also required to deploy.
+Kepler is assumed to be installed in the cluster. `helm`, `kubectl`, and `go` are also required to deploy.
 
 ### Installation
 
-To install SusQL go to the `deployment` directory and run the command `$ bash deploy.sh`. This script does a few actions:
+To install SusQL go to the `deployment` directory and run the command `bash deploy.sh`. This script does a few actions:
 
 * Check if Kepler is installed and exposing metrics through prometheus
     * In general, Kepler metrics are exposed, clusterwide, at:
@@ -44,7 +44,7 @@ To install SusQL go to the `deployment` directory and run the command `$ bash de
 
 * Install a separate Prometheus instance in the namespace `openshift-kepler-operator`
 
-**NOTE**: This set of ***actions*** can be controlled by calling `$ bash deploy.sh susql-deploy`, for example, if only the SusQL deployment is needed. Check the script for all possible options or run it with the default set of actions.
+**NOTE**: This set of ***actions*** can be controlled by calling `bash deploy.sh susql-deploy`, for example, if only the SusQL deployment is needed. Check the script for all possible options or run it with the default set of actions.
 
 ## Using SusQL
 
@@ -87,22 +87,23 @@ Energy of the group of pods is exposed in 2 ways:
 
 ### Installation Configuration Options
 
-|----------------------------|----------------------------|--------------------------------------------|
-| Environmental Variable     | Default Value              | Description                                |
-| SUSQL_NAMESPACE            | openshift-kepler-operator  | namespace that SUSQL resources run in      |
-| KEPLER_PROMETHEUS_NAMESPACE | openshift-monitoring      | namespace that Kepler Prometheus runs in   |
-| PROMETHEUS_PROTOCOL        | http | Either http or https for Kepler Prometheus access                |
-| PROMETHEUS_SERVICE         | prometheus-k8s             | service name for the Kepler Prometheus     |
-| PROMETHEUS_NAMESPACE       | monitoring                 | namespace used by the Kepler Prometheus    |
-| PROMETHEUS_DOMAIN          | svc.cluster.local          | Domain used by the Kepler Prometheus       |
-| PROMETHEUS_PORT            | 9090                       | Port used by the Kepler Prometheu          |
-| KEPLER_PROMETHEUS_URL      | http://prometheus-k8s.monitoring.svc.cluster.local:9090 | A shortcut to specify final Kepler Prometheus URL |
-| KEPLER_METRIC_NAME         | kepler_container_joules_total | Metric queried in the Kepler Prometheus  |
-| SUSQL_PROMETHEUS_URL       | http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090 | SusQL Prometheus URL |
-| SUSQL_SAMPLING_RATE        | 2                          | Sampling rate in seconds                    |
-| SUSQL_ENHANCED             |                            | If set to any string, then use enhanced RBAC and SMON configuration |
-| SUSQL_REGISTRY             | quay.io/sustainable_computing_io | Container registry that SusQL is stored in |
-| SUSQL_IMAGE_NAME           | susql_operator             | Image name used on SusQL container registry |
-| SUSQL_IMAGE_TAG            | latest                     | Tag for SusQL container                     |
-|----------------------------|----------------------------|---------------------------------------------|
+| Environmental Variable      | Default Value                 | Description                                      |
+|:---------------------------:|:-----------------------------:|:------------------------------------------------:|
+| SUSQL_NAMESPACE             | openshift-kepler-operator     | namespace that SUSQL resources run in            |
+| KEPLER_PROMETHEUS_NAMESPACE | openshift-monitoring          | namespace that Kepler Prometheus runs in         |
+| PROMETHEUS_PROTOCOL         | http                          | Either http or https for Kepler Prometheus access|
+| PROMETHEUS_SERVICE          | prometheus-k8s                | service name for the Kepler Prometheus           |
+| PROMETHEUS_NAMESPACE        | monitoring                    | namespace used by the Kepler Prometheus          |
+| PROMETHEUS_DOMAIN           | svc.cluster.local             | Domain used by the Kepler Prometheus             |
+| PROMETHEUS_PORT             | 9090                          | Port used by the Kepler Prometheu                |
+| KEPLER_PROMETHEUS_URL       | http://prometheus-k8s.monitoring.svc.cluster.local:9090 | A shortcut to specify final Kepler Prometheus URL |
+| KEPLER_METRIC_NAME          | kepler_container_joules_total | Metric queried in the Kepler Prometheus          |
+| SUSQL_PROMETHEUS_URL        | http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090 | SusQL Prometheus URL |
+| SUSQL_SAMPLING_RATE         | 2                             | Sampling rate in seconds                         |
+| SUSQL_ENHANCED              |                               | If set to any string, then use enhanced RBAC and SMON configuration |
+| SUSQL_REGISTRY              | quay.io/sustainable_computing_io | Container registry that SusQL is stored in    |
+| SUSQL_IMAGE_NAME            | susql_operator                | Image name used on SusQL container registry      |
+| SUSQL_IMAGE_TAG             | latest                        | Tag for SusQL container                          |
+
+
 
