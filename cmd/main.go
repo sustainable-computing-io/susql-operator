@@ -55,6 +55,7 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var keplerPrometheusUrl string
+	var keplerMetricName string
 	var susqlPrometheusMetricsUrl string
 	var susqlPrometheusDatabaseUrl string
 	var samplingRate string
@@ -63,9 +64,10 @@ func main() {
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false, "Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", "", "The URL for the Prometheus server where Kepler stores the energy data")
+	flag.StringVar(&keplerMetricName, "kepler-metric-name", "kepler_container_joules_total", "The metric name to be queried in the kepler Prometheus server")
 	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", "", "The URL for the Prometheus database where SusQL stores the energy data")
 	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", "", "The URL for the Prometheus metrics where SusQL exposes the energy data")
-	flag.StringVar(&samplingRate, "sampling-rate", "", "Sampling rate in seconds")
+	flag.StringVar(&samplingRate, "sampling-rate", "2", "Sampling rate in seconds")
 
 	opts := zap.Options{
 		Development: true,
@@ -108,6 +110,7 @@ func main() {
 		Client:                     mgr.GetClient(),
 		Scheme:                     mgr.GetScheme(),
 		KeplerPrometheusUrl:        keplerPrometheusUrl,
+		KeplerMetricName:           keplerMetricName,
 		SusQLPrometheusDatabaseUrl: susqlPrometheusDatabaseUrl,
 		SusQLPrometheusMetricsUrl:  susqlPrometheusMetricsUrl,
 		SamplingRate:               time.Duration(samplingRateInteger) * time.Second,
