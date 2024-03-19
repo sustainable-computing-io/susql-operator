@@ -1,0 +1,54 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: nextgen-susql.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: LabelGroup is the Schema for the labelgroups API
+      displayName: Label Group
+      kind: LabelGroup
+      name: labelgroups.susql.ibm.com
+      version: v1
+  description: SusQL is a Kubernetes operator that aggregates energy data from pods
+    tagged with SusQL specific labels. The energy measurements are taken from Kepler
+    which should be installed/deployed in the cluster before using SusQL.
+  displayName: susql
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - app
+  - operator
+  - energy aggregation
+  - kepler
+  links:
+  - name: Nextgen Susql
+    url: https://nextgen-susql.domain
+  maintainers:
+  - email: trent@jp.ibm.com
+    name: Scott Trent
+  - email: mohammed.munir.abdi@ibm.com
+    name: Mohammed Abdi
+  maturity: alpha
+  provider:
+    name: ibm
+  version: 0.0.0

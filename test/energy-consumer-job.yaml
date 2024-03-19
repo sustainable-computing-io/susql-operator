@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: energy-consumer-job
+  namespace: default
+spec:
+  template:
+    metadata:
+      name: energy-consumer-pod
+      namespace: default
+      labels:
+        susql.label/1: model-1
+        susql.label/2: exp-1
+    spec:
+      containers:
+        - name: energy-consumer-container
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "echo 'Energy consuming task started'; dd if=/dev/urandom | bzip2 -9 >> /dev/null",
+            ]
+          resources:
+            requests:
+              cpu: 100m # Adjust CPU request as needed
+              memory: 200Mi # Adjust memory request as needed
+            limits:
+              cpu: 100m # Adjust CPU limit as needed
+              memory: 200Mi # Adjust memory limit as needed
+      restartPolicy: Never

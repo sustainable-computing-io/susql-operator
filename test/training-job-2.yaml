@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+    name: training-job-2
+    namespace: default
+spec:
+    parallelism: 2
+    completions: 2
+    template:
+        metadata:
+            name: training-job-1
+            namespace: default
+            labels:
+                susql.label/1: model-1
+                susql.label/2: exp-2
+        spec:
+            terminationGracePeriodSeconds: 1
+            restartPolicy: Never
+            containers:
+                - name: container
+                  image: ubuntu
+                  imagePullPolicy: IfNotPresent
+                  command:
+                      - sh
+                      - -c
+                      - |
+                        sleep infinity
+                  resources:
+                      requests:
+                          cpu: 500m
+                          nvidia.com/gpu: 0
+                          memory: 500Mi
+                      limits:
+                          cpu: 500m
+                          nvidia.com/gpu: 0
+                          memory: 500Mi
