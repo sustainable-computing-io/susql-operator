@@ -26,6 +26,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"github.com/go-logr/logr"
 
 	susql "github.com/sustainable-computing-io/susql-operator/api/v1"
 )
@@ -39,6 +40,7 @@ type LabelGroupReconciler struct {
 	SusQLPrometheusDatabaseUrl string
 	SusQLPrometheusMetricsUrl  string
 	SamplingRate               time.Duration               // Sampling rate for all the label groups
+	Logger                     logr.Logger
 }
 
 const (
@@ -79,12 +81,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	// Check that the susql prometheus labels are created
 	if len(labelGroup.Status.PrometheusLabels) == 0 && labelGroup.Status.Phase != susql.Initializing {
-		fmt.Printf("WARNING [Reconcile]: The SusQL prometheus labels for LabelGroup '%s' in namespace '%s' have not been created. Reinitializing this LabelGroup.\n", labelGroup.Name, labelGroup.Namespace)
+		r.Logger.V(1).Info(fmt.Sprintf("[Reconcile] The SusQL prometheus labels for LabelGroup '%s' in namespace '%s' have not been created. Reinitializing this LabelGroup.", labelGroup.Name, labelGroup.Namespace))
 
 		labelGroup.Status.Phase = susql.Initializing
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
-			fmt.Printf("ERROR [Reconcile]: Couldn't update the phase\n")
+			r.Logger.V(0).Error(err,"[Reconcile] Couldn't update the phase.")
 		}
 
 		return ctrl.Result{}, nil
@@ -93,8 +95,9 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	// Decide what action to take based on the state of the labelGroup
 	switch labelGroup.Status.Phase {
 	case susql.Initializing:
+		r.Logger.V(2).Info("[Reconcile] Entered initializing case.")
 		if len(labelGroup.Spec.Labels) > len(susqlPrometheusLabelNames) {
-			fmt.Printf("ERROR [Reconcile]: The number of provided labels is greater than the maximum number of supported labels (e.g., up to %d labels)\n", len(susqlPrometheusLabelNames))
+			r.Logger.V(0).Error(fmt.Errorf("[Reconcile] The number of provided labels is greater than the maximum number of supported labels (e.g., up to %d labels).", len(susqlPrometheusLabelNames)),"")
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
 		}
 
@@ -135,7 +138,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		labelGroup.Status.Phase = susql.Reloading
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
-			fmt.Printf("ERROR [Reconcile]: Couldn't update status of the LabelGroup\n")
+			r.Logger.V(0).Error(err, "[Reconcile] Couldn't update status of the LabelGroup.")
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
 		}
 
@@ -143,12 +146,13 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 
 	case susql.Reloading:
+		r.Logger.V(2).Info("[Reconcile] Entered reloading case.")
 		// Reload data from existing database
 		if !labelGroup.Spec.DisableUsingMostRecentValue {
 			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusQuery)
 
 			if err != nil {
-				fmt.Printf("ERROR [Reconcile]: Couldn't retrieve most recent value\n")
+				r.Logger.V(0).Error(err,"[Reconcile] Couldn't retrieve most recent value.")
 				return ctrl.Result{RequeueAfter: fixingDelay}, nil
 			}
 
@@ -158,7 +162,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		labelGroup.Status.Phase = susql.Aggregating
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
-			fmt.Printf("ERROR [Reconcile]: Couldn't update status of the LabelGroup\n")
+			r.Logger.V(0).Error(err, "[Reconcile] Couldn't update status of the LabelGroup.")
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
 		}
 
@@ -166,11 +170,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 
 	case susql.Aggregating:
+//		r.Logger.V(2).Info("[Reconcile] Entered aggregating case.") // trace
 		// Get list of pods matching the label group
 		podNames, namespaceNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
 
 		if err != nil {
-			fmt.Printf("ERROR [Reconcile]: Couldn't get pods for the labels provided\n")
+			r.Logger.V(0).Error(err,"[Reconcile] Couldn't get pods for the labels provided.")
 			return ctrl.Result{}, err
 		}
 
@@ -178,7 +183,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		metricValues, err := r.GetMetricValuesForPodNames(r.KeplerMetricName, podNames, namespaceNames)
 
 		if err != nil {
-			fmt.Printf("ERROR [Reconcile]: Querying Prometheus didn't work: %v\n", err)
+			r.Logger.V(0).Error(err,"[Reconcile] Querying Prometheus didn't work.")
 			return ctrl.Result{RequeueAfter: errorDelay}, nil
 		}
 
@@ -230,11 +235,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{RequeueAfter: r.SamplingRate}, nil
 
 	default:
+		r.Logger.V(2).Info("[Reconcile] Entered default case.")
 		// First time seeing this object
 		labelGroup.Status.Phase = susql.Initializing
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
-			fmt.Printf("ERROR [Reconcile]: Couldn't set object to 'Initializing'\n")
+			r.Logger.V(0).Error(err,"[Reconcile] Couldn't set object to 'Initializing'.")
 		}
 
 		return ctrl.Result{}, nil
