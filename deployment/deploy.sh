@@ -11,7 +11,7 @@ if ! command -v kubectl &> /dev/null; then
 fi
 
 if [[ ! -z ${SUSQL_ENHANCED} ]]; then
-    echo "->Deploying enhanced SusQL configuration."
+    echo "->Using enhanced SusQL configuration."
 fi
 
 # Check if there is a current context
@@ -81,7 +81,7 @@ if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.na
     echo "Namespace '${SUSQL_NAMESPACE}' doesn't exist. Creating it."
     kubectl create namespace ${SUSQL_NAMESPACE}
 else
-    echo "Namespace '${SUSQL_NAMESPACE}' found. Deploying using it."
+    echo "Namespace '${SUSQL_NAMESPACE}' found. Using it."
 fi
 
 # Set SusQL installation variables
@@ -116,8 +116,6 @@ echo "SUSQL_IMAGE_TAG - '${SUSQL_IMAGE_TAG}'"
 echo "==================================================================================================="
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
-
-exit
 
 # output deploy information
 LOGFILE=.susql-deploy-info.txt

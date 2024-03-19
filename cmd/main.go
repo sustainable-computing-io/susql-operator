@@ -32,6 +32,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"go.uber.org/zap/zapcore"
 
 	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
 	"github.com/sustainable-computing-io/susql-operator/internal/controller"
@@ -40,7 +41,7 @@ import (
 
 var (
 	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	susqlLog = ctrl.Log.WithName("susql")
 )
 
 func init() {
@@ -71,6 +72,7 @@ func main() {
 
 	opts := zap.Options{
 		Development: true,
+		Level: zapcore.Level(-2),
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
@@ -97,7 +99,7 @@ func main() {
 		// LeaderElectionReleaseOnCancel: true,
 	})
 	if err != nil {
-		setupLog.Error(err, "unable to start manager")
+		susqlLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
@@ -114,24 +116,25 @@ func main() {
 		SusQLPrometheusDatabaseUrl: susqlPrometheusDatabaseUrl,
 		SusQLPrometheusMetricsUrl:  susqlPrometheusMetricsUrl,
 		SamplingRate:               time.Duration(samplingRateInteger) * time.Second,
+		Logger:                     susqlLog,
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "LabelGroup")
+		susqlLog.Error(err, "unable to create controller", "controller", "LabelGroup")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-		setupLog.Error(err, "unable to set up health check")
+		susqlLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
-		setupLog.Error(err, "unable to set up ready check")
+		susqlLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
-	setupLog.Info("starting manager")
+	susqlLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		setupLog.Error(err, "problem running manager")
+		susqlLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
 }

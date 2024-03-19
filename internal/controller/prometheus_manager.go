@@ -53,9 +53,9 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	})
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMostRecentValue]: Couldn't create HTTP client: %v\n", err)
-		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
-		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
+		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Couldn't create HTTP client.\n") +
+		fmt.Sprintf("\tQuery:  %s\n", susqlPrometheusQuery) +
+		fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl) )
 		os.Exit(1)
 	}
 
@@ -66,16 +66,19 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	queryString := fmt.Sprintf("max_over_time(%s[%s])", susqlPrometheusQuery, maxQueryTime)
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
+	r.Logger.V(2).Info(fmt.Sprintf("[GetMostRecentValue] Query: %s", queryString)) // trace
+	r.Logger.V(2).Info(fmt.Sprintf("[GetMostRecentValue] Results: '%v'", results)) // trace
+
 	if len(warnings) > 0 {
-		fmt.Printf("WARNING [GetMostRecentValue]: %v\n", warnings)
-		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
-		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
+		r.Logger.V(0).Info(fmt.Sprintf("WARNING [GetMostRecentValue] %v\n", warnings) +
+		fmt.Sprintf("\tQuery:  %s\n", susqlPrometheusQuery) +
+		fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl) )
 	}
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMostRecentValue]: Querying Prometheus didn't work: %v\n", err)
-		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
-		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
+		r.Logger.V(0).Error(err, "[GetMostRecentValue] Querying Prometheus didn't work.\n" +
+		fmt.Sprintf("\tQuery:  %s\n", susqlPrometheusQuery) +
+		fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl) )
 		return 0.0, err
 	}
 
@@ -88,7 +91,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceNames[]string) (map[string]float64, error) {
 	if len(podNames) == 0 {
-		fmt.Printf("ERROR [GetMetricValuesForPodNames]: No pods under observation. Currently len(podNames)=0.\n")
+		r.Logger.V(1).Info("[GetMetricValuesForPodNames] No pods under observation. Currently len(podNames)=0.")
 		return nil, nil
 	}
 
@@ -103,9 +106,9 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	})
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Couldn't create an HTTP client: %v\n", err)
-		fmt.Printf("metricName: %s\n", metricName)
-		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
+		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Couldn't create an HTTP client.\n" +
+		fmt.Sprintf("\tmetricName: %s\n", metricName) +
+		fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl) )
 		os.Exit(1)
 	}
 
@@ -125,18 +128,18 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
 	if err != nil || results == nil {
-		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Querying Prometheus didn't work: %v\n", err)
-		fmt.Printf("metricName: %s\n", metricName)
-		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
-		fmt.Printf("queryString: %s\n", queryString)
+		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Querying Prometheus didn't work.\n" +
+		fmt.Sprintf("\tmetricName: %s\n", metricName) +
+		fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl) +
+		fmt.Sprintf("\tqueryString: %s", queryString) )
 		return nil, err
 	}
 
 	if len(warnings) > 0 {
-		fmt.Printf("WARNING [GetMetricValuesForPodNames]: %v\n", warnings)
-		fmt.Printf("metricName: %s\n", metricName)
-		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
-		fmt.Printf("queryString: %s\n", queryString)
+		r.Logger.V(0).Info(fmt.Sprintf("WARNING [GetMetricValuesForPodNames] %v\n", warnings) +
+		fmt.Sprintf("\tmetricName: %s\n", metricName) +
+		fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl) +
+		fmt.Sprintf("\tqueryString: %s", queryString) )
 	}
 
 	metricValues := make(map[string]float64, len(results.(model.Vector)))
@@ -175,17 +178,19 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 		http.Handle("/metrics", prometheusHandler)
 
 		if metricsUrl, parseErr := url.Parse(r.SusQLPrometheusMetricsUrl); parseErr == nil {
-			fmt.Printf("Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port())
+			r.Logger.V(2).Info(fmt.Sprintf("[InitializeMetricsExporter] Serving metrics at '%s:%s'...", metricsUrl.Hostname(), metricsUrl.Port()))
 
 			go func() {
 				err := http.ListenAndServe(metricsUrl.Hostname() + ":" + metricsUrl.Port(), nil)
 
 				if err != nil {
-					panic("PANIC [SetAggregatedEnergyForLabels]: ListenAndServe: " + err.Error())
+					r.Logger.V(0).Error(err,"PANIC [SetAggregatedEnergyForLabels] ListenAndServe" )
+					panic("PANIC [SetAggregatedEnergyForLabels] ListenAndServe: " + err.Error())
 				}
 			}()
 		} else {
-			panic(fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels]: Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
+			r.Logger.V(0).Error(parseErr,fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels] Parsing the URL '%s' to set the metrics address didn't work.", r.SusQLPrometheusMetricsUrl))
+			panic(fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels] Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
 		}
 	}
 }
@@ -193,6 +198,8 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) error {
 	// Save aggregated energy to Prometheus table
 	susqlMetrics.totalEnergy.With(prometheusLabels).Set(totalEnergy)
+
+	r.Logger.V(2).Info(fmt.Sprintf("[SetAggregatedEnergyForLabels] Setting energy %f for %v.", totalEnergy, prometheusLabels)) // trace
 
 	return nil
 }
