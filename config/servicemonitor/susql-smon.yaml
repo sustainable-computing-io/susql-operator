@@ -22,4 +22,4 @@ spec:
   jobLabel: app.kubernetes.io/name
   selector:
     matchLabels:
-      sustainable-computing.io/app: susql
+      sustainable-computing.io/app: susql-controller

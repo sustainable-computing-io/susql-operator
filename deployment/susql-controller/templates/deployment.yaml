@@ -7,13 +7,13 @@ spec:
     replicas: 1
     selector:
         matchLabels:
-            deployment.apps: {{ .Values.name }}
+            sustainable-computing.io/app: {{ .Values.name }}
     template:
         metadata:
             name: {{ .Values.name }}
             namespace: {{ .Values.namespace }}
             labels:
-                deployment.apps: {{ .Values.name }}
+                sustainable-computing.io/app: {{ .Values.name }}
         spec:
             automountServiceAccountToken: true
             serviceAccount: {{ .Values.name }}
