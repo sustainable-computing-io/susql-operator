@@ -158,8 +158,8 @@ type SusqlMetrics struct {
 var (
 	susqlMetrics = &SusqlMetrics{
 		totalEnergy: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: "kepler",
-			Name:      "node_platform_joules_total",
+			Namespace: "susql",
+			Name:      "total_energy_joules",
 			Help:      "Accumulated energy over time for set of labels",
 		}, susqlPrometheusLabelNames),
 	}
