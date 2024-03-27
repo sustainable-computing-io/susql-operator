@@ -18,7 +18,7 @@ Kepler is assumed to be installed in the cluster. `helm`, `kubectl`, and `go` ar
 
 To install SusQL go to the `deployment` directory and run the command `bash deploy.sh`. This script does a few actions:
 
-* Check if Kepler is installed and exposing metrics through prometheus
+* Check if Kepler is installed and exposing metrics through Prometheus
     * In general, Kepler metrics are exposed, clusterwide, at:
 
       ```
@@ -95,7 +95,7 @@ Energy of the group of pods is exposed in 2 ways:
 | PROMETHEUS_SERVICE          | prometheus-k8s                | service name for the Kepler Prometheus           |
 | PROMETHEUS_NAMESPACE        | monitoring                    | namespace used by the Kepler Prometheus          |
 | PROMETHEUS_DOMAIN           | svc.cluster.local             | Domain used by the Kepler Prometheus             |
-| PROMETHEUS_PORT             | 9090                          | Port used by the Kepler Prometheu                |
+| PROMETHEUS_PORT             | 9090                          | Port used by the Kepler Prometheus               |
 | KEPLER_PROMETHEUS_URL       | http://prometheus-k8s.monitoring.svc.cluster.local:9090 | A shortcut to specify final Kepler Prometheus URL |
 | KEPLER_METRIC_NAME          | kepler_container_joules_total | Metric queried in the Kepler Prometheus          |
 | SUSQL_PROMETHEUS_URL        | http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090 | SusQL Prometheus URL |
