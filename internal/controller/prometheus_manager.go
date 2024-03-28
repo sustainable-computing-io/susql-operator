@@ -17,8 +17,8 @@ limitations under the License.
 package controller
 
 import (
-	"crypto/tls"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -26,9 +26,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/common/config"
 	"github.com/prometheus/common/model"
-	"github.com/prometheus/client_golang/api"
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/client_golang/prometheus"
@@ -44,11 +44,11 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	// Return the most recent value found in the table
 	var roundtripper http.RoundTripper = nil
 	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
-		rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
+		rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 		roundtripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
 	}
 	client, err := api.NewClient(api.Config{
-		Address: r.SusQLPrometheusDatabaseUrl,
+		Address:      r.SusQLPrometheusDatabaseUrl,
 		RoundTripper: roundtripper,
 	})
 
@@ -89,11 +89,11 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
 	var roundtripper http.RoundTripper = nil
 	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
-		rttls := &http.Transport{TLSClientConfig:  &tls.Config{InsecureSkipVerify: true}}
+		rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 		roundtripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
 	}
 	client, err := api.NewClient(api.Config{
-		Address: r.KeplerPrometheusUrl,
+		Address:      r.KeplerPrometheusUrl,
 		RoundTripper: roundtripper,
 	})
 
@@ -140,8 +140,8 @@ type SusqlMetrics struct {
 var (
 	susqlMetrics = &SusqlMetrics{
 		totalEnergy: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: "kepler",
-			Name:      "node_platform_joules_total",
+			Namespace: "susql",
+			Name:      "total_energy_joules",
 			Help:      "Accumulated energy over time for set of labels",
 		}, susqlPrometheusLabelNames),
 	}
@@ -163,7 +163,7 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 			fmt.Printf("Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port())
 
 			go func() {
-				err := http.ListenAndServe(metricsUrl.Hostname() + ":" + metricsUrl.Port(), nil)
+				err := http.ListenAndServe(metricsUrl.Hostname()+":"+metricsUrl.Port(), nil)
 
 				if err != nil {
 					panic("PANIC [SetAggregatedEnergyForLabels]: ListenAndServe: " + err.Error())
