@@ -4,10 +4,12 @@ kind: Service
 metadata:
     name: {{ required "Please specify a 'name' in the user file" .Values.name }}
     namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
+    labels:
+        sustainable-computing.io/app: {{ .Values.name }}
 spec:
     type: ClusterIP
     selector:
-        deployment.apps: susql-controller
+        sustainable-computing.io/app: {{ .Values.name }}
     ports:
         - name: metrics
           port: 8082

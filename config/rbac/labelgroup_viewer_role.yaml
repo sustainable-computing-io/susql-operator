@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: labelgroup-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: nextgen-susql
-    app.kubernetes.io/part-of: nextgen-susql
+    app.kubernetes.io/created-by: susql-operator
+    app.kubernetes.io/part-of: susql-operator
     app.kubernetes.io/managed-by: kustomize
   name: labelgroup-viewer-role
 rules:

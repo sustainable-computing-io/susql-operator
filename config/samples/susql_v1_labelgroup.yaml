@@ -4,9 +4,9 @@ metadata:
   labels:
     app.kubernetes.io/name: labelgroup
     app.kubernetes.io/instance: labelgroup-sample
-    app.kubernetes.io/part-of: nextgen-susql
+    app.kubernetes.io/part-of: susql-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: nextgen-susql
+    app.kubernetes.io/created-by: susql-operator
   name: labelgroup-sample
 spec:
   # TODO(user): Add fields here

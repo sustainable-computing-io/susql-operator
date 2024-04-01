@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:latest
-  name: nextgen-susql.v0.0.0
+  name: susql-operator.v0.0.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}

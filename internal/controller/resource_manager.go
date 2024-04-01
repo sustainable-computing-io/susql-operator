@@ -21,23 +21,25 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	susqlv1 "github.ibm.com/TRENT/nextgen-susql/api/v1"
+	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
 	v1 "k8s.io/api/core/v1"
 )
 
 // Functions to get data from the cluster
-func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susqlv1.LabelGroup) ([]string, error) {
+func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susqlv1.LabelGroup) ([]string, []string, error) {
 	pods := &v1.PodList{}
 
 	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.KubernetesLabels)); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var podNames []string
+	var namespaceNames []string
 
 	for _, pod := range pods.Items {
 		podNames = append(podNames, pod.Name)
+		namespaceNames = append(namespaceNames, pod.Namespace)
 	}
 
-	return podNames, nil
+	return podNames, namespaceNames, nil
 }

@@ -7,13 +7,13 @@ spec:
     replicas: 1
     selector:
         matchLabels:
-            deployment.apps: {{ .Values.name }}
+            sustainable-computing.io/app: {{ .Values.name }}
     template:
         metadata:
             name: {{ .Values.name }}
             namespace: {{ .Values.namespace }}
             labels:
-                deployment.apps: {{ .Values.name }}
+                sustainable-computing.io/app: {{ .Values.name }}
         spec:
             automountServiceAccountToken: true
             serviceAccount: {{ .Values.name }}
@@ -25,8 +25,10 @@ spec:
                   imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
                   args:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
+                      - "--kepler-metric-name={{ .Values.KeplerMetricName }}"
                       - "--susql-prometheus-database-url={{ .Values.susqlPrometheusDatabaseUrl }}"
                       - "--susql-prometheus-metrics-url={{ .Values.susqlPrometheusMetricsUrl }}"
+                      - "--sampling-rate={{ .Values.samplingRate }}"
                   ports:
                       - name: metrics
                         containerPort: 8082

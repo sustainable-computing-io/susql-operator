@@ -53,9 +53,9 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	})
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMostRecentValue]: Couldn't create HTTP client: %v\n", err)
-		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
-		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
+		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Couldn't create HTTP client.\n")+
+			fmt.Sprintf("\tQuery:  %s\n", susqlPrometheusQuery)+
+			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl))
 		os.Exit(1)
 	}
 
@@ -66,16 +66,19 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	queryString := fmt.Sprintf("max_over_time(%s[%s])", susqlPrometheusQuery, maxQueryTime)
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
+	r.Logger.V(2).Info(fmt.Sprintf("[GetMostRecentValue] Query: %s", queryString)) // trace
+	r.Logger.V(2).Info(fmt.Sprintf("[GetMostRecentValue] Results: '%v'", results)) // trace
+
 	if len(warnings) > 0 {
-		fmt.Printf("WARNING [GetMostRecentValue]: %v\n", warnings)
-		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
-		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
+		r.Logger.V(0).Info(fmt.Sprintf("WARNING [GetMostRecentValue] %v\n", warnings) +
+			fmt.Sprintf("\tQuery:  %s\n", queryString) +
+			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl))
 	}
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMostRecentValue]: Querying Prometheus didn't work: %v\n", err)
-		fmt.Printf("Query:  %s\n", susqlPrometheusQuery)
-		fmt.Printf("SusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl)
+		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Querying Prometheus didn't work.\n")+
+			fmt.Sprintf("\tQuery:  %s\n", queryString)+
+			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl))
 		return 0.0, err
 	}
 
@@ -86,7 +89,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	}
 }
 
-func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string) (map[string]float64, error) {
+func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceNames []string) (map[string]float64, error) {
 	var roundtripper http.RoundTripper = nil
 	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
 		rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
@@ -98,9 +101,9 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	})
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Couldn't create an HTTP client: %v\n", err)
-		fmt.Printf("metricName: %s\n", metricName)
-		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
+		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Couldn't create an HTTP client.\n"+
+			fmt.Sprintf("\tmetricName: %s\n", metricName)+
+			fmt.Sprintf("\tKeplerPrometheusUrl: %s", r.KeplerPrometheusUrl))
 		os.Exit(1)
 	}
 
@@ -108,20 +111,29 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	queryString := fmt.Sprintf("%s{pod_name=~\"%s\",mode=\"dynamic\"}", metricName, strings.Join(podNames, "|"))
+	//	queryString := fmt.Sprintf("%s{pod_name=~\"%s\",mode=\"dynamic\"}", metricName, strings.Join(podNames, "|"))
+
+	// new query for issue 2: can improve runtime efficiency...
+	queryString := fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[0], namespaceNames[0])
+	for i := 1; i < len(podNames); i++ {
+		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[i], namespaceNames[i])
+	}
+
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
 	if err != nil {
-		fmt.Printf("ERROR [GetMetricValuesForPodNames]: Querying Prometheus didn't work: %v\n", err)
-		fmt.Printf("metricName: %s\n", metricName)
-		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
+		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Querying Prometheus didn't work.\n"+
+			fmt.Sprintf("\tmetricName: %s\n", metricName)+
+			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)+
+			fmt.Sprintf("\tqueryString: %s", queryString))
 		return nil, err
 	}
 
 	if len(warnings) > 0 {
-		fmt.Printf("WARNING [GetMetricValuesForPodNames]: %v\n", warnings)
-		fmt.Printf("metricName: %s\n", metricName)
-		fmt.Printf("KeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)
+		r.Logger.V(0).Info(fmt.Sprintf("WARNING [GetMetricValuesForPodNames] %v\n", warnings) +
+			fmt.Sprintf("\tmetricName: %s\n", metricName) +
+			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl) +
+			fmt.Sprintf("\tqueryString: %s", queryString))
 	}
 
 	metricValues := make(map[string]float64, len(results.(model.Vector)))
@@ -160,16 +172,18 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 		http.Handle("/metrics", prometheusHandler)
 
 		if metricsUrl, parseErr := url.Parse(r.SusQLPrometheusMetricsUrl); parseErr == nil {
-			fmt.Printf("Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port())
+			r.Logger.V(2).Info(fmt.Sprintf("Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port()))
 
 			go func() {
 				err := http.ListenAndServe(metricsUrl.Hostname()+":"+metricsUrl.Port(), nil)
 
 				if err != nil {
+					r.Logger.V(0).Error(err, "PANIC [SetAggregatedEnergyForLabels] ListenAndServe")
 					panic("PANIC [SetAggregatedEnergyForLabels]: ListenAndServe: " + err.Error())
 				}
 			}()
 		} else {
+			r.Logger.V(0).Error(parseErr, fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels] Parsing the URL '%s' to set the metrics address didn't work.", r.SusQLPrometheusMetricsUrl))
 			panic(fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels]: Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
 		}
 	}
@@ -178,6 +192,8 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64, prometheusLabels map[string]string) error {
 	// Save aggregated energy to Prometheus table
 	susqlMetrics.totalEnergy.With(prometheusLabels).Set(totalEnergy)
+
+	r.Logger.V(2).Info(fmt.Sprintf("[SetAggregatedEnergyForLabels] Setting energy %f for %v.", totalEnergy, prometheusLabels)) // trace
 
 	return nil
 }

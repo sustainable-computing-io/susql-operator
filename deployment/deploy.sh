@@ -11,7 +11,7 @@ if ! command -v kubectl &> /dev/null; then
 fi
 
 if [[ ! -z ${SUSQL_ENHANCED} ]]; then
-    echo "->Deploying enhanced SusQL configuration."
+    echo "->Using enhanced SusQL configuration."
 fi
 
 # Check if there is a current context
@@ -57,6 +57,10 @@ if [[ -z ${KEPLER_PROMETHEUS_URL} ]]; then
     KEPLER_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:${PROMETHEUS_PORT}"
 fi
 
+if [[ -z ${KEPLER_METRIC_NAME} ]]; then
+    KEPLER_METRIC_NAME="kepler_container_joules_total"
+fi
+
 if [[ -z ${SUSQL_PROMETHEUS_URL} ]]; then
     if [[ -z ${SHARED_PROMETHEUS} ]]; then
         # using separate prometheus instance
@@ -67,12 +71,17 @@ if [[ -z ${SUSQL_PROMETHEUS_URL} ]]; then
     fi
 fi
 
+if [[ -z ${SUSQL_SAMPLING_RATE} ]]; then
+    SUSQL_SAMPLING_RATE="2"
+fi
+
+
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep ${SUSQL_NAMESPACE}) ]]; then
     echo "Namespace '${SUSQL_NAMESPACE}' doesn't exist. Creating it."
     kubectl create namespace ${SUSQL_NAMESPACE}
 else
-    echo "Namespace '${SUSQL_NAMESPACE}' found. Deploying using it."
+    echo "Namespace '${SUSQL_NAMESPACE}' found. Using it."
 fi
 
 # Set SusQL installation variables
@@ -97,11 +106,42 @@ echo "PROMETHEUS_NAMESPACE - '${PROMETHEUS_NAMESPACE}'"
 echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
 echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
 echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
+echo "KEPLER_METRIC_NAME - '${KEPLER_METRIC_NAME}'"
 echo "SUSQL_PROMETHEUS_URL - '${SUSQL_PROMETHEUS_URL}'"
-echo "SUSQL_ENHANCED Enabled - '${SUSQL_ENHANCED}'"
+echo "SUSQL_SAMPLING_RATE - '${SUSQL_SAMPLING_RATE}'"
+echo "SUSQL_ENHANCED - '${SUSQL_ENHANCED}'"
+echo "SUSQL_REGISTRY - '${SUSQL_REGISTRY}'"
+echo "SUSQL_IMAGE_NAME - '${SUSQL_IMAGE_NAME}'"
+echo "SUSQL_IMAGE_TAG - '${SUSQL_IMAGE_TAG}'"
 echo "==================================================================================================="
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
+
+# output deploy information
+LOGFILE=.susql-deploy-info.txt
+LASTLOGFILE=.susql-deploy-info-last.txt
+if [[ -f ${LOGFILE} ]]
+then
+    mv -f ${LOGFILE} ${LASTLOGFILE}
+fi
+
+echo "# SusQL Deployment on "$(hostname)" at "$(date) > ${LOGFILE}
+echo "# deploy action was: '${action}'" >> ${LOGFILE}
+echo "export SUSQL_NAMESPACE=${SUSQL_NAMESPACE}" >> ${LOGFILE}
+echo "export KEPLER_PROMETHEUS_NAMESPACE=${KEPLER_PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
+echo "export PROMETHEUS_PROTOCOL=${PROMETHEUS_PROTOCOL}" >> ${LOGFILE}
+echo "export PROMETHEUS_SERVICE=${PROMETHEUS_SERVICE}" >> ${LOGFILE}
+echo "export PROMETHEUS_NAMESPACE=${PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
+echo "export PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}" >> ${LOGFILE}
+echo "export PROMETHEUS_PORT=${PROMETHEUS_PORT}" >> ${LOGFILE}
+echo "export KEPLER_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}" >> ${LOGFILE}
+echo "export KEPLER_METRIC_NAME=${KEPLER_METRIC_NAME}" >> ${LOGFILE}
+echo "export SUSQL_PROMETHEUS_URL=${SUSQL_PROMETHEUS_URL}" >> ${LOGFILE}
+echo "export SUSQL_SAMPLING_RATE=${SUSQL_SAMPLING_RATE}" >> ${LOGFILE}
+echo "export SUSQL_ENHANCED=${SUSQL_ENHANCED}" >> ${LOGFILE}
+echo "export SUSQL_REGISTRY=${SUSQL_REGISTRY}" >> ${LOGFILE}
+echo "export SUSQL_IMAGE_NAME=${SUSQL_IMAGE_NAME}" >> ${LOGFILE}
+echo "export SUSQL_IMAGE_TAG=${SUSQL_IMAGE_TAG}" >> ${LOGFILE}
 
 for action in $(echo ${actions} | tr ',' '\n')
 do
@@ -185,8 +225,10 @@ do
         cd -
         helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace ${SUSQL_NAMESPACE} \
             --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
+            --set keplerMetricName="${KEPLER_METRIC_NAME}" \
             --set susqlPrometheusDatabaseUrl="${SUSQL_PROMETHEUS_URL}" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
+            --set samplingRate="${SUSQL_SAMPLING_RATE}" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
