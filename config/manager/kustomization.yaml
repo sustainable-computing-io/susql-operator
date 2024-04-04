@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/sustainable_computing_io/susql_operator
-  newTag: v0.0.1
+  newTag: latest
