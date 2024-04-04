@@ -81,13 +81,14 @@ spec:
             value: "2"
         args:
         - --leader-elect
-        - --deployment-namespace=susql-operator
+        # - --deployment-namespace=susql-operator
         - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
         - --kepler-metric-name=$(KEPLER-METRIC-NAME)
         - --susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)
         - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
         - --sampling-rate=$(SAMPLING-RATE)
-        image: quay.io/sustainable_computing_io/susql_operator:latest
+        image: '<OPERATOR_IMG>'
+        imagePullPolicy: IfNotPresent
         name: manager
         securityContext:
           allowPrivilegeEscalation: false

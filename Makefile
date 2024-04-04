@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= 0.0.1
+VERSION ?= $(shell cat VERSION)
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
@@ -33,7 +33,12 @@ IMAGE_TAG_BASE ?= quay.io/sustainable_computing_io/susql_operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
-BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
+BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-susql-operator-bundle:v$(VERSION)
+
+# OPERATOR_IMG define the image:tag used for the operator
+# You can use it as an arg. (E.g make operator-build OPERATOR_IMG=<some-registry>:<version>)
+OPERATOR_IMG ?= $(IMAGE_TAG_BASE):latest
+ADDITIONAL_TAGS ?=
 
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
@@ -62,6 +67,10 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+# Setting GOENV
+GOOS := $(shell go env GOOS)
+GOARCH := $(shell go env GOARCH)
+
 # CONTAINER_TOOL defines the container tool to be used for building images.
 # Be aware that the target commands are only tested with Docker which is
 # scaffolded by default. However, you might want to replace it to use other
@@ -74,7 +83,7 @@ SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
 .PHONY: all
-all: build
+all: operator-build bundle bundle-build
 
 ##@ General
 
@@ -125,16 +134,40 @@ build: manifests generate fmt vet ## Build manager binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./cmd/main.go
 
+# docker_push accepts an image:tag and a list of additional tags comma-separated
+# it push the image:tag all other images with the additional tags
+# E.g. given foo:bar, a,b,c, it will push foo:bar, foo:a, foo:b, foo:c
+define docker_push
+@{ \
+	set -eu ;\
+	img="$(1)" ;\
+	tags="$(2)" ;\
+	echo "docker push $$img and additional tags: '$$tags'" ;\
+	\
+	img_path=$${img%:*} ;\
+	docker push $$img ;\
+	for tag in $$(echo $$tags | tr -s , ' ' ); do \
+		docker push $$img_path:$$tag ;\
+	done \
+}
+endef
+
 # If you wish built the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64 ). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
-.PHONY: docker-build
-docker-build: test ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${IMG} .
+.PHONY: operator-build
+operator-build: manifests generate test ## Build docker image with the manager.
+	go mod tidy
+	docker build -t $(OPERATOR_IMG) \
+		--build-arg TARGETOS=$(GOOS) \
+		--build-arg TARGETARCH=$(GOARCH) \
+		--platform=linux/$(GOARCH) .
+	$(call docker_tag,$(OPERATOR_IMG),$(ADDITIONAL_TAGS))
 
-.PHONY: docker-push
-docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
+
+.PHONY: operator-push
+operator-push: ## Push docker image with the manager.
+	$(call docker_push,$(OPERATOR_IMG),$(ADDITIONAL_TAGS))
 
 # PLATFORMS defines the target platforms for  the manager image be build to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
@@ -221,7 +254,7 @@ ifeq (, $(shell which operator-sdk 2>/dev/null))
 	@{ \
 	set -e ;\
 	mkdir -p $(dir $(OPERATOR_SDK)) ;\
-	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
+	OS=$(GOOS) && ARCH=$(GOARCH) && \
 	curl -sSLo $(OPERATOR_SDK) https://github.com/operator-framework/operator-sdk/releases/download/$(OPERATOR_SDK_VERSION)/operator-sdk_$${OS}_$${ARCH} ;\
 	chmod +x $(OPERATOR_SDK) ;\
 	}
@@ -234,7 +267,7 @@ endif
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
 	$(OPERATOR_SDK) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
-	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
+	$(KUSTOMIZE) build config/manifests | sed -e "s|<OPERATOR_IMG>|$(OPERATOR_IMG)|g" | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
 
 .PHONY: bundle-build
@@ -253,7 +286,7 @@ ifeq (,$(shell which opm 2>/dev/null))
 	@{ \
 	set -e ;\
 	mkdir -p $(dir $(OPM)) ;\
-	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
+	OS=$(GOOS) && ARCH=$(GOARCH) && \
 	curl -sSLo $(OPM) https://github.com/operator-framework/operator-registry/releases/download/v1.23.0/$${OS}-$${ARCH}-opm ;\
 	chmod +x $(OPM) ;\
 	}
