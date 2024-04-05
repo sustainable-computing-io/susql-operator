@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:latest
-    createdAt: "2024-04-05T16:54:14Z"
+    createdAt: "2024-04-05T17:50:51Z"
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
@@ -155,6 +155,11 @@ spec:
                 - --health-probe-bind-address=:8081
                 - --metrics-bind-address=127.0.0.1:8080
                 - --leader-elect
+                - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
+                - --kepler-metric-name=$(KEPLER-METRIC-NAME)
+                - --susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)
+                - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
+                - --sampling-rate=$(SAMPLING-RATE)
                 command:
                 - /manager
                 env:

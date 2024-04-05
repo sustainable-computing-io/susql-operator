@@ -66,11 +66,19 @@ func main() {
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", "", "The URL for the Prometheus server where Kepler stores the energy data")
-	flag.StringVar(&keplerMetricName, "kepler-metric-name", "kepler_container_joules_total", "The metric name to be queried in the kepler Prometheus server")
-	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", "", "The URL for the Prometheus database where SusQL stores the energy data")
-	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", "", "The URL for the Prometheus metrics where SusQL exposes the energy data")
-	flag.StringVar(&samplingRate, "sampling-rate", "2", "Sampling rate in seconds")
+
+	// NOTE: these can be set as env or flag, flag takes precedence over env
+	keplerPrometheusUrlEnv := os.Getenv("KEPLER-PROMETHEUS-URL")
+	keplerMetricNameEnv := os.Getenv("KEPLER-METRIC-NAME")
+	susqlPrometheusDatabaseUrlEnv := os.Getenv("SUSQL-PROMETHEUS-DATABASE-URL")
+	susqlPrometheusMetricsUrlEnv := os.Getenv("SUSQL-PROMETHEUS-METRICS-URL")
+	samplingRateEnv := os.Getenv("SAMPLING-RATE")
+
+	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", keplerPrometheusUrlEnv, "The URL for the Prometheus server where Kepler stores the energy data")
+	flag.StringVar(&keplerMetricName, "kepler-metric-name", keplerMetricNameEnv, "The metric name to be queried in the kepler Prometheus server")
+	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", susqlPrometheusDatabaseUrlEnv, "The URL for the Prometheus database where SusQL stores the energy data")
+	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", susqlPrometheusMetricsUrlEnv, "The URL for the Prometheus metrics where SusQL exposes the energy data")
+	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
 
 	opts := zap.Options{
 		Development: true,
