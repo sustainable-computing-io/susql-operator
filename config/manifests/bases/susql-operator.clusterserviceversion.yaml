@@ -30,8 +30,8 @@ spec:
     version.\nFor example to upgrade from 0.1.0 to 0.2.0, you must uninstall `0.1.0`\n\n
     ### NOTE\nTo view the metrics exposed by kepler, ensure that\n[User Project Monitoring](https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html)\nis
     enabled in your cluster.\n\n### LabelGroup spec Example\n```\napiVersion: susql.ibm.com/v1\nkind:
-    LabelGroup\nmetadata:\n  name: model-1-plus-experiment-1\n  namespace: susql-operator\nspec:\n
-    \ labels: \n    - model-1\n    - exp-1\n```\n\n### Documentation\nDocumentation
+    LabelGroup\nmetadata:\n  name: labelgroup-name\n  namespace: susql-operator\nspec:\n
+    \ labels: \n    - my-label-1\n    - my-label-2\n```\n\n### Documentation\nDocumentation
     can be found below:\n  * [Kepler Operator](https://github.com/sustainable-computing-io/susql-operator#readme)\n\n###
     Getting help\nIf you encounter any issues while using Susql operator, you can
     create an issue on our Github repo for bugs, enhancements, or other requests.\n\n###
