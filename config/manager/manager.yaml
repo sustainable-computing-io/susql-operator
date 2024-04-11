@@ -74,7 +74,7 @@ spec:
           - name: KEPLER-METRIC-NAME
             value: "kepler_container_joules_total"
           - name: SUSQL-PROMETHEUS-DATABASE-URL
-            value: "http://prometheus-susql.susql-operator.svc.cluster.local:9090"
+            value: "http://prometheus-susql.default.svc.cluster.local:9090"
           - name: SUSQL-PROMETHEUS-METRICS-URL
             value: "http://0.0.0.0:8082"
           - name: SAMPLING-RATE
