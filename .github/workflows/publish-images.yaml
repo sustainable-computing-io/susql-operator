@@ -13,7 +13,7 @@ jobs:
         - name: Checkout source
           uses: actions/checkout@v4
 
-        - uses: actions/setup-go@v5
+        - uses: actions/setup-go
           with:
             go-version-file: go.mod
             cache: true
