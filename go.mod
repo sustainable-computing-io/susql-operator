@@ -1,6 +1,6 @@
 module github.com/sustainable-computing-io/susql-operator
 
-go 1.20
+go 1.23
 
 require (
 	github.com/go-logr/logr v1.2.4
