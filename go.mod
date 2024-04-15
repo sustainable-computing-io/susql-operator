@@ -1,6 +1,6 @@
 module github.com/sustainable-computing-io/susql-operator
 
-go 1.20
+go 1.21
 
 require (
 	github.com/go-logr/logr v1.2.4
@@ -8,7 +8,6 @@ require (
 	github.com/onsi/gomega v1.27.7
 	github.com/prometheus/client_golang v1.17.0
 	github.com/prometheus/common v0.45.0
-	github.com/sustainable-computing-io/susql-operator v0.0.0-20240327071610-968c3cc8352f
 	go.uber.org/zap v1.24.0
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
