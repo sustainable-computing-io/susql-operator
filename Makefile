@@ -38,7 +38,7 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-susql-operator-bundle:v$(VERSION)
 # OPERATOR_IMG define the image:tag used for the operator
 # You can use it as an arg. (E.g make operator-build OPERATOR_IMG=<some-registry>:<version>)
 OPERATOR_IMG ?= $(IMAGE_TAG_BASE):latest
-ADDITIONAL_TAGS ?=
+# ADDITIONAL_TAGS ?=
 
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
@@ -162,12 +162,14 @@ operator-build: manifests generate test ## Build docker image with the manager.
 		--build-arg TARGETOS=$(GOOS) \
 		--build-arg TARGETARCH=$(GOARCH) \
 		--platform=linux/$(GOARCH) .
-	$(call docker_tag,$(OPERATOR_IMG),$(ADDITIONAL_TAGS))
+	$(call docker_tag,$(OPERATOR_IMG))
+#$(call docker_tag,$(OPERATOR_IMG),$(ADDITIONAL_TAGS))
 
 
 .PHONY: operator-push
 operator-push: ## Push docker image with the manager.
-	$(call docker_push,$(OPERATOR_IMG),$(ADDITIONAL_TAGS))
+	$(call docker_push,$(OPERATOR_IMG))
+# $(call docker_push,$(OPERATOR_IMG),$(ADDITIONAL_TAGS))
 
 # PLATFORMS defines the target platforms for  the manager image be build to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
@@ -275,11 +277,13 @@ bundle-build: ## Build the bundle image.
 	docker build -f bundle.Dockerfile \
 		-t $(BUNDLE_IMG) \
 		--platform=linux/$(GOARCH) .
-	$(call docker_tag,$(BUNDLE_IMG),$(ADDITIONAL_TAGS))
+	$(call docker_tag,$(BUNDLE_IMG))
+# $(call docker_tag,$(BUNDLE_IMG),$(ADDITIONAL_TAGS))
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	$(call docker_push,$(BUNDLE_IMG),$(ADDITIONAL_TAGS))
+	$(call docker_push,$(BUNDLE_IMG))
+# $(call docker_push,$(BUNDLE_IMG),$(ADDITIONAL_TAGS))
 
 .PHONY: opm
 OPM = ./bin/opm
