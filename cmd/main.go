@@ -90,7 +90,7 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	susqlLog.Info("SusQL configuration values at runtime")
-	susqlLog.Info("metricsAddr=" + metricsAddr))
+	susqlLog.Info("metricsAddr=" + metricsAddr)
 	susqlLog.Info("enableLeaderElection=" + strconv.FormatBool(enableLeaderElection))
 	susqlLog.Info("probeAddr=" + probeAddr)
 	susqlLog.Info("keplerPrometheusUrl=" + keplerPrometheusUrl)
