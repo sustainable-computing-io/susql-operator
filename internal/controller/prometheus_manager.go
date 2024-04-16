@@ -55,7 +55,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	if err != nil {
 		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Couldn't create HTTP client.\n")+
 			fmt.Sprintf("\tQuery:  %s\n", susqlPrometheusQuery)+
-			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl))
+			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl))
 		os.Exit(1)
 	}
 
@@ -78,7 +78,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	if err != nil {
 		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Querying Prometheus didn't work.\n")+
 			fmt.Sprintf("\tQuery:  %s\n", queryString)+
-			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s", r.SusQLPrometheusDatabaseUrl))
+			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl))
 		return 0.0, err
 	}
 
@@ -103,7 +103,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	if err != nil {
 		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Couldn't create an HTTP client.\n"+
 			fmt.Sprintf("\tmetricName: %s\n", metricName)+
-			fmt.Sprintf("\tKeplerPrometheusUrl: %s", r.KeplerPrometheusUrl))
+			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl))
 		os.Exit(1)
 	}
 
@@ -125,7 +125,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Querying Prometheus didn't work.\n"+
 			fmt.Sprintf("\tmetricName: %s\n", metricName)+
 			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)+
-			fmt.Sprintf("\tqueryString: %s", queryString))
+			fmt.Sprintf("\tqueryString: %s\n", queryString))
 		return nil, err
 	}
 
