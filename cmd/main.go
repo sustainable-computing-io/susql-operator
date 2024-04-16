@@ -89,6 +89,16 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	susqlLog.Info("SusQL configuration values at runtime")
+	susqlLog.Info("metricsAddr=" + metricsAddr))
+	susqlLog.Info("enableLeaderElection=" + strconv.FormatBool(enableLeaderElection))
+	susqlLog.Info("probeAddr=" + probeAddr)
+	susqlLog.Info("keplerPrometheusUrl=" + keplerPrometheusUrl)
+	susqlLog.Info("keplerMetricName=" + keplerMetricName)
+	susqlLog.Info("susqlPrometheusMetricsUrl=" + susqlPrometheusMetricsUrl)
+	susqlLog.Info("susqlPrometheusDatabaseUrl=" + susqlPrometheusDatabaseUrl)
+	susqlLog.Info("samplingRate=" + samplingRate)
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
