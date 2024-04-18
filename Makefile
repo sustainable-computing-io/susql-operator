@@ -37,7 +37,7 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-susql-operator-bundle:v$(VERSION)
 
 # OPERATOR_IMG define the image:tag used for the operator
 # You can use it as an arg. (E.g make operator-build OPERATOR_IMG=<some-registry>:<version>)
-OPERATOR_IMG ?= $(IMAGE_TAG_BASE):latest
+OPERATOR_IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
 # ADDITIONAL_TAGS ?=
 
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command

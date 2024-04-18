@@ -6,6 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: <OPERATOR_IMG>
+    description: 'Aggregates energy data from pods tagged with SusQL labels '
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
   name: susql-operator.v0.0.0
