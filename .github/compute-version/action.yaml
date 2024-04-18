@@ -11,6 +11,6 @@ runs:
       id: version
       shell: bash
       run: |
-        version="$(cat VERSION)-$(date +%Y%m%d%H%M%S)"
+        version="$(cat VERSION)"
         echo VERSION=$version
         echo "version=$version" >> $GITHUB_OUTPUT
