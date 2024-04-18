@@ -34,7 +34,7 @@ spec:
     \ labels: \n    - my-label-1\n    - my-label-2\n```\n\n### Documentation\nDocumentation
     can be found below:\n  * [SusQL Operator](https://github.com/sustainable-computing-io/susql-operator#readme)\n\n###
     Getting help\nIf you encounter any issues while using the SusQL Operator, you can
-    create an issue on our Github repo for bugs, enhancements, or other requests.\n\n###
+    create an issue on our GitHub repo for bugs, enhancements, or other requests.\n\n###
     Contributing\nYou can contribute by\n  * Raising [issues](https://github.com/sustainable-computing-io/susql-operator/issues)\n
     \   related to susql-operator"
   displayName: SusQL
