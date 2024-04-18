@@ -89,7 +89,7 @@ Energy of the group of pods is exposed in 2 ways:
 
 | Environmental Variable      | Default Value                 | Description                                      |
 |:---------------------------:|:-----------------------------:|:------------------------------------------------:|
-| SUSQL_NAMESPACE             | openshift-kepler-operator     | namespace that SUSQL resources run in            |
+| SUSQL_NAMESPACE             | openshift-kepler-operator     | namespace that SusQL resources run in            |
 | KEPLER_PROMETHEUS_NAMESPACE | openshift-monitoring          | namespace that Kepler Prometheus runs in         |
 | PROMETHEUS_PROTOCOL         | http                          | Either http or https for Kepler Prometheus access|
 | PROMETHEUS_SERVICE          | prometheus-k8s                | service name for the Kepler Prometheus           |
