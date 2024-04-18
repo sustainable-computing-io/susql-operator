@@ -183,7 +183,7 @@ do
 
     elif [[ ${action} = "prometheus-deploy" ]]; then
         # Install prometheus from community helm charts
-        echo "->Deploying Prometheus controller to store susql data..."
+        echo "->Deploying Prometheus controller to store SusQL data..."
 
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
@@ -249,14 +249,14 @@ do
                 # Check if the error message contains "not found"
                 if [[ "$error_message" == *"not found"* ]]; then
                     # Custom message if release not found
-                    echo "Susql Controller not found"
+                    echo "SusQL Controller not found"
                 else
                     # Display the original error message
                     echo "$error_message"
                 fi
             else
                 # Success message if the command was successful
-                echo "Susql uninstall successful."
+                echo "SusQL uninstall successful."
                 helm -n ${SUSQL_NAMESPACE} uninstall susql-controller
             fi
         fi
