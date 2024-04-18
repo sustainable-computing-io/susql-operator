@@ -34,5 +34,5 @@ jobs:
             image_registry: ${{ vars.REGISTRY }}
             registry_login: ${{ secrets.QUAY_BOT_NAME }}
             registry_token: ${{ secrets.QUAY_BOT_TOKEN }}
-            version: ${{ steps.version.outputs.version }}
+            version: 0.0.5
             additional_tags: ${{ steps.additional_tags.outputs.result }}
