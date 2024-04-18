@@ -22,13 +22,14 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:latest
-    createdAt: "2024-04-05T17:50:51Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.5
+    createdAt: "2024-04-18T16:36:33Z"
+    description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.4
+  name: susql-operator.v0.0.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -186,11 +187,6 @@ spec:
                 - --health-probe-bind-address=:8081
                 - --metrics-bind-address=127.0.0.1:8080
                 - --leader-elect
-                - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
-                - --kepler-metric-name=$(KEPLER-METRIC-NAME)
-                - --susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)
-                - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
-                - --sampling-rate=$(SAMPLING-RATE)
                 command:
                 - /manager
                 env:
@@ -199,13 +195,12 @@ spec:
                 - name: KEPLER-METRIC-NAME
                   value: kepler_container_joules_total
                 - name: SUSQL-PROMETHEUS-DATABASE-URL
-#                 value: http://prometheus-susql.default.svc.cluster.local:9090
-                  value: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+                  value: http://prometheus-susql.default.svc.cluster.local:9090
                 - name: SUSQL-PROMETHEUS-METRICS-URL
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
                   value: "2"
-                image: quay.io/sustainable_computing_io/susql_operator:latest
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.5
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -301,4 +296,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.4
+  version: 0.0.5
