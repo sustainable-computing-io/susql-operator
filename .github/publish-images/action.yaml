@@ -50,6 +50,6 @@ runs:
         make operator-build && make operator-push
       env:
         VERSION: ${{ inputs.version }}
-        IMAGE_TAG_BASE: ${{ inputs.image_registry }}
+        IMAGE_TAG_BASE: ${{ format('{0}', inputs.image_url) }}
         # OPERATOR_IMG: ${{ format('{0}', inputs.image_url) }}
         ADDITIONAL_TAGS: ${{ inputs.additional_tags }}
