@@ -187,6 +187,11 @@ spec:
                 - --health-probe-bind-address=:8081
                 - --metrics-bind-address=127.0.0.1:8080
                 - --leader-elect
+                - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
+                - --kepler-metric-name=$(KEPLER-METRIC-NAME)
+                - --susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)
+                - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
+                - --sampling-rate=$(SAMPLING-RATE)
                 command:
                 - /manager
                 env:
@@ -195,7 +200,8 @@ spec:
                 - name: KEPLER-METRIC-NAME
                   value: kepler_container_joules_total
                 - name: SUSQL-PROMETHEUS-DATABASE-URL
-                  value: http://prometheus-susql.default.svc.cluster.local:9090
+                  # value: http://prometheus-susql.default.svc.cluster.local:9090
+                  value: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
                 - name: SUSQL-PROMETHEUS-METRICS-URL
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
