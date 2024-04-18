@@ -43,8 +43,13 @@ runs:
     - name: Build Operator and image and then push
       shell: bash
       run: |
+        echo VERSION=$VERSION
+        echo IMAGE_TAG_BASE=$IMAGE_TAG_BASE
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "IMAGE_TAG_BASE=$IMAGE_TAG_BASE" >> $GITHUB_OUTPUT
         make operator-build && make operator-push
       env:
         VERSION: ${{ inputs.version }}
-        OPERATOR_IMG: ${{ format('{0}', inputs.image_url) }}
+        IMAGE_TAG_BASE: ${{ inputs.image_registry }}
+        # OPERATOR_IMG: ${{ format('{0}', inputs.image_url) }}
         ADDITIONAL_TAGS: ${{ inputs.additional_tags }}
