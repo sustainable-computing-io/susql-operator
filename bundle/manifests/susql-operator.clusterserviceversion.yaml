@@ -144,15 +144,6 @@ spec:
           - get
           - list
           - watch
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          - pods/status
-          verbs:
-          - get
-          - list
-          - watch
         serviceAccountName: susql-operator-controller-manager
       deployments:
       - label:
