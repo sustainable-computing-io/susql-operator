@@ -1,11 +1,14 @@
 # Security Policy
 
+Our intent is to resolve security issues in a timely fasion. 
+Since we can release frequently, security issues will be fixed in the next minor release.
+
 ## Supported Versions
 
-| Version  | Supported          |
-| -------  | ------------------ |
-| >0.0.3   | :white_check_mark: |
-| < 0.0.3  | :x:                |
+| Version   | Supported          |
+| -------   | ------------------ |
+| >=latest  | :white_check_mark: |
+| < 0.0.6   | :x:                |
 
 ## Reporting a Vulnerability
 
