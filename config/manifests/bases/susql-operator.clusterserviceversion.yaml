@@ -107,6 +107,7 @@ spec:
   - email: mohammed.munir.abdi@ibm.com
     name: Mohammed Abdi
   maturity: alpha
+  minKubeVersion: 1.12.0
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator

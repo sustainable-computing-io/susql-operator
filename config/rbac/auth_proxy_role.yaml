@@ -22,3 +22,12 @@ rules:
   - subjectaccessreviews
   verbs:
   - create
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  - pods/status
+  verbs:
+  - get
+  - list
+  - watch
