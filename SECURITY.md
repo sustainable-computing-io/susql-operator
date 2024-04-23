@@ -1,6 +1,6 @@
 # Security Policy
 
-Our intent is to resolve security issues in a timely fasion. 
+Our intent is to address security issues in a timely fasion. 
 Since we can release frequently, security issues will be fixed in the next minor release.
 
 ## Supported Versions
@@ -8,7 +8,7 @@ Since we can release frequently, security issues will be fixed in the next minor
 | Version   | Supported          |
 | -------   | ------------------ |
 | >=latest  | :white_check_mark: |
-| < 0.0.6   | :x:                |
+| < latest  | :x:                |
 
 ## Reporting a Vulnerability
 
