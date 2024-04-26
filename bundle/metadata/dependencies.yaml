@@ -1,5 +1,6 @@
 dependencies:
-  - type: olm.package
+  - type: olm.gvk
     value:
-      packageName: prometheus
-      version: ">0.20.0"
+      group: monitoring.coreos.com
+      kind: ServiceMonitor
+      version: v1
