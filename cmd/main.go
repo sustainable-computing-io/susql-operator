@@ -61,7 +61,7 @@ func main() {
 	var susqlPrometheusDatabaseUrl string
 	var samplingRate string
 
-	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
+	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8082", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
@@ -128,6 +128,8 @@ func main() {
 		samplingRateInteger = 2
 	}
 
+	susqlLog.Info("Setting up labelGroupReconciler.")
+
 	if err = (&controller.LabelGroupReconciler{
 		Client:                     mgr.GetClient(),
 		Scheme:                     mgr.GetScheme(),
@@ -143,6 +145,8 @@ func main() {
 	}
 	//+kubebuilder:scaffold:builder
 
+	susqlLog.Info("Adding healthz check.")
+
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		susqlLog.Error(err, "unable to set up health check")
 		os.Exit(1)
@@ -152,7 +156,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	susqlLog.Info("starting manager")
+	susqlLog.Info("Starting manager.")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		susqlLog.Error(err, "problem running manager")
 		os.Exit(1)
