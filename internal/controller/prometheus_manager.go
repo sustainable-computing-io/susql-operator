@@ -164,6 +164,7 @@ var (
 
 func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 	// Initiate the exporting of prometheus metrics for the energy
+	r.Logger.V(2).Info("Entering InitializeMetricsExporter().")
 	if prometheusRegistry == nil {
 		prometheusRegistry = prometheus.NewRegistry()
 		prometheusRegistry.MustRegister(susqlMetrics.totalEnergy)
@@ -172,19 +173,19 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 		http.Handle("/metrics", prometheusHandler)
 
 		if metricsUrl, parseErr := url.Parse(r.SusQLPrometheusMetricsUrl); parseErr == nil {
-			r.Logger.V(2).Info(fmt.Sprintf("Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port()))
+			r.Logger.V(2).Info(fmt.Sprintf("[InitializeMetricsExporter] Serving metrics at '%s:%s'...\n", metricsUrl.Hostname(), metricsUrl.Port()))
 
 			go func() {
 				err := http.ListenAndServe(metricsUrl.Hostname()+":"+metricsUrl.Port(), nil)
 
 				if err != nil {
-					r.Logger.V(0).Error(err, "PANIC [SetAggregatedEnergyForLabels] ListenAndServe")
-					panic("PANIC [SetAggregatedEnergyForLabels]: ListenAndServe: " + err.Error())
+					r.Logger.V(0).Error(err, "PANIC InitializeMetricsExporterSetAggregatedEnergyForLabels] ListenAndServe")
+					panic("PANIC [InitializeMetricsExporter]: ListenAndServe: " + err.Error())
 				}
 			}()
 		} else {
-			r.Logger.V(0).Error(parseErr, fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels] Parsing the URL '%s' to set the metrics address didn't work.", r.SusQLPrometheusMetricsUrl))
-			panic(fmt.Sprintf("PANIC [SetAggregatedEnergyForLabels]: Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
+			r.Logger.V(0).Error(parseErr, fmt.Sprintf("PANIC [InitializeMetricsExporter] Parsing the URL '%s' to set the metrics address didn't work.", r.SusQLPrometheusMetricsUrl))
+			panic(fmt.Sprintf("PANIC [InitializeMetricsExporter]: Parsing the URL '%s' to set the metrics address didn't work (%v)", r.SusQLPrometheusMetricsUrl, parseErr))
 		}
 	}
 }
