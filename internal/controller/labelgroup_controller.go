@@ -254,6 +254,8 @@ func (r *LabelGroupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&susqlv1.LabelGroup{}).
 		Complete(r)
 
+	r.Logger.V(2).Info("[SetupWithmManager] Initializing Metrics Exporter.")
+
 	// Start server to export metrics
 	r.InitializeMetricsExporter()
 
