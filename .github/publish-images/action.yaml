@@ -31,7 +31,6 @@ runs:
       with:
         go-version-file: go.mod
         check-latest: true
-        cache: true
 
     - name: Login to Image Registry
       uses: redhat-actions/podman-login@v1
