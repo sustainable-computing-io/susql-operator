@@ -22,14 +22,14 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.9
-    createdAt: "2024-04-26T02:37:42Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.10
+    createdAt: "2024-04-30T01:22:03Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.9
+  name: susql-operator.v0.0.10
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -174,7 +174,7 @@ spec:
               containers:
               - args:
                 - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
+                - --upstream=http://127.0.0.1:8082/
                 - --logtostderr=true
                 - --v=0
                 image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
@@ -197,7 +197,7 @@ spec:
                     - ALL
               - args:
                 - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
+                - --metrics-bind-address=127.0.0.1:8082
                 - --leader-elect
                 - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
                 - --kepler-metric-name=$(KEPLER-METRIC-NAME)
@@ -217,7 +217,7 @@ spec:
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
                   value: "2"
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.9
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.10
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -314,4 +314,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.9
+  version: 0.0.10
