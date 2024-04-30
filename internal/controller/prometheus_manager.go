@@ -179,7 +179,7 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 				err := http.ListenAndServe(metricsUrl.Hostname()+":"+metricsUrl.Port(), nil)
 
 				if err != nil {
-					r.Logger.V(0).Error(err, "PANIC InitializeMetricsExporterSetAggregatedEnergyForLabels] ListenAndServe")
+					r.Logger.V(0).Error(err, "PANIC [InitializeMetricsExporter] ListenAndServe")
 					panic("PANIC [InitializeMetricsExporter]: ListenAndServe: " + err.Error())
 				}
 			}()

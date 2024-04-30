@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.12
-    createdAt: "2024-04-30T04:26:09Z"
+    createdAt: "2024-04-30T04:59:54Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -197,7 +197,7 @@ spec:
                     - ALL
               - args:
                 - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8082
+                - --metrics-bind-address=127.0.0.1:9999
                 - --leader-elect
                 - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
                 - --kepler-metric-name=$(KEPLER-METRIC-NAME)
