@@ -32,13 +32,3 @@ spec:
           requests:
             cpu: 5m
             memory: 64Mi
-      - name: manager
-        args:
-        - "--health-probe-bind-address=:8081"
-        - "--metrics-bind-address=127.0.0.1:9999"
-        - "--leader-elect"
-        - "--kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)"
-        - "--kepler-metric-name=$(KEPLER-METRIC-NAME)"
-        - "--susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)"
-        - "--susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)"
-        - "--sampling-rate=$(SAMPLING-RATE)"
