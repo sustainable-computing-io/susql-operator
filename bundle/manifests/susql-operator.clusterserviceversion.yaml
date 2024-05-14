@@ -22,14 +22,14 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.14
-    createdAt: "2024-04-30T07:27:57Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.15
+    createdAt: "2024-05-14T16:24:18Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.14
+  name: susql-operator.v0.0.15
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -147,54 +147,48 @@ spec:
           - get
           - list
           - watch
-        serviceAccountName: susql-operator-susql-controller-manager
+        serviceAccountName: susql-operator-controller-manager
       deployments:
       - label:
           app.kubernetes.io/component: manager
-          app.kubernetes.io/created-by: susql-operator
-          app.kubernetes.io/instance: susql-controller-manager
-          app.kubernetes.io/managed-by: kustomize
+          app.kubernetes.io/instance: controller-manager
           app.kubernetes.io/name: deployment
           app.kubernetes.io/part-of: susql-operator
-          control-plane: susql-controller-manager
-        name: susql-operator-susql-controller-manager
+        name: susql-operator-controller
         spec:
           replicas: 1
           selector:
             matchLabels:
-              control-plane: susql-controller-manager
+              app.kubernetes.io/component: manager
+              app.kubernetes.io/instance: controller-manager
+              app.kubernetes.io/part-of: susql-operator
           strategy: {}
           template:
             metadata:
               annotations:
                 kubectl.kubernetes.io/default-container: manager
               labels:
-                control-plane: susql-controller-manager
+                app.kubernetes.io/component: manager
+                app.kubernetes.io/instance: controller-manager
+                app.kubernetes.io/part-of: susql-operator
             spec:
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: kubernetes.io/arch
+                        operator: In
+                        values:
+                        - amd64
+                        - arm64
+                        - ppc64le
+                        - s390x
+                      - key: kubernetes.io/os
+                        operator: In
+                        values:
+                        - linux
               containers:
-              - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8082/
-                - --logtostderr=true
-                - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources:
-                  limits:
-                    cpu: 500m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-                  capabilities:
-                    drop:
-                    - ALL
               - args:
                 - --leader-elect
                 - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
@@ -203,7 +197,7 @@ spec:
                 - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
                 - --sampling-rate=$(SAMPLING-RATE)
                 - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:9999
+                - --metrics-bind-address=127.0.0.1:8082
                 command:
                 - /manager
                 env:
@@ -217,28 +211,25 @@ spec:
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
                   value: "2"
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.14
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.15
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
                     path: /healthz
                     port: 8081
-                  initialDelaySeconds: 15
+                  initialDelaySeconds: 20
                   periodSeconds: 20
                 name: manager
                 ports:
                 - containerPort: 8082
-                  name: metric
-                  protocol: TCP
-                - containerPort: 9999
-                  name: autometric
+                  name: metrics
                   protocol: TCP
                 readinessProbe:
                   httpGet:
                     path: /readyz
                     port: 8081
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
+                  initialDelaySeconds: 20
+                  periodSeconds: 20
                 resources:
                   limits:
                     cpu: 500m
@@ -253,7 +244,7 @@ spec:
                     - ALL
               securityContext:
                 runAsNonRoot: true
-              serviceAccountName: susql-operator-susql-controller-manager
+              serviceAccountName: susql-operator-controller-manager
               terminationGracePeriodSeconds: 10
       permissions:
       - rules:
@@ -288,7 +279,7 @@ spec:
           verbs:
           - create
           - patch
-        serviceAccountName: susql-operator-susql-controller-manager
+        serviceAccountName: susql-operator-controller-manager
     strategy: deployment
   installModes:
   - supported: true
@@ -321,4 +312,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.14
+  version: 0.0.15
