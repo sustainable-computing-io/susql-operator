@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.15
-    createdAt: "2024-05-21T16:53:43Z"
+    createdAt: "2024-05-21T17:03:15Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -170,22 +170,6 @@ spec:
               labels:
                 control-plane: susql-controller-manager
             spec:
-              affinity:
-                nodeAffinity:
-                  requiredDuringSchedulingIgnoredDuringExecution:
-                    nodeSelectorTerms:
-                    - matchExpressions:
-                      - key: kubernetes.io/arch
-                        operator: In
-                        values:
-                        - amd64
-                        - arm64
-                        - ppc64le
-                        - s390x
-                      - key: kubernetes.io/os
-                        operator: In
-                        values:
-                        - linux
               containers:
               - args:
                 - --secure-listen-address=0.0.0.0:8443
@@ -218,7 +202,7 @@ spec:
                 - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
                 - --sampling-rate=$(SAMPLING-RATE)
                 - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8082
+                - --metrics-bind-address=127.0.0.1:9999
                 command:
                 - /manager
                 env:
@@ -238,19 +222,22 @@ spec:
                   httpGet:
                     path: /healthz
                     port: 8081
-                  initialDelaySeconds: 20
+                  initialDelaySeconds: 15
                   periodSeconds: 20
                 name: manager
                 ports:
                 - containerPort: 8082
-                  name: metrics
+                  name: metric
+                  protocol: TCP
+                - containerPort: 9999
+                  name: autometric
                   protocol: TCP
                 readinessProbe:
                   httpGet:
                     path: /readyz
                     port: 8081
-                  initialDelaySeconds: 20
-                  periodSeconds: 20
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
                 resources:
                   limits:
                     cpu: 500m

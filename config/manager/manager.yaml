@@ -88,7 +88,7 @@ spec:
         - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
         - --sampling-rate=$(SAMPLING-RATE)
         - --health-probe-bind-address=:8081
-        - --metrics-bind-address=127.0.0.1:8082
+        - --metrics-bind-address=127.0.0.1:9999
         image: '<OPERATOR_IMG>'
         imagePullPolicy: IfNotPresent
         name: manager
@@ -101,16 +101,23 @@ spec:
           httpGet:
             path: /healthz
             port: 8081
-          initialDelaySeconds: 20
+          initialDelaySeconds: 15
           periodSeconds: 20
         readinessProbe:
           httpGet:
             path: /readyz
             port: 8081
-          initialDelaySeconds: 20
-          periodSeconds: 20
+          initialDelaySeconds: 5
+          periodSeconds: 10
         # TODO(user): Configure the resources accordingly based on the project requirements.
         # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+        ports:
+        - containerPort: 8082
+          protocol: TCP
+          name: metric
+        - containerPort: 9999
+          protocol: TCP
+          name: autometric
         resources:
           limits:
             cpu: 500m
@@ -118,9 +125,5 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
-        ports:
-        - containerPort: 8082
-          protocol: TCP
-          name: metrics
       serviceAccountName: susql-controller-manager
       terminationGracePeriodSeconds: 10
