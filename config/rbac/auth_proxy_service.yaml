@@ -13,9 +13,9 @@ metadata:
   namespace: system
 spec:
   ports:
-  - name: metrics
-    port: 8082
+  - name: https
+    port: 8443
     protocol: TCP
-    targetPort: metrics
+    targetPort: https
   selector:
     control-plane: susql-controller-manager
