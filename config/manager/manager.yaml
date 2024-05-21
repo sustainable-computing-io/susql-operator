@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
+    control-plane: susql-controller-manager
     app.kubernetes.io/name: namespace
     app.kubernetes.io/instance: system
     app.kubernetes.io/component: manager
@@ -13,28 +14,26 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: controller
+  name: susql-controller-manager
   namespace: system
   labels:
     app.kubernetes.io/name: deployment
-    app.kubernetes.io/instance: controller-manager
+    app.kubernetes.io/instance: susql-controller-manager
     app.kubernetes.io/component: manager
     app.kubernetes.io/part-of: susql-operator
+    app.kubernetes.io/created-by: susql-operator
+    app.kubernetes.io/managed-by: kustomize
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/instance: controller-manager
-      app.kubernetes.io/component: manager
-      app.kubernetes.io/part-of: susql-operator
+      control-plane: susql-controller-manager
   replicas: 1
   template:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: manager
       labels:
-        app.kubernetes.io/instance: controller-manager
-        app.kubernetes.io/component: manager
-        app.kubernetes.io/part-of: susql-operator
+        control-plane: susql-controller-manager
     spec:
       # TODO(user): Uncomment the following code to configure the nodeAffinity expression
       # according to the platforms which are supported by your solution.
@@ -123,5 +122,5 @@ spec:
         - containerPort: 8082
           protocol: TCP
           name: metrics
-      serviceAccountName: controller-manager
+      serviceAccountName: susql-controller-manager
       terminationGracePeriodSeconds: 10
