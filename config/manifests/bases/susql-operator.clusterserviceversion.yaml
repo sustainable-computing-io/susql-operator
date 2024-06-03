@@ -30,7 +30,7 @@ spec:
 
     ### Prerequisites
 
-  1. Deployment of [Kepler](https://sustainable-computing.io) on the cluster
+    1. Deployment of [Kepler](https://sustainable-computing.io/) on the cluster
     2. Ensure that [User Project Monitoring](https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html)
     is enabled to monitor energy consumed in user projects.
 
