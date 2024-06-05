@@ -22,14 +22,14 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.16
-    createdAt: "2024-05-30T08:31:43Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.17
+    createdAt: "2024-06-05T06:38:56Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.16
+  name: susql-operator.v0.0.17
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -50,7 +50,7 @@ spec:
 
     ### Prerequisites
 
-    1. Deployment of Kepler on the cluster
+    1. Deployment of [Kepler](https://sustainable-computing.io/) on the cluster
     2. Ensure that [User Project Monitoring](https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html)
     is enabled to monitor energy consumed in user projects.
 
@@ -216,7 +216,7 @@ spec:
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
                   value: "2"
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.16
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.17
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -320,4 +320,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.16
+  version: 0.0.17

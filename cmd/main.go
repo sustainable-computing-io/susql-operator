@@ -82,7 +82,7 @@ func main() {
 
 	opts := zap.Options{
 		Development: true,
-		Level:       zapcore.Level(-2),
+		Level:       zapcore.Level(-5),
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
