@@ -70,6 +70,8 @@ var (
 func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
+	r.Logger.V(5).Info("[Reconcile] Entered Reconcile().")
+
 	// Get label group object to process if it exists
 	labelGroup := &susqlv1.LabelGroup{}
 
@@ -96,7 +98,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	// Decide what action to take based on the state of the labelGroup
 	switch labelGroup.Status.Phase {
 	case susqlv1.Initializing:
-		r.Logger.V(2).Info("[Reconcile] Entered initializing case.")
+		r.Logger.V(5).Info("[Reconcile] Entered initializing case.")
 		if len(labelGroup.Spec.Labels) > len(susqlPrometheusLabelNames) {
 			r.Logger.V(0).Error(fmt.Errorf("[Reconcile] The number of provided labels is greater than the maximum number of supported labels (e.g., up to %d labels).", len(susqlPrometheusLabelNames)), "")
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
@@ -147,7 +149,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 
 	case susqlv1.Reloading:
-		r.Logger.V(2).Info("[Reconcile] Entered reloading case.")
+		r.Logger.V(5).Info("[Reconcile] Entered reloading case.")
 		// Reload data from existing database
 		if !labelGroup.Spec.DisableUsingMostRecentValue {
 			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusQuery)
@@ -171,11 +173,13 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 
 	case susqlv1.Aggregating:
-		//		r.Logger.V(2).Info("[Reconcile] Entered aggregating case.") // trace
+		r.Logger.V(5).Info("[Reconcile] Entered aggregating case.") // trace
 		// Get list of pods matching the label group
 		podNames, namespaceNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] podNames: %s", podNames))             // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] namespaceNames: %s", namespaceNames)) // trace
 
-		if err != nil {
+		if err != nil || len(podNames) == 0 || len(namespaceNames) == 0 {
 			r.Logger.V(0).Error(err, "[Reconcile] Couldn't get pods for the labels provided.")
 			return ctrl.Result{}, err
 		}
@@ -236,7 +240,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{RequeueAfter: r.SamplingRate}, nil
 
 	default:
-		r.Logger.V(2).Info("[Reconcile] Entered default case.")
+		r.Logger.V(5).Info("[Reconcile] Entered default case.")
 		// First time seeing this object
 		labelGroup.Status.Phase = susqlv1.Initializing
 
@@ -254,7 +258,7 @@ func (r *LabelGroupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&susqlv1.LabelGroup{}).
 		Complete(r)
 
-	r.Logger.V(2).Info("[SetupWithManager] Initializing Metrics Exporter.")
+	r.Logger.V(5).Info("[SetupWithManager] Initializing Metrics Exporter.")
 
 	// Start server to export metrics
 	r.InitializeMetricsExporter()

@@ -66,8 +66,8 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	queryString := fmt.Sprintf("max_over_time(%s[%s])", susqlPrometheusQuery, maxQueryTime)
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
-	r.Logger.V(2).Info(fmt.Sprintf("[GetMostRecentValue] Query: %s", queryString)) // trace
-	r.Logger.V(2).Info(fmt.Sprintf("[GetMostRecentValue] Results: '%v'", results)) // trace
+	r.Logger.V(5).Info(fmt.Sprintf("[GetMostRecentValue] Query: %s", queryString)) // trace
+	r.Logger.V(5).Info(fmt.Sprintf("[GetMostRecentValue] Results: '%v'", results)) // trace
 
 	if len(warnings) > 0 {
 		r.Logger.V(0).Info(fmt.Sprintf("WARNING [GetMostRecentValue] %v\n", warnings) +
@@ -115,11 +115,16 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 
 	// new query for issue 2: can improve runtime efficiency...
 	queryString := fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[0], namespaceNames[0])
+	queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"idle\"})", metricName, podNames[0], namespaceNames[0])
 	for i := 1; i < len(podNames); i++ {
 		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[i], namespaceNames[i])
+		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"idle\"})", metricName, podNames[i], namespaceNames[i])
 	}
 
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
+
+	r.Logger.V(5).Info(fmt.Sprintf("[GetMetricValuesForPodNames] Query: %s", queryString)) // trace
+	r.Logger.V(5).Info(fmt.Sprintf("[GetMetricValuesForPodNames] Results: '%v'", results)) // trace
 
 	if err != nil {
 		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Querying Prometheus didn't work.\n"+
@@ -139,6 +144,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	metricValues := make(map[string]float64, len(results.(model.Vector)))
 
 	for _, result := range results.(model.Vector) {
+		r.Logger.V(5).Info(fmt.Sprintf("[GetMetricValuesForPodNames] Container id %s value is %f.", string(result.Metric["container_id"]), float64(result.Value))) // trace
 		metricValues[string(result.Metric["container_id"])] = float64(result.Value)
 	}
 
@@ -164,7 +170,7 @@ var (
 
 func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 	// Initiate the exporting of prometheus metrics for the energy
-	r.Logger.V(2).Info("Entering InitializeMetricsExporter().")
+	r.Logger.V(5).Info("Entering InitializeMetricsExporter().")
 	if prometheusRegistry == nil {
 		prometheusRegistry = prometheus.NewRegistry()
 		prometheusRegistry.MustRegister(susqlMetrics.totalEnergy)
@@ -194,7 +200,7 @@ func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64,
 	// Save aggregated energy to Prometheus table
 	susqlMetrics.totalEnergy.With(prometheusLabels).Set(totalEnergy)
 
-	r.Logger.V(2).Info(fmt.Sprintf("[SetAggregatedEnergyForLabels] Setting energy %f for %v.", totalEnergy, prometheusLabels)) // trace
+	r.Logger.V(5).Info(fmt.Sprintf("[SetAggregatedEnergyForLabels] Setting energy %f for %v.", totalEnergy, prometheusLabels)) // trace
 
 	return nil
 }
