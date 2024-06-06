@@ -176,11 +176,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		r.Logger.V(5).Info("[Reconcile] Entered aggregating case.") // trace
 		// Get list of pods matching the label group
 		podNames, namespaceNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] podNames: %s", podNames))             // trace
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] namespaceNames: %s", namespaceNames)) // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNames: %s", podNames))             // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] namespaceNames: %s", namespaceNames)) // trace
 
 		if err != nil || len(podNames) == 0 || len(namespaceNames) == 0 {
 			r.Logger.V(0).Error(err, "[Reconcile] Couldn't get pods for the labels provided.")
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] labelGroup: %#v", labelGroup)) // trace
 			return ctrl.Result{}, err
 		}
 
