@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -28,6 +29,7 @@ import (
 // Functions to get data from the cluster
 func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susqlv1.LabelGroup) ([]string, []string, error) {
 	pods := &v1.PodList{}
+	r.Logger.V(5).Info(fmt.Sprintf("[GetPodNamesMatchingLabels] pods: %#v", pods))
 
 	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.KubernetesLabels)); err != nil {
 		return nil, nil, err

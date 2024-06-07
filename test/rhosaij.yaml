@@ -1,0 +1,10 @@
+---
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
+    name: openshiftaij
+    namespace: rhods-notebooks
+spec:
+    labels:
+        - openshiftaij
+---
