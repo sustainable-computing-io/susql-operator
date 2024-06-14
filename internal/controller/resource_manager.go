@@ -24,7 +24,24 @@ import (
 
 	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
+
+func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namespace string, labelSelector map[string]string) ([]v1.Pod, error) {
+	// Initialize list options with label selector
+	listOptions := &client.ListOptions{
+		Namespace:     namespace,
+		LabelSelector: labels.SelectorFromSet(labels.Set(labelSelector)),
+	}
+
+	// List pods in the specified namespace with label selector applied
+	var podList v1.PodList
+	if err := r.Client.List(ctx, &podList, listOptions); err != nil {
+		return nil, err
+	}
+
+	return podList.Items, nil
+}
 
 // Functions to get data from the cluster
 func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susqlv1.LabelGroup) ([]string, []string, error) {

@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -178,6 +179,17 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		podNames, namespaceNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNames: %s", podNames))             // trace
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] namespaceNames: %s", namespaceNames)) // trace
+
+		podsInNamespaces, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
+
+		// r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNames: %s", podsInNamespaces)) // trace
+
+		var printPodNames []string
+		for _, pod := range podsInNamespaces {
+			printPodNames = append(printPodNames, pod.Name)
+		}
+
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNames: %s", strings.Join(printPodNames, ", ")))
 
 		if err != nil || len(podNames) == 0 || len(namespaceNames) == 0 {
 			r.Logger.V(0).Error(err, "[Reconcile] Couldn't get pods for the labels provided.")
