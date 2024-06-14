@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sum-job
+  namespace: default
+spec:
+  template:
+    metadata:
+      name: sum-pod
+      labels:
+        susql.label/1: model-1
+    spec:
+      containers:
+        - name: sum-container
+          image: busybox
+          command:
+            - "sh"
+            - "-c"
+            - |
+              sum=0
+              for i in $(seq 1 100); do
+                sum=$((sum + i))
+                echo "Sum after adding $i is: $sum"
+              done
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 100m
+              memory: 200Mi
+      restartPolicy: Never
