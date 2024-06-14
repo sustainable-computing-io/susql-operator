@@ -31,6 +31,8 @@ func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, la
 	pods := &v1.PodList{}
 	r.Logger.V(5).Info(fmt.Sprintf("[GetPodNamesMatchingLabels] pods: %#v", pods))
 
+	r.Logger.V(5).Info(fmt.Sprintf("[LabelGroup] pods: %#v", labelGroup))
+
 	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.KubernetesLabels)); err != nil {
 		return nil, nil, err
 	}
