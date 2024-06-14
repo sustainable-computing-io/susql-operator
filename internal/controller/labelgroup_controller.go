@@ -174,22 +174,13 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	case susqlv1.Aggregating:
 		r.Logger.V(5).Info("[Reconcile] Entered aggregating case.") // trace
-		// Get list of pods matching the label group
-		// podNames, namespaceNames, err := r.GetPodNamesMatchingLabels(ctx, labelGroup)
-		// r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNames: %s", podNames))             // trace
-		// r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] namespaceNames: %s", namespaceNames)) // trace
 
 		// Get list of pods matching the label group and namespace
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
 
-		// var printPodNames []string
-		// for _, pod := range podsInNamespace {
-		// 	printPodNames = append(printPodNames, pod.Name)
-		// }
-
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] LabelName: %s", labelGroup.Name))
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] Namespace: %s", labelGroup.Namespace))
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNamesinNamespace: [%s]", podsInNamespace))
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] LabelName: %s", labelGroup.Name))           // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] Namespace: %s", labelGroup.Namespace))      // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNamesinNamespace: %s", podsInNamespace)) // trace
 
 		if err != nil || len(podsInNamespace) == 0 {
 			r.Logger.V(0).Error(err, "[Reconcile] Couldn't get pods for the labels provided.")

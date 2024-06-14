@@ -27,6 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
+// Function to filter pods with matching labels from namespace label is defined
 func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namespace string, labelSelector map[string]string) ([]string, error) {
 	// Initialize list options with label selector
 	listOptions := &client.ListOptions{
