@@ -27,7 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namespace string, labelSelector map[string]string) ([]v1.Pod, error) {
+func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namespace string, labelSelector map[string]string) ([]string, error) {
 	// Initialize list options with label selector
 	listOptions := &client.ListOptions{
 		Namespace:     namespace,
@@ -40,7 +40,11 @@ func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namesp
 		return nil, err
 	}
 
-	return podList.Items, nil
+	var podNames []string
+	for _, pod := range podList.Items {
+		podNames = append(podNames, pod.Name)
+	}
+	return podNames, nil
 }
 
 // Functions to get data from the cluster

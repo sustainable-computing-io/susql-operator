@@ -89,7 +89,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	}
 }
 
-func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceNames []string) (map[string]float64, error) {
+func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceName string) (map[string]float64, error) {
 	var roundtripper http.RoundTripper = nil
 	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
 		rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
@@ -114,11 +114,11 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	//	queryString := fmt.Sprintf("%s{pod_name=~\"%s\",mode=\"dynamic\"}", metricName, strings.Join(podNames, "|"))
 
 	// new query for issue 2: can improve runtime efficiency...
-	queryString := fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[0], namespaceNames[0])
-	queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"idle\"})", metricName, podNames[0], namespaceNames[0])
+	queryString := fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[0], namespaceName)
+	queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"idle\"})", metricName, podNames[0], namespaceName)
 	for i := 1; i < len(podNames); i++ {
-		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[i], namespaceNames[i])
-		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"idle\"})", metricName, podNames[i], namespaceNames[i])
+		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"dynamic\"})", metricName, podNames[i], namespaceName)
+		queryString = queryString + "+" + fmt.Sprintf("sum(%s{pod_name=\"%s\",container_namespace=\"%s\",mode=\"idle\"})", metricName, podNames[i], namespaceName)
 	}
 
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
