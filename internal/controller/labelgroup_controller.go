@@ -99,6 +99,15 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	switch labelGroup.Status.Phase {
 	case susqlv1.Initializing:
 		r.Logger.V(5).Info("[Reconcile] Entered initializing case.")
+
+		// Load the most recent total energy from CRD
+		totalEnergy, err := r.loadDataFromCRD(ctx, labelGroup.Name)
+		if err != nil {
+			r.Logger.V(0).Error(err, "[Reconcile] Failed to load data from CRD.")
+			return ctrl.Result{RequeueAfter: fixingDelay}, nil
+		}
+		labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
+
 		if len(labelGroup.Spec.Labels) > len(susqlPrometheusLabelNames) {
 			r.Logger.V(0).Error(fmt.Errorf("[Reconcile] The number of provided labels is greater than the maximum number of supported labels (e.g., up to %d labels).", len(susqlPrometheusLabelNames)), "")
 			return ctrl.Result{RequeueAfter: fixingDelay}, nil
@@ -229,6 +238,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
+
+		// Save the updated total energy to CRD
+		if err := r.saveDataToCRD(ctx, labelGroup.Name, totalEnergy); err != nil {
+			r.Logger.V(0).Error(err, "[Reconcile] Failed to save data to CRD.")
+			return ctrl.Result{RequeueAfter: errorDelay}, nil
+		}
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err

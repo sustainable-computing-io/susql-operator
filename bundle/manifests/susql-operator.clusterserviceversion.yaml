@@ -22,14 +22,14 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.18
-    createdAt: "2024-06-07T09:36:03Z"
+    containerImage: docker.io/mohammedmunirabdi/susql_operator:0.0.19
+    createdAt: "2024-06-12T16:58:46Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.18
+  name: susql-operator.v0.0.19
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -218,7 +218,7 @@ spec:
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
                   value: "2"
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.18
+                image: docker.io/mohammedmunirabdi/susql_operator:0.0.19
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -322,4 +322,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.18
+  version: 0.0.19
