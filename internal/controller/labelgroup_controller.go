@@ -189,7 +189,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			printPodNames = append(printPodNames, pod.Name)
 		}
 
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNames: %s", strings.Join(printPodNames, ", ")))
+		r.Logger.V(5).Info(fmt.Sprintf("[Namespace] podNames: %s", strings.Join(printPodNames, ", ")))
 
 		if err != nil || len(podNames) == 0 || len(namespaceNames) == 0 {
 			r.Logger.V(0).Error(err, "[Reconcile] Couldn't get pods for the labels provided.")
