@@ -38,6 +38,11 @@ func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namesp
 	// List pods in the specified namespace with label selector applied
 	var podList v1.PodList
 	if err := r.Client.List(ctx, &podList, listOptions); err != nil {
+		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] labelSelector: %#v", labelSelector))
+		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] ctx: %#v", ctx))
+		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] podList: %#v", podList))
+		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] listOptions: %#v", listOptions))
+		r.Logger.V(0).Error(err, "[filterPodsInNamespace] List Error:")
 		return nil, err
 	}
 
@@ -45,17 +50,18 @@ func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namesp
 	for _, pod := range podList.Items {
 		podNames = append(podNames, pod.Name)
 	}
+
 	return podNames, nil
 }
 
 // Functions to get data from the cluster
 func (r *LabelGroupReconciler) GetPodNamesMatchingLabels(ctx context.Context, labelGroup *susqlv1.LabelGroup) ([]string, []string, error) {
 	pods := &v1.PodList{}
-	r.Logger.V(5).Info(fmt.Sprintf("[GetPodNamesMatchingLabels] pods: %#v", pods))
-
-	r.Logger.V(5).Info(fmt.Sprintf("[LabelGroup] pods: %#v", labelGroup))
 
 	if err := r.List(ctx, pods, client.UnsafeDisableDeepCopy, (client.MatchingLabels)(labelGroup.Status.KubernetesLabels)); err != nil {
+		r.Logger.V(5).Info(fmt.Sprintf("[GetPodNamesMatchingLabels] pods: %#v", pods))
+		r.Logger.V(5).Info(fmt.Sprintf("[GetPodNamesMatchingLabels] labelgroup: %#v", labelGroup))
+		r.Logger.V(0).Error(err, "[GetPodNamesMatchingLabels] List Error:")
 		return nil, nil, err
 	}
 

@@ -178,13 +178,17 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// Get list of pods matching the label group and namespace
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
 
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] LabelName: %s", labelGroup.Name))           // trace
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] Namespace: %s", labelGroup.Namespace))      // trace
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNamesinNamespace: %s", podsInNamespace)) // trace
-
 		if err != nil || len(podsInNamespace) == 0 {
-			r.Logger.V(0).Error(err, "[Reconcile] Couldn't get pods for the labels provided.")
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] labelGroup: %#v", labelGroup)) // trace
+			r.Logger.V(5).Info("[Reconcile] Unable to get podlist.")                                                 // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] LabelName: %s", labelGroup.Name))                            // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] Namespace: %s", labelGroup.Namespace))                       // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels)) // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] podNamesinNamespace: %s", podsInNamespace))                  // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] ctx: %#v", ctx))                                             // trace
+			if err != nil {
+				r.Logger.V(0).Error(err, "[Reconcile] ERROR: Couldn't get pods for the labels provided.")
+			}
+
 			return ctrl.Result{}, err
 		}
 
