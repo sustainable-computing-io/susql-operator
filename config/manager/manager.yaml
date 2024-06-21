@@ -67,7 +67,7 @@ spec:
       containers:
       - command:
         - /manager
-          #        - /debug-entrypoint.sh
+#        - /debug-entrypoint.sh
         env:
           - name: KEPLER-PROMETHEUS-URL
             value: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
@@ -128,9 +128,9 @@ spec:
         resources:
           limits:
             cpu: 500m
-            memory: 128Mi
+            memory: 512Mi
           requests:
             cpu: 10m
-            memory: 64Mi
+            memory: 128Mi
       serviceAccountName: susql-controller-manager
       terminationGracePeriodSeconds: 10
