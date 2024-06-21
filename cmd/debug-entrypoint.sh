@@ -12,5 +12,5 @@ echo MANAGER TERMINATED!  ERROR=${ec} AT $(date)
 echo
 
 echo sleeping
-sleep 9999
+sleep 999
 echo terminating 

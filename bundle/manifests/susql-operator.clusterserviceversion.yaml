@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.19
-    createdAt: "2024-06-21T03:56:29Z"
+    createdAt: "2024-06-21T06:11:03Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -249,10 +249,10 @@ spec:
                 resources:
                   limits:
                     cpu: 500m
-                    memory: 128Mi
+                    memory: 512Mi
                   requests:
                     cpu: 10m
-                    memory: 64Mi
+                    memory: 128Mi
                 securityContext:
                   allowPrivilegeEscalation: false
                   capabilities:
