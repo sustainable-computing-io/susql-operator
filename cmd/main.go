@@ -61,24 +61,29 @@ func main() {
 	var susqlPrometheusDatabaseUrl string
 	var samplingRate string
 
-	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8082", "The address the metric endpoint binds to.")
-	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
-
 	// NOTE: these can be set as env or flag, flag takes precedence over env
 	keplerPrometheusUrlEnv := os.Getenv("KEPLER-PROMETHEUS-URL")
 	keplerMetricNameEnv := os.Getenv("KEPLER-METRIC-NAME")
 	susqlPrometheusDatabaseUrlEnv := os.Getenv("SUSQL-PROMETHEUS-DATABASE-URL")
 	susqlPrometheusMetricsUrlEnv := os.Getenv("SUSQL-PROMETHEUS-METRICS-URL")
 	samplingRateEnv := os.Getenv("SAMPLING-RATE")
+	metricsAddrEnv := os.Getenv("METRICS-BIND-ADDRESS")
+	probeAddrEnv := os.Getenv("HEALTH-PROBE-BIND-ADDRESS")
+	enableLeaderElectionEnv, err := strconv.ParseBool(os.Getenv("LEADER-ELECT"))
+	if err != nil {
+		enableLeaderElectionEnv = false
+	}
 
 	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", keplerPrometheusUrlEnv, "The URL for the Prometheus server where Kepler stores the energy data")
 	flag.StringVar(&keplerMetricName, "kepler-metric-name", keplerMetricNameEnv, "The metric name to be queried in the kepler Prometheus server")
 	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", susqlPrometheusDatabaseUrlEnv, "The URL for the Prometheus database where SusQL stores the energy data")
 	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", susqlPrometheusMetricsUrlEnv, "The URL for the Prometheus metrics where SusQL exposes the energy data")
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
+	flag.StringVar(&metricsAddr, "metrics-bind-address", metricsAddrEnv, "The address the metric endpoint binds to.")
+	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
+	flag.BoolVar(&enableLeaderElection, "leader-elect", enableLeaderElectionEnv,
+		"Enable leader election for controller manager. "+
+			"Enabling this will ensure there is only one active controller manager.")
 
 	opts := zap.Options{
 		Development: true,

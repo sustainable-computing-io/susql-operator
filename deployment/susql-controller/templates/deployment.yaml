@@ -25,10 +25,13 @@ spec:
                   imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
                   args:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
-                      - "--kepler-metric-name={{ .Values.KeplerMetricName }}"
+                      - "--kepler-metric-name={{ .Values.keplerMetricName }}"
                       - "--susql-prometheus-database-url={{ .Values.susqlPrometheusDatabaseUrl }}"
                       - "--susql-prometheus-metrics-url={{ .Values.susqlPrometheusMetricsUrl }}"
                       - "--sampling-rate={{ .Values.samplingRate }}"
+                      - "--metrics-bind-address={{ .Values.metricsAddr }}"
+                      - "--health-prove-bind-address={{ .Values.healthProbeAddr }}"
+                      - "--leader-elect={{ .Values.leaderElect }}"
                   ports:
                       - name: metrics
                         containerPort: 8082

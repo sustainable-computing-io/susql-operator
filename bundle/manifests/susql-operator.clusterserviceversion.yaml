@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.19
-    createdAt: "2024-06-14T17:42:05Z"
+    createdAt: "2024-06-21T03:56:29Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -197,14 +197,14 @@ spec:
                     drop:
                     - ALL
               - args:
-                - --leader-elect
+                - --leader-elect=$(LEADER-ELECT)
                 - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
                 - --kepler-metric-name=$(KEPLER-METRIC-NAME)
                 - --susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)
                 - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
                 - --sampling-rate=$(SAMPLING-RATE)
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:9999
+                - --health-probe-bind-address=$(HEALTH-PROBE-BIND-ADDRESS)
+                - --metrics-bind-address=$(METRICS-BIND-ADDRESS)
                 command:
                 - /manager
                 env:
@@ -218,6 +218,12 @@ spec:
                   value: http://0.0.0.0:8082
                 - name: SAMPLING-RATE
                   value: "2"
+                - name: LEADER-ELECT
+                  value: "true"
+                - name: HEALTH-PROBE-BIND-ADDRESS
+                  value: :8081
+                - name: METRICS-BIND-ADDRESS
+                  value: 127.0.0.1:9999
                 image: quay.io/sustainable_computing_io/susql_operator:0.0.19
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
