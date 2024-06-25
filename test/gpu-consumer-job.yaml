@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gpu-consumer-job
+spec:
+  template:
+    metadata:
+      name: gpu-consumer-pod
+      labels:
+        susql.label/1: gpu
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: gpu-consumer-container
+          image: "quay.io/trent_s/gpu-burn"
+          env:
+          - name: RUNSECONDS
+            value: "900"
+          resources:
+            limits:
+              nvidia.com/gpu: 1

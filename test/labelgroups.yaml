@@ -2,6 +2,15 @@
 apiVersion: susql.ibm.com/v1
 kind: LabelGroup
 metadata:
+    name: gpu
+    namespace: default
+spec:
+    labels:
+        - gpu
+---
+apiVersion: susql.ibm.com/v1
+kind: LabelGroup
+metadata:
     name: only-model-1
     namespace: default
 spec:
