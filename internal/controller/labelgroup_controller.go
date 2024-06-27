@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -264,6 +265,8 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 func (r *LabelGroupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	controllerManager := ctrl.NewControllerManagedBy(mgr).
 		For(&susqlv1.LabelGroup{}).
+		// Watch for changes to Pods and enqueue requests for LabelGroup owners
+		Owns(&corev1.Pod{}).
 		Complete(r)
 
 	r.Logger.V(5).Info("[SetupWithManager] Initializing Metrics Exporter.")
