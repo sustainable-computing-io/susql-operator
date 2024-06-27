@@ -228,6 +228,8 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				delete(labelGroup.Status.ActiveContainerIds, containerId)
 			}
 		}
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] metricValues: %#v", metricValues))                               // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] ActiveContainerIds: %#v", labelGroup.Status.ActiveContainerIds)) // trace
 
 		// 3) Add the values of the remaining new containers to the total energy and update the list of active containers
 		for containerId, newValue := range metricValues {
