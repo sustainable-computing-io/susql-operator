@@ -36,20 +36,23 @@ import (
 )
 
 var (
-	maxQueryTime = "1y" // Look back 'maxQueryTime' for the most recent value
+	maxQueryTime                         = "1y" // Look back 'maxQueryTime' for the most recent value
+	keplerRoundTripper http.RoundTripper = nil
+	susqlRoundTripper  http.RoundTripper = nil
 )
 
 // Functions to get data from the cluster
 func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (float64, error) {
 	// Return the most recent value found in the table
-	var roundtripper http.RoundTripper = nil
-	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
-		rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-		roundtripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+	if susqlRoundTripper == nil {
+		if strings.HasPrefix(r.SusQLPrometheusDatabaseUrl, "https://") {
+			rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+			susqlRoundTripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+		}
 	}
 	client, err := api.NewClient(api.Config{
 		Address:      r.SusQLPrometheusDatabaseUrl,
-		RoundTripper: roundtripper,
+		RoundTripper: susqlRoundTripper,
 	})
 
 	if err != nil {
@@ -90,14 +93,15 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 }
 
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceName string) (map[string]float64, error) {
-	var roundtripper http.RoundTripper = nil
-	if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
-		rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-		roundtripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+	if keplerRoundTripper == nil {
+		if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
+			rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+			keplerRoundTripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+		}
 	}
 	client, err := api.NewClient(api.Config{
 		Address:      r.KeplerPrometheusUrl,
-		RoundTripper: roundtripper,
+		RoundTripper: keplerRoundTripper,
 	})
 
 	if err != nil {

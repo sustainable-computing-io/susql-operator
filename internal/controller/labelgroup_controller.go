@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	coreruntime "runtime"
 	"strconv"
 	"time"
 
@@ -72,6 +73,10 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	_ = log.FromContext(ctx)
 
 	r.Logger.V(5).Info("[Reconcile] Entered Reconcile().")
+
+	var m coreruntime.MemStats
+	coreruntime.ReadMemStats(&m)
+	r.Logger.V(5).Info(fmt.Sprintf("Memory: Alloc=%.2f MB  TotalAlloc=%.2f MB  Sys= %.2f MB  NumGC=%v", float32(m.Alloc)/1024.0/1024.0, float32(m.TotalAlloc)/1024.0/1024.0, float32(m.Sys)/1024.0/1024.0, m.NumGC))
 
 	// Get label group object to process if it exists
 	labelGroup := &susqlv1.LabelGroup{}
