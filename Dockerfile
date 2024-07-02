@@ -4,15 +4,15 @@ ARG TARGETOS
 ARG TARGETARCH
 
 WORKDIR /workspace
-# Copy the Go Modules manifests (go.sum and go.mod)
-COPY go.* .
+# Copy the Go Modules manifests
+COPY go.sum go.mod .
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 RUN apk upgrade --no-cache && \
     go mod download
 
 # Copy the go source
-COPY cmd/main.go cmd/main.go
+COPY cmd/ cmd/
 COPY api/ api/
 COPY internal/controller/ internal/controller/
 
@@ -28,8 +28,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 FROM gcr.io/distroless/static-debian12:nonroot
 # FROM gcr.io/distroless/static-debian12:debug
 WORKDIR /
-COPY --from=builder /workspace/manager .
-COPY cmd/debug-entrypoint.sh .
+COPY --from=builder /workspace/manager /workspace/cmd/debug-entrypoint.sh .
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]
