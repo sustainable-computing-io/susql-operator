@@ -39,7 +39,7 @@ spec:
                 type: boolean
               labels:
                 description: List of labels to be tracked for energy measurments (up
-                  to 3)
+                  to 5)
                 items:
                   type: string
                 type: array

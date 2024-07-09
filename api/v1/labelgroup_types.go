@@ -31,7 +31,7 @@ type LabelGroupSpec struct {
 	// Do not use the most recent value stored in the database
 	DisableUsingMostRecentValue bool `json:"disableUsingMostRecentValue,omitempty"`
 
-	// List of labels to be tracked for energy measurments (up to 3)
+	// List of labels to be tracked for energy measurments (up to 5)
 	Labels []string `json:"labels,omitempty"`
 }
 

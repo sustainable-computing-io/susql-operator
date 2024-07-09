@@ -52,8 +52,8 @@ const (
 )
 
 var (
-	susqlKubernetesLabelNames = []string{"susql.label/1", "susql.label/2", "susql.label/3", "susql.label/4"} // Names of the SusQL Kubernetes labels
-	susqlPrometheusLabelNames = []string{"susql_label_1", "susql_label_2", "susql_label_3", "susql_label_4"} // Names of the SusQL Prometheus labels
+	susqlKubernetesLabelNames = []string{"susql.label/1", "susql.label/2", "susql.label/3", "susql.label/4", "susql.label/5", "susql.label/6"} // Names of the SusQL Kubernetes labels
+	susqlPrometheusLabelNames = []string{"susql_label_1", "susql_label_2", "susql_label_3", "susql_label_4", "susql_label_5", "susql_label_6"} // Names of the SusQL Prometheus labels
 )
 
 //+kubebuilder:rbac:groups=susql.ibm.com,resources=labelgroups,verbs=get;list;watch;create;update;patch;delete
