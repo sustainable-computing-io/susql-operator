@@ -6,7 +6,7 @@ Instructions to install SusQL via Helm.
 
 ### Prerequisites
 
-Kepler is assumed to be installed in the cluster. `helm`, `kubectl`, and `go` are also required to deploy.
+Kepler is assumed to be installed in the cluster. `helm`, `kubectl`, and `go` are also required to deploy with Helm.
 
 ### Installation
 
