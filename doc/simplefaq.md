@@ -14,7 +14,7 @@ SusQL obtains application energy data from Kepler.
 
 - What is a typical SusQL use case?
 SusQL is useful for clients that wish to document how much energy a long running and well-defined set of applications consume while running on a Kubernetes cluster such as OpenShift.
-This is particularily beneficial for corporations running complicated AI model training jobs that may have multiple pods, restart periodically, and require months to complete.
+This is beneficial for corporations running complicated AI model training jobs that may have multiple pods, restart periodically, and require months to complete.
 
 
 - How do I install SusQL from OperatorHub?
@@ -33,7 +33,7 @@ consumption of a well defined set of applications.
 
 
 - Who works on SusQL?
-SusQL is develped by The SusQL Operator Contributors.
+SusQL is developed by The SusQL Operator Contributors.
 
 
 - How can I get more information on SusQL?

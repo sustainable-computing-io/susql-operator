@@ -1,6 +1,6 @@
 # Security Policy
 
-Our intent is to address security issues in a timely fasion. 
+Our intent is to address security issues in a timely manner. 
 Since we can release frequently, security issues will be fixed in the next minor release.
 
 ## Supported Versions
