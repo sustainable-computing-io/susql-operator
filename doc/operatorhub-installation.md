@@ -6,6 +6,7 @@ Installation of the SusQL Operator via OperatorHub is fairly easy.
 
 Kepler is assumed to be installed in the cluster. `oc` is assumed to be installed, and you are assumed to be logged in to the cluster in your CLI environment.
 Installation of the SusQL Operator has been extensively used with Red Hat OpenShift clusters 4.14 and higher.
+Consider enabling User Project Monitoring when using on OpenShift.  https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html
 Other flavors and versions of Kubernetes clusters are also expected to function.
 
 ## Installation

@@ -6,7 +6,10 @@ Instructions to install SusQL via Helm.
 
 ### Prerequisites
 
-Kepler is assumed to be installed in the cluster. `helm`, `kubectl`, and `go` are also required to deploy with Helm.
+* Kepler is assumed to be installed in the cluster.
+* `helm`, `kubectl`, and `go` are also required to deploy with Helm.
+* Consider enabling User Project Monitoring when using on OpenShift.
+    * https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html
 
 ### Installation
 
