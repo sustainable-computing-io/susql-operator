@@ -5,7 +5,7 @@
 
 
 - What does SusQL require?
-  - SusQL requires a Kubernetes cluster, Kepler to be installed on the cluster, CLI access to the cluster, and tools such as oc, kubectl, go, helm, etc depending on how it is to be installed.
+  - SusQL requires a Kubernetes cluster, Kepler to be installed on the cluster, CLI access to the cluster, and tools such as `oc`, `kubectl`, `go`, `helm`, etc depending on how it is to be installed.
 
 
 - How does SusQL get energy data?
