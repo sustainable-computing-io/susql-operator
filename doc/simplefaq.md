@@ -41,11 +41,11 @@ The SusQL GitHub page is a good starting point to learn more about SusQL. It can
 https://github.com/sustainable-computing-io/susql-operator
 
 
-- What is a SusQL labelgroup?
+- What is an SusQL labelgroup?
 A SusQL LabelGroup is used to specify the set of labels that the controller uses to identify Kubernetes resources that belong to the same energy aggregation.
 
 
-- How do I create a SusQL labelgroup?
+- How do I create an SusQL labelgroup?
 Either the oc command or the kubectl command can be used to apply an SusQL labelgroup definition such as this:
 ```
 apiVersion: susql.ibm.com/v1
