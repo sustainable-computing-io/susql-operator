@@ -41,12 +41,12 @@ consumption of a well defined set of applications.
 https://github.com/sustainable-computing-io/susql-operator
 
 
-- What is an SusQL labelgroup?
+- What is an SusQL LabelGroup?
   - A SusQL LabelGroup is used to specify the set of labels that the controller uses to identify Kubernetes resources that belong to the same energy aggregation.
 
 
-- How do I create an SusQL labelgroup?
-  - Either the oc command or the kubectl command can be used to apply an SusQL labelgroup definition such as this:
+- How do I create an SusQL LabelGroup?
+  - Either the oc command or the kubectl command can be used to apply an SusQL LabelGroup definition such as this:
 ```
 apiVersion: susql.ibm.com/v1
 kind: LabelGroup
@@ -65,14 +65,14 @@ spec:
 
 
 - What can I do with SusQL?
-  - Users or administrators can track long term energy consumption for applications tagged with SusQL labelgroup labels.
+  - Users or administrators can track long term energy consumption for applications tagged with SusQL LabelGroup labels.
 
 
 - How can I visualize SusQL data?
   - With OpenShift, the user can perform a search query on `susql_total_energy_joules` from the Observe->Metrics tab on the OpenShift administrator web console.
 
 
-- Please show me a sample SusQL labelgroup.
+- Please show me a sample SusQL LabelGroup.
 ```
 apiVersion: susql.ibm.com/v1
 kind: LabelGroup
@@ -86,7 +86,7 @@ spec:
 ```
 
 
-- How do I enable an application to be part of a labelgroup?
+- How do I enable an application to be part of a LabelGroup?
   - You could add the labels to the pod definition like this:
 ```
 apiVersion: v1
