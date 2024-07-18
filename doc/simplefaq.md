@@ -46,7 +46,7 @@ https://github.com/sustainable-computing-io/susql-operator
 
 
 - How do I create an SusQL LabelGroup?
-  - Either the oc command or the kubectl command can be used to apply an SusQL LabelGroup definition such as this:
+  - Either the `oc` command or the kubectl command can be used to apply an SusQL LabelGroup definition such as this:
 ```
 apiVersion: susql.ibm.com/v1
 kind: LabelGroup
