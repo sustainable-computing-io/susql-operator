@@ -61,6 +61,8 @@ Energy of the group of pods is exposed in 2 ways:
 * Through Prometheus at `http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090` using the query `susql_total_energy_joules{susql_label_1=my-label-1,susql_label_2=my-label-2}`
 * From `status` of the `LabelGroup` CRD given as `labelgroup.status.totalEnergy`
 
+## Other Examples
+- A step by step explanation of how to aggregate a [GPU based Jupyter Notebook workload on OpenShift AI](doc/openshift-ai-example-notebook.md).
 
 
 ## License
