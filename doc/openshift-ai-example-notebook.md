@@ -71,16 +71,16 @@ pod/jupyter-nb-kube-3aadmin-0 unlabeled
 ```
 
 Next, this command sets the label `Susql.label/1` to `openshiftaij` for the Jupyter notebook server running in namespace rhods-notebooks.
-``
+```
 $ oc label pod $(oc get po -n rhods-notebooks | grep jupyter | head -1 |  cut -f 1 -d" ") -n rhods-notebooks "susql.label/1=openshiftaij"
 pod/jupyter-nb-kube-3aadmin-0 labeled
-``
+```
 
 And, finally, this command can verify that the label has been set
-``
+```
 $ oc describe pod $(oc get po -n rhods-notebooks | grep jupyter | head -1 |  cut -f 1 -d" ") -n rhods-notebooks | grep -i susql
                   susql.label/1=openshiftaij
-``
+```
 
 ## Create the SusQL LabelGroup
 
