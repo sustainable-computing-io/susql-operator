@@ -185,13 +185,16 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// Get list of pods matching the label group and namespace
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
 
-		if err != nil || len(podsInNamespace) != 0 {
-			r.Logger.V(5).Info("[Reconcile-Aggregating] Unable to get podlist.")                                                 // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] LabelName: %s", labelGroup.Name))                            // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Namespace: %s", labelGroup.Namespace))                       // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels)) // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] podNamesinNamespace: %s", podsInNamespace))                  // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] ctx: %#v", ctx))                                                         // trace
+		// trace label, namespace and pods
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] LabelName: %s", labelGroup.Name))                            // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Namespace: %s", labelGroup.Namespace))                       // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels)) // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] podNamesinNamespace: %s", podsInNamespace))                  // trace
+
+		// Unable to get podlist
+		if err != nil || len(podsInNamespace) == 0 {
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Unable to get podlist in namespace: %s", labelGroup.Namespace)) // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] ctx: %#v", ctx))                                                            // trace
 			if err != nil {
 				r.Logger.V(0).Error(err, "[Reconcile-Aggregating] ERROR: Couldn't get pods for the labels provided.")
 			}
