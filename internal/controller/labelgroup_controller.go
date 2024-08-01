@@ -226,6 +226,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		for containerId, oldValue := range labelGroup.Status.ActiveContainerIds {
 			if newValue, found := metricValues[containerId]; found {
 				// totalEnergy += (newValue - oldValue) //put back
+				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] oldValue: %#v", oldValue))
 				totalEnergy = 100 // testing purpose - remove after
 				labelGroup.Status.ActiveContainerIds[containerId] = newValue
 				delete(metricValues, containerId)
