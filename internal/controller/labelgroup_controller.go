@@ -180,16 +180,17 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	case susqlv1.Aggregating:
 		r.Logger.V(5).Info("[Reconcile-Aggregating] Entered aggregating case.") // trace
-		r.Logger.V(5).Info("[Test trace]------------------------------------")  // trace
 
 		// Get list of pods matching the label group and namespace
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
 
 		// trace label, namespace and pods
+		r.Logger.V(5).Info("---------------------------------------------------------------------------------------------")  // trace
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] LabelName: %s", labelGroup.Name))                            // trace
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Namespace: %s", labelGroup.Namespace))                       // trace
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels)) // trace
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] podNamesinNamespace: %s", podsInNamespace))                  // trace
+		r.Logger.V(5).Info("---------------------------------------------------------------------------------------------")  // trace
 
 		// Unable to get podlist
 		if err != nil || len(podsInNamespace) == 0 {
