@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.23-v1dev
-    createdAt: "2024-07-23T18:09:12Z"
+    createdAt: "2024-08-01T16:55:14Z"
     description: 'Aggregates energy data from pods tagged with SusQL labels '
     operators.operatorframework.io/builder: operator-sdk-v1.34.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -225,7 +225,7 @@ spec:
                 - name: METRICS-BIND-ADDRESS
                   value: 127.0.0.1:9999
                 image: quay.io/sustainable_computing_io/susql_operator:0.0.23-v1dev
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
                     path: /healthz

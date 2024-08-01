@@ -97,7 +97,7 @@ spec:
         - --health-probe-bind-address=$(HEALTH-PROBE-BIND-ADDRESS)
         - --metrics-bind-address=$(METRICS-BIND-ADDRESS)
         image: '<OPERATOR_IMG>'
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
