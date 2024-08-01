@@ -225,7 +225,8 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		//    - In the set of new containers, remove all containers that are active
 		for containerId, oldValue := range labelGroup.Status.ActiveContainerIds {
 			if newValue, found := metricValues[containerId]; found {
-				totalEnergy += (newValue - oldValue)
+				// totalEnergy += (newValue - oldValue) //put back
+				totalEnergy = 100 // testing purpose - remove after
 				labelGroup.Status.ActiveContainerIds[containerId] = newValue
 				delete(metricValues, containerId)
 			} else {
@@ -238,8 +239,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 3) Add the values of the remaining new containers to the total energy and update the list of active containers
 		for containerId, newValue := range metricValues {
-			// totalEnergy += newValue
-			totalEnergy = 100
+			totalEnergy += newValue
 			labelGroup.Status.ActiveContainerIds[containerId] = newValue
 		}
 
