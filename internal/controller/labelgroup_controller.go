@@ -215,6 +215,9 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// 1) Get the current total energy from ETCD
 		var totalEnergy float64
 
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Initial Stored ActiveContainerIds ETCD: %#v", labelGroup.Status.ActiveContainerIds)) // trace
+		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Initial Stored Total Energy from ETCD: %s", labelGroup.Status.TotalEnergy))          // trace
+
 		if value, err := strconv.ParseFloat(labelGroup.Status.TotalEnergy, 64); err == nil {
 			totalEnergy = value
 		} else {
