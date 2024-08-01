@@ -180,6 +180,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	case susqlv1.Aggregating:
 		r.Logger.V(5).Info("[Reconcile-Aggregating] Entered aggregating case.") // trace
+		r.Logger.V(5).Info("[Test trace]------------------------------------")  // trace
 
 		// Get list of pods matching the label group and namespace
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
