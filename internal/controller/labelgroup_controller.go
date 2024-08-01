@@ -238,7 +238,8 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 3) Add the values of the remaining new containers to the total energy and update the list of active containers
 		for containerId, newValue := range metricValues {
-			totalEnergy += newValue
+			// totalEnergy += newValue
+			totalEnergy = 100
 			labelGroup.Status.ActiveContainerIds[containerId] = newValue
 		}
 
