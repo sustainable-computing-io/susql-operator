@@ -166,6 +166,13 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			}
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
+
+			staticCarbonIntensity, err := strconv.ParseFloat(labelGroup.Spec.StaticCarbonIntensity, 64)
+			if err != nil {
+				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Unable to obtain static carbon intensity value.")
+				staticCarbonIntensity = 0.0
+			}
+			labelGroup.Status.TotalGCO2 = fmt.Sprintf("%f", totalEnergy*staticCarbonIntensity)
 		}
 
 		labelGroup.Status.Phase = susqlv1.Aggregating
@@ -244,6 +251,13 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
+
+		staticCarbonIntensity, err := strconv.ParseFloat(labelGroup.Spec.StaticCarbonIntensity, 64)
+		if err != nil {
+			r.Logger.V(0).Error(err, "[Reconcile-Aggregating] Unable to obtain static carbon intensity value.")
+			staticCarbonIntensity = 0.0
+		}
+		labelGroup.Status.TotalGCO2 = fmt.Sprintf("%f", totalEnergy*staticCarbonIntensity)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err
