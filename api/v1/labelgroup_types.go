@@ -33,6 +33,10 @@ type LabelGroupSpec struct {
 
 	// List of labels to be tracked for energy measurments (up to 5)
 	Labels []string `json:"labels,omitempty"`
+
+	// +kubebuilder:default:="0.00000000011583333"
+	// Static Carbon Intensity Factor in Grams CO2 / Joule
+	StaticCarbonIntensity string `json:"staticcarbonintensity,omitempty"`
 }
 
 // LabelGroupStatus defines the observed state of LabelGroup
