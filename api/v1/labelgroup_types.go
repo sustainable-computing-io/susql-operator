@@ -33,6 +33,10 @@ type LabelGroupSpec struct {
 
 	// List of labels to be tracked for energy measurments (up to 5)
 	Labels []string `json:"labels,omitempty"`
+
+	// +kubebuilder:default:="0.00000000011583333"
+	// Static Carbon Intensity Factor in Grams CO2 / Joule
+	StaticCarbonIntensity string `json:"staticcarbonintensity,omitempty"`
 }
 
 // LabelGroupStatus defines the observed state of LabelGroup
@@ -51,6 +55,9 @@ type LabelGroupStatus struct {
 
 	// TotalEnergy keeps track of the accumulated energy over time
 	TotalEnergy string `json:"totalEnergy,omitempty"`
+
+	// TotalGCO2 keeps track of the accumulated grams of carbon emission over time
+	TotalGCO2 string `json:"totalgco2,omitempty"`
 
 	// Prometheus query to get the total energy for this label group
 	SusQLPrometheusQuery string `json:"susqlPrometheusQuery,omitempty"`
