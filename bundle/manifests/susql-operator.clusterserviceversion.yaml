@@ -291,6 +291,15 @@ spec:
                       name: susql-config
                       optional: true
                 image: quay.io/sustainable_computing_io/susql_operator:0.0.25
+=======
+                - name: STATIC-CARBON-INTENSITY
+                  valueFrom:
+                    configMapKeyRef:
+                      key: STATIC-CARBON-INTENSITY
+                      name: susql-config
+                      optional: true
+                image: quay.io/trent_s/susql-controller:0.0.29
+>>>>>>> eac2667 (base for carbon phase 1)
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
