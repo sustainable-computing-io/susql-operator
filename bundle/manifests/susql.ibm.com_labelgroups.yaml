@@ -43,10 +43,6 @@ spec:
                 items:
                   type: string
                 type: array
-              staticcarbonintensity:
-                default: "0.00000000011583333"
-                description: Static Carbon Intensity Factor in Grams CO2 / Joule
-                type: string
             type: object
           status:
             description: LabelGroupStatus defines the observed state of LabelGroup
