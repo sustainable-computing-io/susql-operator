@@ -42,12 +42,14 @@ type LabelGroupReconciler struct {
 	SusQLPrometheusDatabaseUrl string
 	SusQLPrometheusMetricsUrl  string
 	SamplingRate               time.Duration // Sampling rate for all label groups
+	StaticCarbonIntensity      float64
 	Logger                     logr.Logger
 }
 
 const (
 	susqlMetricName = "susql_total_energy_joules" // SusQL metric to query
-	fixingDelay     = 15 * time.Second            // Time to wait in the even the label group was badly constructed
+	fixingDelay     = 15 * time.Second            // Time to wait in the event the label group was badly constructed
+	nopodDelay      = 15 * time.Second            // Time to wait in the event no pods are found
 	errorDelay      = 1 * time.Second             // Time to wait when an error happens due to network connectivity issues
 )
 
@@ -167,12 +169,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
 
-			staticCarbonIntensity, err := strconv.ParseFloat(labelGroup.Spec.StaticCarbonIntensity, 64)
-			if err != nil {
-				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Unable to obtain static carbon intensity value.")
-				staticCarbonIntensity = 0.0
-			}
-			labelGroup.Status.TotalGCO2 = fmt.Sprintf("%f", totalEnergy*staticCarbonIntensity)
+			labelGroup.Status.TotalGCO2 = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
 		}
 
 		labelGroup.Status.Phase = susqlv1.Aggregating
@@ -202,7 +199,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				r.Logger.V(0).Error(err, "[Reconcile-Aggregating] ERROR: Couldn't get pods for the labels provided.")
 			}
 
-			return ctrl.Result{}, err
+			return ctrl.Result{RequeueAfter: nopodDelay}, nil
 		}
 
 		// Aggregate Kepler measurements for these set of pods
@@ -252,12 +249,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
 
-		staticCarbonIntensity, err := strconv.ParseFloat(labelGroup.Spec.StaticCarbonIntensity, 64)
-		if err != nil {
-			r.Logger.V(0).Error(err, "[Reconcile-Aggregating] Unable to obtain static carbon intensity value.")
-			staticCarbonIntensity = 0.0
-		}
-		labelGroup.Status.TotalGCO2 = fmt.Sprintf("%f", totalEnergy*staticCarbonIntensity)
+		labelGroup.Status.TotalGCO2 = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err
