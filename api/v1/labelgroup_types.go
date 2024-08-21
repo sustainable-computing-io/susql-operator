@@ -52,8 +52,8 @@ type LabelGroupStatus struct {
 	// TotalEnergy keeps track of the accumulated energy over time
 	TotalEnergy string `json:"totalEnergy,omitempty"`
 
-	// TotalGCO2 keeps track of the accumulated grams of carbon emission over time
-	TotalGCO2 string `json:"totalgco2,omitempty"`
+	// TotalCarbon keeps track of the accumulated grams of carbon emission over time
+	TotalCarbon string `json:"totalCarbon,omitempty"`
 
 	// Prometheus query to get the total energy for this label group
 	SusQLPrometheusQuery string `json:"susqlPrometheusQuery,omitempty"`
