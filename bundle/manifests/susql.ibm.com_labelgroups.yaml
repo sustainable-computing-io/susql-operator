@@ -69,13 +69,13 @@ spec:
                 description: Prometheus query to get the total energy for this label
                   group
                 type: string
+              totalCarbon:
+                description: TotalCarbon keeps track of the accumulated grams of carbon
+                  emission over time
+                type: string
               totalEnergy:
                 description: TotalEnergy keeps track of the accumulated energy over
                   time
-                type: string
-              totalgco2:
-                description: TotalGCO2 keeps track of the accumulated grams of carbon
-                  emission over time
                 type: string
             type: object
         type: object

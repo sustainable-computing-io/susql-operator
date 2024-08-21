@@ -169,7 +169,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
 
-			labelGroup.Status.TotalGCO2 = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
+			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
 		}
 
 		labelGroup.Status.Phase = susqlv1.Aggregating
@@ -249,7 +249,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
 
-		labelGroup.Status.TotalGCO2 = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
+		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err
@@ -257,6 +257,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 5) Add energy aggregation to Prometheus table
 		r.SetAggregatedEnergyForLabels(totalEnergy, labelGroup.Status.PrometheusLabels)
+		r.SetAggregatedCarbonForLabels(float64(totalEnergy)*r.StaticCarbonIntensity, labelGroup.Status.PrometheusLabels)
 
 		// Requeue
 		return ctrl.Result{RequeueAfter: r.SamplingRate}, nil
