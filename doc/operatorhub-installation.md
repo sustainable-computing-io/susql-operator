@@ -40,21 +40,15 @@ Next, use the OpenShift web console to install the SusQL Operator:
 - Search for "SusQL"
 - Click on it, and follow the GUI prompts to install.
 
-# Post Install Customization
+# Customization
 
-After installation, click "Operators->Installed Operators->SusQL->YAML", then edit one of the values under =spec.install.spec.deployments.labels.spec.template.spec.containers.resources.env.name.values` and save the YAML file when finished.
-The operator will automatically restart with the newly specified value(s).
+Before deploying the SusQL Operator create a `configMap` called `susql-config` in
+the same namespace that the operator will run in.
+[susql-config.yaml](susql-config.yaml) is a good starting point. If you download it first, you
+could create the configMap with `oc apply -n YOURNAMESPACE -f susql-config.yaml`.
+If you update (or create) the configMap after the SusQL Operator has been installed, then restarting the SusQL Operator controller pod will
+enable the changes. (e.g., Delete the pod, and allow it to be recreated automatically.)
 
-Currently the following variables can be modified. Searching directly for these variables may be more efficient than perusing the entire YAML.
-
-- `KEPLER-PROMETHEUS-URL`
-- `KEPLER-METRIC-NAME`
-- `SUSQL-PROMETHEUS-DATABASE-URL`
-- `SUSQL-PROMETHEUS-METRICS-URL`
-- `SAMPLING-RATE`
-- `LEADER-ELECT`
-- `HEALTH-PROBE-BIND-ADDRESS`
-- `METRICS-BIND-ADDRESS`
 
 ## License
 
