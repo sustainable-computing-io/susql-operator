@@ -6,7 +6,8 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: <OPERATOR_IMG>
-    description: 'Aggregates energy data from pods tagged with SusQL labels '
+    description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
+      labels '
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
   name: susql-operator.v0.0.0
@@ -23,10 +24,10 @@ spec:
   description: |-
     ### About this Operator
 
-    SusQL is a Kubernetes operator that aggregates energy data from pods
-    tagged with SusQL specific labels. The energy measurements are taken
-    from Kepler which should be deployed in the cluster before
-    using SusQL.
+    SusQL is a Kubernetes operator that aggregates energy and estimated
+    carbon dioxide emission data for pods tagged with SusQL specific
+    labels. The energy measurements are taken from Kepler which should
+    be deployed in the cluster before using SusQL.
 
     ### Prerequisites
 

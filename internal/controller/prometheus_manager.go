@@ -169,8 +169,8 @@ var (
 		}, susqlPrometheusLabelNames),
 		totalCarbon: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: "susql",
-			Name:      "total_carbon_grams",
-			Help:      "Accumulated carbon in grams over time for set of labels",
+			Name:      "total_carbon_dioxide_grams",
+			Help:      "Accumulated carbon dioxide grams over time for set of labels",
 		}, susqlPrometheusLabelNames),
 	}
 
@@ -183,8 +183,7 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 	r.Logger.V(5).Info("Entering InitializeMetricsExporter().")
 	if prometheusRegistry == nil {
 		prometheusRegistry = prometheus.NewRegistry()
-		prometheusRegistry.MustRegister(susqlMetrics.totalEnergy)
-		prometheusRegistry.MustRegister(susqlMetrics.totalCarbon)
+		prometheusRegistry.MustRegister(susqlMetrics.totalEnergy, susqlMetrics.totalCarbon)
 
 		prometheusHandler = promhttp.HandlerFor(prometheusRegistry, promhttp.HandlerOpts{Registry: prometheusRegistry})
 		http.Handle("/metrics", prometheusHandler)
