@@ -68,7 +68,7 @@ func main() {
 	var susqlPrometheusDatabaseUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
 	var samplingRate string = "2"
 	var susqlLogLevel string = "-5"
-	// Static Carbon Intensity Factor in Grams CO2 / Joule
+	// Static Carbon Intensity Factor in grams CO2 / Joule
 	var staticCarbonIntensity string = "0.00000000011583333"
 
 	// NOTE: these can be set as env or flag, flag takes precedence over env
@@ -93,8 +93,8 @@ func main() {
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", metricsAddrEnv, "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
-	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL Log Level")
-	flag.StringVar(&staticCarbonIntensity, "static-carbon-intensity", staticCarbonIntensityEnv, "Static Carbon Intensity Factor in Grams CO2 / Joule")
+	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL log level")
+	flag.StringVar(&staticCarbonIntensity, "static-carbon-intensity", staticCarbonIntensityEnv, "Static Carbon Intensity Factor in grams CO2 / Joule")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", enableLeaderElectionEnv,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")

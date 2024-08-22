@@ -18,7 +18,7 @@ do
     echo "LabelGroup: ${labelgroup}"
     echo "    - Labels: ${labels}"
     echo "    - Total Energy (J): ${totalEnergy}"
-    echo "    - Total Carbon (g): ${totalCarbon}"
+    echo "    - Total CO2 (g): ${totalCarbon}"
     echo "    - SusQL Query: ${susqlPrometheusQuery}"
     echo "    - Phase: ${phase}"
     echo 

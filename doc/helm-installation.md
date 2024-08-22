@@ -60,10 +60,12 @@ The following environment variables will influence the way that the SusQL Operat
 | KEPLER_METRIC_NAME          | kepler_container_joules_total | Metric queried in the Kepler Prometheus          |
 | SUSQL_PROMETHEUS_URL        | http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090 | SusQL Prometheus URL |
 | SUSQL_SAMPLING_RATE         | 2                             | Sampling rate in seconds                         |
+| SUSQL_LOG_LEVEL             | -5                            | Log level                                        |
 | SUSQL_ENHANCED              |                               | If set to any string, then use enhanced RBAC and SMON configuration |
 | SUSQL_REGISTRY              | quay.io/sustainable_computing_io | Container registry that SusQL is stored in    |
 | SUSQL_IMAGE_NAME            | susql_operator                | Image name used on SusQL container registry      |
 | SUSQL_IMAGE_TAG             | latest                        | Tag for SusQL container                          |
+| STATIC_CARBON_INTENSITY     | "0.00000000011583333"         | Static carbon intensity in grams CO2 / Joule     |
 
 
 ## License
