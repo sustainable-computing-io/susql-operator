@@ -10,13 +10,15 @@ for labelgroup in $(echo ${alldata} | jq -cr '.items[].metadata.name')
 do
     newdata=$(echo ${alldata} | jq '.items[] | select(.metadata.name=="'${labelgroup}'")')
     totalEnergy=$(echo ${newdata} | jq -cr '.status.totalEnergy')
+    totalCarbon=$(echo ${newdata} | jq -cr '.status.totalCarbon')
     susqlPrometheusQuery=$(echo ${newdata} | jq -cr '.status.susqlPrometheusQuery')
     phase=$(echo ${newdata} | jq -cr '.status.phase')
     labels=$(echo ${newdata} | jq -cr '.spec.labels')
 
     echo "LabelGroup: ${labelgroup}"
     echo "    - Labels: ${labels}"
-    echo "    - Total Energy: ${totalEnergy}"
+    echo "    - Total Energy (J): ${totalEnergy}"
+    echo "    - Total CO2 (g): ${totalCarbon}"
     echo "    - SusQL Query: ${susqlPrometheusQuery}"
     echo "    - Phase: ${phase}"
     echo 

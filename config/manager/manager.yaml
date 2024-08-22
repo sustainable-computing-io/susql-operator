@@ -67,35 +67,68 @@ spec:
       containers:
       - command:
         - /manager
-#        - /debug-entrypoint.sh
+        # - /debug-entrypoint.sh
         env:
           - name: KEPLER-PROMETHEUS-URL
-            value: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: KEPLER-PROMETHEUS-URL
+                optional: true
           - name: KEPLER-METRIC-NAME
-            value: "kepler_container_joules_total"
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: KEPLER-METRIC-NAME
+                optional: true
           - name: SUSQL-PROMETHEUS-DATABASE-URL
-            # value: http://prometheus-susql.default.svc.cluster.local:9090
-            value: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: SUSQL-PROMETHEUS-DATABASE-URL
+                optional: true
           - name: SUSQL-PROMETHEUS-METRICS-URL
-            value: "http://0.0.0.0:8082"
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: SUSQL-PROMETHEUS-METRICS-URL
+                optional: true
           - name: SAMPLING-RATE
-            value: "2"
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: SAMPLING-RATE
+                optional: true
           - name: LEADER-ELECT
-            value: "true"
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: LEADER-ELECT
+                optional: true
           - name: HEALTH-PROBE-BIND-ADDRESS
-            value: ":8081"
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: HEALTH-PROBE-BIND-ADDRESS
+                optional: true
           - name: METRICS-BIND-ADDRESS
-            value: "127.0.0.1:9999"
-        args:
-        - --leader-elect=$(LEADER-ELECT)
-        # - --deployment-namespace=susql-operator
-        - --kepler-prometheus-url=$(KEPLER-PROMETHEUS-URL)
-        - --kepler-metric-name=$(KEPLER-METRIC-NAME)
-        - --susql-prometheus-database-url=$(SUSQL-PROMETHEUS-DATABASE-URL)
-        - --susql-prometheus-metrics-url=$(SUSQL-PROMETHEUS-METRICS-URL)
-        - --sampling-rate=$(SAMPLING-RATE)
-        - --health-probe-bind-address=$(HEALTH-PROBE-BIND-ADDRESS)
-        - --metrics-bind-address=$(METRICS-BIND-ADDRESS)
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: METRICS-BIND-ADDRESS
+                optional: true
+          - name: SUSQL-LOG-LEVEL
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: SUSQL-LOG-LEVEL
+                optional: true
+          - name: STATIC-CARBON-INTENSITY
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: STATIC-CARBON-INTENSITY
+                optional: true
         image: '<OPERATOR_IMG>'
         imagePullPolicy: IfNotPresent
         name: manager

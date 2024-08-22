@@ -12,7 +12,7 @@ else
 	ns=$(echo ${alldata} | jq -r '.items[].metadata.namespace' | uniq)
 fi
 
-printf  '%-20s%-40s%-50s%-20s\n' NameSpace LabelGroup Labels 'TotalEnergy (J)'
+printf  '%-20s%-40s%-50s%-20s%-15s\n' NameSpace LabelGroup Labels 'TotalEnergy (J)' 'Total CO2 (g)'
 
 for namespace in ${ns}
 do
@@ -20,7 +20,8 @@ do
     do
         newdata=$(echo ${alldata} | jq '.items[] | select(.metadata.namespace=="'${namespace}'" and .metadata.name=="'${labelgroup}'")')
 	totalEnergy=$(echo ${newdata} | jq -cr '.status.totalEnergy')
+	totalCarbon=$(echo ${newdata} | jq -cr '.status.totalCarbon')
 	labels=$(echo ${newdata} | jq -cr '.spec.labels')
-        printf '%-20s%-40s%-50s%-20s\n' ${namespace} ${labelgroup} ${labels} ${totalEnergy}
+        printf '%-20s%-40s%-50s%-20s%-15s\n' ${namespace} ${labelgroup} ${labels} ${totalEnergy} ${totalCarbon}
     done
 done | sort -nr -k4 | head -n 20

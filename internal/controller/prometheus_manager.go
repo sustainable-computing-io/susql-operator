@@ -157,6 +157,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 
 type SusqlMetrics struct {
 	totalEnergy *prometheus.GaugeVec
+	totalCarbon *prometheus.GaugeVec
 }
 
 var (
@@ -165,6 +166,11 @@ var (
 			Namespace: "susql",
 			Name:      "total_energy_joules",
 			Help:      "Accumulated energy over time for set of labels",
+		}, susqlPrometheusLabelNames),
+		totalCarbon: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: "susql",
+			Name:      "total_carbon_dioxide_grams",
+			Help:      "Accumulated carbon dioxide grams over time for set of labels",
 		}, susqlPrometheusLabelNames),
 	}
 
@@ -177,7 +183,7 @@ func (r *LabelGroupReconciler) InitializeMetricsExporter() {
 	r.Logger.V(5).Info("Entering InitializeMetricsExporter().")
 	if prometheusRegistry == nil {
 		prometheusRegistry = prometheus.NewRegistry()
-		prometheusRegistry.MustRegister(susqlMetrics.totalEnergy)
+		prometheusRegistry.MustRegister(susqlMetrics.totalEnergy, susqlMetrics.totalCarbon)
 
 		prometheusHandler = promhttp.HandlerFor(prometheusRegistry, promhttp.HandlerOpts{Registry: prometheusRegistry})
 		http.Handle("/metrics", prometheusHandler)
@@ -205,6 +211,15 @@ func (r *LabelGroupReconciler) SetAggregatedEnergyForLabels(totalEnergy float64,
 	susqlMetrics.totalEnergy.With(prometheusLabels).Set(totalEnergy)
 
 	r.Logger.V(5).Info(fmt.Sprintf("[SetAggregatedEnergyForLabels] Setting energy %f for %v.", totalEnergy, prometheusLabels)) // trace
+
+	return nil
+}
+
+func (r *LabelGroupReconciler) SetAggregatedCarbonForLabels(totalCarbon float64, prometheusLabels map[string]string) error {
+	// Save aggregated carbon to Prometheus table
+	susqlMetrics.totalCarbon.With(prometheusLabels).Set(totalCarbon)
+
+	r.Logger.V(5).Info(fmt.Sprintf("[SetAggregatedEnergyForLabels] Setting carbon %f for %v.", totalCarbon, prometheusLabels)) // trace
 
 	return nil
 }

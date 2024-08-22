@@ -51,25 +51,37 @@ func init() {
 	//+kubebuilder:scaffold:scheme
 }
 
+func getEnv(key, defval string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return defval
+}
+
 func main() {
-	var metricsAddr string
-	var enableLeaderElection bool
-	var probeAddr string
-	var keplerPrometheusUrl string
-	var keplerMetricName string
-	var susqlPrometheusMetricsUrl string
-	var susqlPrometheusDatabaseUrl string
-	var samplingRate string
+	var metricsAddr string = "127.0.0.1:9999"
+	var enableLeaderElection bool = true
+	var probeAddr string = ":8081"
+	var keplerPrometheusUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+	var keplerMetricName string = "kepler_container_joules_total"
+	var susqlPrometheusMetricsUrl string = "http://0.0.0.0:8082"
+	var susqlPrometheusDatabaseUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+	var samplingRate string = "2"
+	var susqlLogLevel string = "-5"
+	// Static Carbon Intensity Factor in grams CO2 / Joule
+	var staticCarbonIntensity string = "0.00000000011583333"
 
 	// NOTE: these can be set as env or flag, flag takes precedence over env
-	keplerPrometheusUrlEnv := os.Getenv("KEPLER-PROMETHEUS-URL")
-	keplerMetricNameEnv := os.Getenv("KEPLER-METRIC-NAME")
-	susqlPrometheusDatabaseUrlEnv := os.Getenv("SUSQL-PROMETHEUS-DATABASE-URL")
-	susqlPrometheusMetricsUrlEnv := os.Getenv("SUSQL-PROMETHEUS-METRICS-URL")
-	samplingRateEnv := os.Getenv("SAMPLING-RATE")
-	metricsAddrEnv := os.Getenv("METRICS-BIND-ADDRESS")
-	probeAddrEnv := os.Getenv("HEALTH-PROBE-BIND-ADDRESS")
-	enableLeaderElectionEnv, err := strconv.ParseBool(os.Getenv("LEADER-ELECT"))
+	keplerPrometheusUrlEnv := getEnv("KEPLER-PROMETHEUS-URL", keplerPrometheusUrl)
+	keplerMetricNameEnv := getEnv("KEPLER-METRIC-NAME", keplerMetricName)
+	susqlPrometheusDatabaseUrlEnv := getEnv("SUSQL-PROMETHEUS-DATABASE-URL", susqlPrometheusDatabaseUrl)
+	susqlPrometheusMetricsUrlEnv := getEnv("SUSQL-PROMETHEUS-METRICS-URL", susqlPrometheusMetricsUrl)
+	samplingRateEnv := getEnv("SAMPLING-RATE", samplingRate)
+	metricsAddrEnv := getEnv("METRICS-BIND-ADDRESS", metricsAddr)
+	probeAddrEnv := getEnv("HEALTH-PROBE-BIND-ADDRESS", probeAddr)
+	susqlLogLevelEnv := getEnv("SUSQL-LOG-LEVEL", susqlLogLevel)
+	staticCarbonIntensityEnv := getEnv("STATIC-CARBON-INTENSITY", staticCarbonIntensity)
+	enableLeaderElectionEnv, err := strconv.ParseBool(getEnv("LEADER-ELECT", strconv.FormatBool(enableLeaderElection)))
 	if err != nil {
 		enableLeaderElectionEnv = false
 	}
@@ -81,13 +93,20 @@ func main() {
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", metricsAddrEnv, "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
+	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL log level")
+	flag.StringVar(&staticCarbonIntensity, "static-carbon-intensity", staticCarbonIntensityEnv, "Static Carbon Intensity Factor in grams CO2 / Joule")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", enableLeaderElectionEnv,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 
+	susqlLogLevelInt, err := strconv.Atoi(susqlLogLevel)
+	if err != nil {
+		susqlLogLevelInt = -5
+	}
+
 	opts := zap.Options{
 		Development: true,
-		Level:       zapcore.Level(-5),
+		Level:       zapcore.Level(susqlLogLevelInt),
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
@@ -103,6 +122,8 @@ func main() {
 	susqlLog.Info("susqlPrometheusMetricsUrl=" + susqlPrometheusMetricsUrl)
 	susqlLog.Info("susqlPrometheusDatabaseUrl=" + susqlPrometheusDatabaseUrl)
 	susqlLog.Info("samplingRate=" + samplingRate)
+	susqlLog.Info("susqlLogLevel=" + susqlLogLevel)
+	susqlLog.Info("staticCarbonIntensity=" + staticCarbonIntensity)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -134,6 +155,12 @@ func main() {
 		samplingRateInteger = 2
 	}
 
+	staticCarbonIntensityFloat, err := strconv.ParseFloat(staticCarbonIntensity, 64)
+	if err != nil {
+		susqlLog.Error(err, "Unable to obtain static carbon intensity value. Using 0.0.")
+		staticCarbonIntensityFloat = 0.0
+	}
+
 	susqlLog.Info("Setting up labelGroupReconciler.")
 
 	if err = (&controller.LabelGroupReconciler{
@@ -144,6 +171,7 @@ func main() {
 		SusQLPrometheusDatabaseUrl: susqlPrometheusDatabaseUrl,
 		SusQLPrometheusMetricsUrl:  susqlPrometheusMetricsUrl,
 		SamplingRate:               time.Duration(samplingRateInteger) * time.Second,
+		StaticCarbonIntensity:      staticCarbonIntensityFloat,
 		Logger:                     susqlLog,
 	}).SetupWithManager(mgr); err != nil {
 		susqlLog.Error(err, "unable to create controller", "controller", "LabelGroup")

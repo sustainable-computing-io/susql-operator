@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: susql-config
+data:
+  KEPLER-PROMETHEUS-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+  KEPLER-METRIC-NAME: "kepler_container_joules_total"
+  SUSQL-PROMETHEUS-DATABASE-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+  SUSQL-PROMETHEUS-METRICS-URL: "http://0.0.0.0:8082"
+  SAMPLING-RATE: "2"
+  LEADER-ELECT: "true"
+  HEALTH-PROBE-BIND-ADDRESS: ":8081"
+  METRICS-BIND-ADDRESS: "127.0.0.1:9999"
+  SUSQL-LOG-LEVEL: "-5"
+  STATIC-CARBON-INTENSITY: "0.00000000011583333"
