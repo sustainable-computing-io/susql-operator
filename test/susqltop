@@ -12,7 +12,7 @@ else
 	ns=$(echo ${alldata} | jq -r '.items[].metadata.namespace' | uniq)
 fi
 
-printf  '%-20s%-40s%-50s%-20s%-15s\n' NameSpace LabelGroup Labels 'TotalEnergy (J)' 'TotalCarbon (g)'
+printf  '%-20s%-40s%-50s%-20s%-15s\n' NameSpace LabelGroup Labels 'TotalEnergy (J)' 'Total CO2 (g)'
 
 for namespace in ${ns}
 do

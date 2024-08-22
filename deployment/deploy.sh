@@ -75,6 +75,14 @@ if [[ -z ${SUSQL_SAMPLING_RATE} ]]; then
     SUSQL_SAMPLING_RATE="2"
 fi
 
+if [[ -z ${SUSQL_LOG_LEVEL} ]]; then
+    SUSQL_LOG_LEVEL="-5"
+fi
+
+if [[ -z ${STATIC_CARBON_INTENSITY} ]]; then
+    STATIC_CARBON_INTENSITY="0.00000000011583333"
+fi
+
 
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep ${SUSQL_NAMESPACE}) ]]; then
@@ -107,12 +115,14 @@ echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
 echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
 echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
 echo "KEPLER_METRIC_NAME - '${KEPLER_METRIC_NAME}'"
+echo "STATIC_CARBON_INTENSITY - '${STATIC_CARBON_INTENSITY}'"
 echo "SUSQL_PROMETHEUS_URL - '${SUSQL_PROMETHEUS_URL}'"
 echo "SUSQL_SAMPLING_RATE - '${SUSQL_SAMPLING_RATE}'"
 echo "SUSQL_ENHANCED - '${SUSQL_ENHANCED}'"
 echo "SUSQL_REGISTRY - '${SUSQL_REGISTRY}'"
 echo "SUSQL_IMAGE_NAME - '${SUSQL_IMAGE_NAME}'"
 echo "SUSQL_IMAGE_TAG - '${SUSQL_IMAGE_TAG}'"
+echo "SUSQL_LOG_LEVEL - '${SUSQL_LOG_LEVEL}'"
 echo "==================================================================================================="
 # Actions to perform, separated by comma
 actions=${1:-"kepler-check,prometheus-undeploy,prometheus-deploy,susql-undeploy,susql-deploy"}
@@ -136,12 +146,14 @@ echo "export PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}" >> ${LOGFILE}
 echo "export PROMETHEUS_PORT=${PROMETHEUS_PORT}" >> ${LOGFILE}
 echo "export KEPLER_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}" >> ${LOGFILE}
 echo "export KEPLER_METRIC_NAME=${KEPLER_METRIC_NAME}" >> ${LOGFILE}
+echo "export STATIC_CARBON_INTENSITY=${STATIC_CARBON_INTENSITY}" >> ${LOGFILE}
 echo "export SUSQL_PROMETHEUS_URL=${SUSQL_PROMETHEUS_URL}" >> ${LOGFILE}
 echo "export SUSQL_SAMPLING_RATE=${SUSQL_SAMPLING_RATE}" >> ${LOGFILE}
 echo "export SUSQL_ENHANCED=${SUSQL_ENHANCED}" >> ${LOGFILE}
 echo "export SUSQL_REGISTRY=${SUSQL_REGISTRY}" >> ${LOGFILE}
 echo "export SUSQL_IMAGE_NAME=${SUSQL_IMAGE_NAME}" >> ${LOGFILE}
 echo "export SUSQL_IMAGE_TAG=${SUSQL_IMAGE_TAG}" >> ${LOGFILE}
+echo "export SUSQL_LOG_LEVEL=${SUSQL_LOG_LEVEL}" >> ${LOGFILE}
 
 for action in $(echo ${actions} | tr ',' '\n')
 do
@@ -228,7 +240,9 @@ do
             --set keplerMetricName="${KEPLER_METRIC_NAME}" \
             --set susqlPrometheusDatabaseUrl="${SUSQL_PROMETHEUS_URL}" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
+            --set staticCarbonIntensity="${STATIC_CARBON_INTENSITY}" \
             --set samplingRate="${SUSQL_SAMPLING_RATE}" \
+            --set susqlLogLevel="${SUSQL_LOG_LEVEL}" \
             --set imagePullPolicy="Always" \
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
