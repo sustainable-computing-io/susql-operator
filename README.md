@@ -10,7 +10,7 @@ SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You
 
 ## Carbon Dioxide Emission Calculation
 
-Two currently CO2 emission calculation methods available, and an additional method is under development.
+There are two currently CO2 emission calculation methods available, and an additional method is under development.
 - The default CO2 emission calculation method is called "static", and simply uses a grams of CO2 per Joule 
 of electricity consumed coefficient to calculate grams of CO2 emitted. This value is user tunable by
 modifying the `CARBON-INTENSITY` configmap value.  The default value is based on
@@ -26,7 +26,6 @@ The configmap user configurable items are:
   - `CARBON-QUERY-FILTER` - When the return value is embedded in a JSON object, this specification enables the extraction of the data. The default value matches the default provider.
   - `CARBON-QUERY-CONV-2J` - If the carbon data provider does not provide data in the standard "grams of CO2 per Joule" then, this factor can be specified to normalize the units displayed. The default value ensures tha the default provider data is in the correct unit.
 - The third method "sdk" is still under development, and will offer an integration with the Green Software Foundation's [Carbon Aware SDK](https://github.com/Green-Software-Foundation/carbon-aware-sdk).
-
 
 ### Prerequisites
 
