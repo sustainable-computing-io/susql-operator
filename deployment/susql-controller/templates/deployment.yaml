@@ -31,7 +31,6 @@ spec:
                       - "--susql-log-level={{ .Values.susqlLogLevel }}"
                       - "--sampling-rate={{ .Values.samplingRate }}"
                       - "--static-carbon-intensity={{ .Values.staticCarbonIntensity }}"
-                      - "--metrics-bind-address={{ .Values.metricsAddr }}"
                       - "--health-prove-bind-address={{ .Values.healthProbeAddr }}"
                       - "--leader-elect={{ .Values.leaderElect }}"
                   ports:
