@@ -111,12 +111,6 @@ spec:
                 name: susql-config
                 key: HEALTH-PROBE-BIND-ADDRESS
                 optional: true
-          - name: METRICS-BIND-ADDRESS
-            valueFrom:
-              configMapKeyRef:
-                name: susql-config
-                key: METRICS-BIND-ADDRESS
-                optional: true
           - name: SUSQL-LOG-LEVEL
             valueFrom:
               configMapKeyRef:
@@ -155,9 +149,6 @@ spec:
         - containerPort: 8082
           protocol: TCP
           name: metric
-        - containerPort: 9999
-          protocol: TCP
-          name: autometric
         resources:
           limits:
             cpu: 500m

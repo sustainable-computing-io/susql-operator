@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"os"
 	"strconv"
@@ -33,6 +34,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
 	"github.com/sustainable-computing-io/susql-operator/internal/controller"
@@ -59,7 +61,6 @@ func getEnv(key, defval string) string {
 }
 
 func main() {
-	var metricsAddr string = "127.0.0.1:9999"
 	var enableLeaderElection bool = true
 	var probeAddr string = ":8081"
 	var keplerPrometheusUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
@@ -77,7 +78,6 @@ func main() {
 	susqlPrometheusDatabaseUrlEnv := getEnv("SUSQL-PROMETHEUS-DATABASE-URL", susqlPrometheusDatabaseUrl)
 	susqlPrometheusMetricsUrlEnv := getEnv("SUSQL-PROMETHEUS-METRICS-URL", susqlPrometheusMetricsUrl)
 	samplingRateEnv := getEnv("SAMPLING-RATE", samplingRate)
-	metricsAddrEnv := getEnv("METRICS-BIND-ADDRESS", metricsAddr)
 	probeAddrEnv := getEnv("HEALTH-PROBE-BIND-ADDRESS", probeAddr)
 	susqlLogLevelEnv := getEnv("SUSQL-LOG-LEVEL", susqlLogLevel)
 	staticCarbonIntensityEnv := getEnv("STATIC-CARBON-INTENSITY", staticCarbonIntensity)
@@ -91,7 +91,6 @@ func main() {
 	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", susqlPrometheusDatabaseUrlEnv, "The URL for the Prometheus database where SusQL stores the energy data")
 	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", susqlPrometheusMetricsUrlEnv, "The URL for the Prometheus metrics where SusQL exposes the energy data")
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
-	flag.StringVar(&metricsAddr, "metrics-bind-address", metricsAddrEnv, "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
 	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL log level")
 	flag.StringVar(&staticCarbonIntensity, "static-carbon-intensity", staticCarbonIntensityEnv, "Static Carbon Intensity Factor in grams CO2 / Joule")
@@ -114,7 +113,6 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	susqlLog.Info("SusQL configuration values at runtime")
-	susqlLog.Info("metricsAddr=" + metricsAddr)
 	susqlLog.Info("enableLeaderElection=" + strconv.FormatBool(enableLeaderElection))
 	susqlLog.Info("probeAddr=" + probeAddr)
 	susqlLog.Info("keplerPrometheusUrl=" + keplerPrometheusUrl)
@@ -125,10 +123,26 @@ func main() {
 	susqlLog.Info("susqlLogLevel=" + susqlLogLevel)
 	susqlLog.Info("staticCarbonIntensity=" + staticCarbonIntensity)
 
+	// if the enable-http2 flag is false (the default), http/2 should be disabled
+	// due to its vulnerabilities. More specifically, disabling http/2 will
+	// prevent from being vulnerable to the HTTP/2 Stream Cancellation and
+	// Rapid Reset CVEs. For more information see:
+	// - https://github.com/advisories/GHSA-qppj-fm5r-hxr3
+	// - https://github.com/advisories/GHSA-4374-p667-p6c8
+	disableHTTP2 := func(c *tls.Config) {
+		susqlLog.Info("disabling http/2")
+		c.NextProtos = []string{"http/1.1"}
+	}
+
+	tlsOpts := []func(*tls.Config){}
+	tlsOpts = append(tlsOpts, disableHTTP2)
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Scheme: scheme,
+		Metrics: metricsserver.Options{
+			BindAddress:   "0", // was: tunable metricsAddr
+			SecureServing: false,
+			TLSOpts:       tlsOpts,
+		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "cac735ee.ibm.com",
