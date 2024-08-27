@@ -97,6 +97,8 @@ spec:
   - energy
   - kepler
   - susql
+  - carbon dioxide (CO2) emissions
+  - green computing
   links:
   - name: SusQL Operator
     url: https://github.com/sustainable-computing-io/susql-operator
