@@ -284,6 +284,36 @@ spec:
                       key: CARBON-QUERY-FILTER
                       name: susql-config
                       optional: true
+                - name: CARBON-INTENSITY
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-INTENSITY
+                      name: susql-config
+                      optional: true
+                - name: CARBON-INTENSITY-URL
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-INTENSITY-URL
+                      name: susql-config
+                      optional: true
+                - name: CARBON-LOCATION
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-LOCATION
+                      name: susql-config
+                      optional: true
+                - name: CARBON-QUERY-RATE
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-QUERY-RATE
+                      name: susql-config
+                      optional: true
+                - name: CARBON-QUERY-FILTER
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-QUERY-FILTER
+                      name: susql-config
+                      optional: true
                 - name: CARBON-QUERY-CONV-2J
                   valueFrom:
                     configMapKeyRef:
