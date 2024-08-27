@@ -70,6 +70,11 @@ func main() {
 	var susqlLogLevel string = "-5"
 	// Static Carbon Intensity Factor in grams CO2 / Joule
 	var staticCarbonIntensity string = "0.00000000011583333"
+	var carbonMethod string = "1"
+	var carbonIntensityUrl string = "https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
+	var carbonLocation string = "JP-TK"
+	var carbonQueryRate string = "60"
+	var carbonQueryFilter string = ".carbonIntensity"
 
 	// NOTE: these can be set as env or flag, flag takes precedence over env
 	keplerPrometheusUrlEnv := getEnv("KEPLER-PROMETHEUS-URL", keplerPrometheusUrl)
@@ -81,6 +86,11 @@ func main() {
 	probeAddrEnv := getEnv("HEALTH-PROBE-BIND-ADDRESS", probeAddr)
 	susqlLogLevelEnv := getEnv("SUSQL-LOG-LEVEL", susqlLogLevel)
 	staticCarbonIntensityEnv := getEnv("STATIC-CARBON-INTENSITY", staticCarbonIntensity)
+	carbonMethodEnv := getEnv("CARBON-METHOD", carbonMethod)
+	carbonIntensityUrlEnv := getEnv("CARBON-INTENSITY-URL", carbonIntensityUrl)
+	carbonLocationEnv := getEnv("CARBON-LOCATION", carbonLocation)
+	carbonQueryRateEnv := getEnv("CARBON-QUERY-RATE", carbonQueryRate)
+	carbonQueryFilterEnv := getEnv("CARBON-QUERY-FILTER", carbonQueryFilter)
 	enableLeaderElectionEnv, err := strconv.ParseBool(getEnv("LEADER-ELECT", strconv.FormatBool(enableLeaderElection)))
 	if err != nil {
 		enableLeaderElectionEnv = false
@@ -95,6 +105,11 @@ func main() {
 	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
 	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL log level")
 	flag.StringVar(&staticCarbonIntensity, "static-carbon-intensity", staticCarbonIntensityEnv, "Static Carbon Intensity Factor in grams CO2 / Joule")
+	flag.StringVar(&carbonMethod, "carbon-method", carbonMethodEnv, "Method used to calculate CO2 emissions")
+	flag.StringVar(&carbonIntensityURL, "carbon-intensity-url", carbonIntensityURLEnv, "URL used to query calculate carbon intensity")
+	flag.StringVar(&carbonLocation, "carbon-location", carbonLocationEnv, "Location identfier used in carbon intensity query")
+	flag.StringVar(&carbonQueryRate, "carbon-query-rate", carbonQueryRateEnv, "How often to query carbon intensity query (minutes)")
+	flag.StringVar(&carbonQueryFilter, "carbon-query-filter", carbonQueryFilterEnv, "jq parameter to extract carbon intensity from JSON returned by query")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", enableLeaderElectionEnv,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
@@ -123,7 +138,12 @@ func main() {
 	susqlLog.Info("susqlPrometheusDatabaseUrl=" + susqlPrometheusDatabaseUrl)
 	susqlLog.Info("samplingRate=" + samplingRate)
 	susqlLog.Info("susqlLogLevel=" + susqlLogLevel)
+	susqlLog.Info("carbonMethod=" + carbonMethod)
 	susqlLog.Info("staticCarbonIntensity=" + staticCarbonIntensity)
+	susqlLog.Info("carbonIntensityUrl=" + carbonIntensityUrl)
+	susqlLog.Info("carbonLocation=" + carbonLocation)
+	susqlLog.Info("carbonQueryRate=" + carbonQueryRate)
+	susqlLog.Info("carbonQueryFilter=" + carbonQueryFilter)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -150,9 +170,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	// TODO: verify that carbonMethod is an expected value. If not log warning and set to default value.
+	// Note: assume that carbonIntensityUrl, carbonLocation, and carbonQueryFilter are OK. If not, we will log errors at runtime.
+
 	samplingRateInteger, err := strconv.Atoi(samplingRate)
 	if err != nil {
 		samplingRateInteger = 2
+	}
+
+	carbonQueryRateInteger, err := strconv.Atoi(carbonQueryRate)
+	if err != nil {
+		carbonQueryRateInteger = 60
 	}
 
 	staticCarbonIntensityFloat, err := strconv.ParseFloat(staticCarbonIntensity, 64)
@@ -171,7 +199,12 @@ func main() {
 		SusQLPrometheusDatabaseUrl: susqlPrometheusDatabaseUrl,
 		SusQLPrometheusMetricsUrl:  susqlPrometheusMetricsUrl,
 		SamplingRate:               time.Duration(samplingRateInteger) * time.Second,
+		CarbonMethod:               carbonMethod,
 		StaticCarbonIntensity:      staticCarbonIntensityFloat,
+		CarbonIntensityUrl:         carbonIntensityUrl,
+		CarbonLocation:             carbonLocation,
+		CarbonQueryRate:            time.Duration(carbonQueryRate) * time.Minute,
+		CarbonQueryFilter:          carbonQueryFilter,
 		Logger:                     susqlLog,
 	}).SetupWithManager(mgr); err != nil {
 		susqlLog.Error(err, "unable to create controller", "controller", "LabelGroup")
