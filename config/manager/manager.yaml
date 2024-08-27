@@ -123,11 +123,11 @@ spec:
                 name: susql-config
                 key: CARBON-METHOD
                 optional: true
-          - name: STATIC-CARBON-INTENSITY
+          - name: CARBON-INTENSITY
             valueFrom:
               configMapKeyRef:
                 name: susql-config
-                key: STATIC-CARBON-INTENSITY
+                key: CARBON-INTENSITY
                 optional: true
           - name: CARBON-INTENSITY-URL
             valueFrom:

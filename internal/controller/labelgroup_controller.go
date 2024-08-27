@@ -42,7 +42,12 @@ type LabelGroupReconciler struct {
 	SusQLPrometheusDatabaseUrl string
 	SusQLPrometheusMetricsUrl  string
 	SamplingRate               time.Duration // Sampling rate for all label groups
-	StaticCarbonIntensity      float64
+	CarbonMethod               string
+	CarbonIntensity            float64
+	CarbonIntensityUrl         string
+	CarbonLocation             string
+	CarbonQueryRate            time.Duration
+	CarbonQueryFilter          string
 	Logger                     logr.Logger
 }
 
@@ -70,7 +75,7 @@ var (
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.17.3/pkg/reconcile
 func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
@@ -169,7 +174,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
 
-			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
+			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.CarbonIntensity)
 		}
 
 		labelGroup.Status.Phase = susqlv1.Aggregating
@@ -249,7 +254,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
 
-		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.StaticCarbonIntensity)
+		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.CarbonIntensity)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err
@@ -257,7 +262,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 5) Add energy aggregation to Prometheus table
 		r.SetAggregatedEnergyForLabels(totalEnergy, labelGroup.Status.PrometheusLabels)
-		r.SetAggregatedCarbonForLabels(float64(totalEnergy)*r.StaticCarbonIntensity, labelGroup.Status.PrometheusLabels)
+		r.SetAggregatedCarbonForLabels(float64(totalEnergy)*r.CarbonIntensity, labelGroup.Status.PrometheusLabels)
 
 		// Requeue
 		return ctrl.Result{RequeueAfter: r.SamplingRate}, nil
