@@ -111,23 +111,47 @@ spec:
                 name: susql-config
                 key: HEALTH-PROBE-BIND-ADDRESS
                 optional: true
-          - name: METRICS-BIND-ADDRESS
-            valueFrom:
-              configMapKeyRef:
-                name: susql-config
-                key: METRICS-BIND-ADDRESS
-                optional: true
           - name: SUSQL-LOG-LEVEL
             valueFrom:
               configMapKeyRef:
                 name: susql-config
                 key: SUSQL-LOG-LEVEL
                 optional: true
+          - name: CARBON-METHOD
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-METHOD
+                optional: true
           - name: STATIC-CARBON-INTENSITY
             valueFrom:
               configMapKeyRef:
                 name: susql-config
                 key: STATIC-CARBON-INTENSITY
+                optional: true
+          - name: CARBON-INTENSITY-URL
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-INTENSITY-URL
+                optional: true
+          - name: CARBON-LOCATION
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-LOCATION
+                optional: true
+          - name: CARBON-QUERY-RATE
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-QUERY-RATE
+                optional: true
+          - name: CARBON-QUERY-FILTER
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-QUERY-FILTER
                 optional: true
         image: '<OPERATOR_IMG>'
         imagePullPolicy: IfNotPresent
@@ -155,9 +179,6 @@ spec:
         - containerPort: 8082
           protocol: TCP
           name: metric
-        - containerPort: 9999
-          protocol: TCP
-          name: autometric
         resources:
           limits:
             cpu: 500m

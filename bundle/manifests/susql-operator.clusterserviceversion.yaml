@@ -22,15 +22,15 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.23
-    createdAt: "2024-08-22T02:22:46Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.24
+    createdAt: "2024-08-26T05:08:49Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.23
+  name: susql-operator.v0.0.24
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -179,7 +179,7 @@ spec:
                 - --upstream=http://127.0.0.1:8082/
                 - --logtostderr=true
                 - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.16.0
                 name: kube-rbac-proxy
                 ports:
                 - containerPort: 8443
@@ -242,12 +242,6 @@ spec:
                       key: HEALTH-PROBE-BIND-ADDRESS
                       name: susql-config
                       optional: true
-                - name: METRICS-BIND-ADDRESS
-                  valueFrom:
-                    configMapKeyRef:
-                      key: METRICS-BIND-ADDRESS
-                      name: susql-config
-                      optional: true
                 - name: SUSQL-LOG-LEVEL
                   valueFrom:
                     configMapKeyRef:
@@ -260,7 +254,7 @@ spec:
                       key: STATIC-CARBON-INTENSITY
                       name: susql-config
                       optional: true
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.23
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.24
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -272,9 +266,6 @@ spec:
                 ports:
                 - containerPort: 8082
                   name: metric
-                  protocol: TCP
-                - containerPort: 9999
-                  name: autometric
                   protocol: TCP
                 readinessProbe:
                   httpGet:
@@ -364,4 +355,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.23
+  version: 0.0.24
