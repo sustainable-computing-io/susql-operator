@@ -11,7 +11,7 @@ data:
   LEADER-ELECT: "true"
   HEALTH-PROBE-BIND-ADDRESS: ":8081"
   SUSQL-LOG-LEVEL: "-5"
-  CARBON-METHOD: "1"
+  CARBON-METHOD: "static"
   CARBON-INTENSITY: "0.00000000011583333"
   CARBON-INTENSITY-URL: "https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
   CARBON-LOCATION: "JP-TK"
