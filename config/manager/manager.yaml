@@ -117,11 +117,17 @@ spec:
                 name: susql-config
                 key: SUSQL-LOG-LEVEL
                 optional: true
-          - name: STATIC-CARBON-INTENSITY
+          - name: CARBON-METHOD
             valueFrom:
               configMapKeyRef:
                 name: susql-config
-                key: STATIC-CARBON-INTENSITY
+                key: CARBON-METHOD
+                optional: true
+          - name: CARBON-INTENSITY
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-INTENSITY
                 optional: true
         image: '<OPERATOR_IMG>'
         imagePullPolicy: IfNotPresent

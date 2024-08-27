@@ -23,7 +23,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.24
-    createdAt: "2024-08-26T05:08:49Z"
+    createdAt: "2024-08-27T06:51:20Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
@@ -248,10 +248,40 @@ spec:
                       key: SUSQL-LOG-LEVEL
                       name: susql-config
                       optional: true
-                - name: STATIC-CARBON-INTENSITY
+                - name: CARBON-METHOD
                   valueFrom:
                     configMapKeyRef:
-                      key: STATIC-CARBON-INTENSITY
+                      key: CARBON-METHOD
+                      name: susql-config
+                      optional: true
+                - name: CARBON-INTENSITY
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-INTENSITY
+                      name: susql-config
+                      optional: true
+                - name: CARBON-INTENSITY-URL
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-INTENSITY-URL
+                      name: susql-config
+                      optional: true
+                - name: CARBON-LOCATION
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-LOCATION
+                      name: susql-config
+                      optional: true
+                - name: CARBON-QUERY-RATE
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-QUERY-RATE
+                      name: susql-config
+                      optional: true
+                - name: CARBON-QUERY-FILTER
+                  valueFrom:
+                    configMapKeyRef:
+                      key: CARBON-QUERY-FILTER
                       name: susql-config
                       optional: true
                 image: quay.io/sustainable_computing_io/susql_operator:0.0.24
@@ -340,6 +370,8 @@ spec:
   - energy
   - kepler
   - susql
+  - carbon dioxide (CO2) emissions
+  - green computing
   links:
   - name: SusQL Operator
     url: https://github.com/sustainable-computing-io/susql-operator
