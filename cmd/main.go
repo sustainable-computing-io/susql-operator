@@ -69,8 +69,8 @@ func main() {
 	var susqlPrometheusDatabaseUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
 	var samplingRate string = "2"
 	var susqlLogLevel string = "-5"
-	// Static Carbon Intensity Factor in grams CO2 / Joule
-	var staticCarbonIntensity string = "0.00000000011583333"
+	// Carbon Intensity Factor in grams CO2 / Joule
+	var carbonIntensity string = "0.00000000011583333"
 	var carbonMethod string = "1"
 	var carbonIntensityUrl string = "https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
 	var carbonLocation string = "JP-TK"
@@ -85,7 +85,7 @@ func main() {
 	samplingRateEnv := getEnv("SAMPLING-RATE", samplingRate)
 	probeAddrEnv := getEnv("HEALTH-PROBE-BIND-ADDRESS", probeAddr)
 	susqlLogLevelEnv := getEnv("SUSQL-LOG-LEVEL", susqlLogLevel)
-	staticCarbonIntensityEnv := getEnv("STATIC-CARBON-INTENSITY", staticCarbonIntensity)
+	carbonIntensityEnv := getEnv("CARBON-INTENSITY", carbonIntensity)
 	carbonMethodEnv := getEnv("CARBON-METHOD", carbonMethod)
 	carbonIntensityUrlEnv := getEnv("CARBON-INTENSITY-URL", carbonIntensityUrl)
 	carbonLocationEnv := getEnv("CARBON-LOCATION", carbonLocation)
@@ -103,9 +103,9 @@ func main() {
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
 	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL log level")
-	flag.StringVar(&staticCarbonIntensity, "static-carbon-intensity", staticCarbonIntensityEnv, "Static Carbon Intensity Factor in grams CO2 / Joule")
+	flag.StringVar(&carbonIntensity, "carbon-intensity", carbonIntensityEnv, "Carbon Intensity Factor in grams CO2 / Joule")
 	flag.StringVar(&carbonMethod, "carbon-method", carbonMethodEnv, "Method used to calculate CO2 emissions")
-	flag.StringVar(&carbonIntensityURL, "carbon-intensity-url", carbonIntensityURLEnv, "URL used to query calculate carbon intensity")
+	flag.StringVar(&carbonIntensityUrl, "carbon-intensity-url", carbonIntensityUrlEnv, "URL used to query calculate carbon intensity")
 	flag.StringVar(&carbonLocation, "carbon-location", carbonLocationEnv, "Location identfier used in carbon intensity query")
 	flag.StringVar(&carbonQueryRate, "carbon-query-rate", carbonQueryRateEnv, "How often to query carbon intensity query (minutes)")
 	flag.StringVar(&carbonQueryFilter, "carbon-query-filter", carbonQueryFilterEnv, "jq parameter to extract carbon intensity from JSON returned by query")
@@ -137,7 +137,7 @@ func main() {
 	susqlLog.Info("samplingRate=" + samplingRate)
 	susqlLog.Info("susqlLogLevel=" + susqlLogLevel)
 	susqlLog.Info("carbonMethod=" + carbonMethod)
-	susqlLog.Info("staticCarbonIntensity=" + staticCarbonIntensity)
+	susqlLog.Info("carbonIntensity=" + carbonIntensity)
 	susqlLog.Info("carbonIntensityUrl=" + carbonIntensityUrl)
 	susqlLog.Info("carbonLocation=" + carbonLocation)
 	susqlLog.Info("carbonQueryRate=" + carbonQueryRate)
@@ -197,10 +197,10 @@ func main() {
 		carbonQueryRateInteger = 60
 	}
 
-	staticCarbonIntensityFloat, err := strconv.ParseFloat(staticCarbonIntensity, 64)
+	carbonIntensityFloat, err := strconv.ParseFloat(carbonIntensity, 64)
 	if err != nil {
-		susqlLog.Error(err, "Unable to obtain static carbon intensity value. Using 0.0.")
-		staticCarbonIntensityFloat = 0.0
+		susqlLog.Error(err, "Unable to obtain initial carbon intensity value. Using 0.0.")
+		carbonIntensityFloat = 0.0
 	}
 
 	susqlLog.Info("Setting up labelGroupReconciler.")
@@ -214,10 +214,10 @@ func main() {
 		SusQLPrometheusMetricsUrl:  susqlPrometheusMetricsUrl,
 		SamplingRate:               time.Duration(samplingRateInteger) * time.Second,
 		CarbonMethod:               carbonMethod,
-		StaticCarbonIntensity:      staticCarbonIntensityFloat,
+		CarbonIntensity:            carbonIntensityFloat,
 		CarbonIntensityUrl:         carbonIntensityUrl,
 		CarbonLocation:             carbonLocation,
-		CarbonQueryRate:            time.Duration(carbonQueryRate) * time.Minute,
+		CarbonQueryRate:            time.Duration(carbonQueryRateInteger) * time.Minute,
 		CarbonQueryFilter:          carbonQueryFilter,
 		Logger:                     susqlLog,
 	}).SetupWithManager(mgr); err != nil {
