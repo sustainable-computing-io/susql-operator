@@ -22,15 +22,15 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.25
-    createdAt: "2024-08-28T09:06:10Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.26
+    createdAt: "2024-08-28T12:13:39Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.25
+  name: susql-operator.v0.0.26
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -284,43 +284,13 @@ spec:
                       key: CARBON-QUERY-FILTER
                       name: susql-config
                       optional: true
-                - name: CARBON-INTENSITY
-                  valueFrom:
-                    configMapKeyRef:
-                      key: CARBON-INTENSITY
-                      name: susql-config
-                      optional: true
-                - name: CARBON-INTENSITY-URL
-                  valueFrom:
-                    configMapKeyRef:
-                      key: CARBON-INTENSITY-URL
-                      name: susql-config
-                      optional: true
-                - name: CARBON-LOCATION
-                  valueFrom:
-                    configMapKeyRef:
-                      key: CARBON-LOCATION
-                      name: susql-config
-                      optional: true
-                - name: CARBON-QUERY-RATE
-                  valueFrom:
-                    configMapKeyRef:
-                      key: CARBON-QUERY-RATE
-                      name: susql-config
-                      optional: true
-                - name: CARBON-QUERY-FILTER
-                  valueFrom:
-                    configMapKeyRef:
-                      key: CARBON-QUERY-FILTER
-                      name: susql-config
-                      optional: true
                 - name: CARBON-QUERY-CONV-2J
                   valueFrom:
                     configMapKeyRef:
                       key: CARBON-QUERY-CONV-2J
                       name: susql-config
                       optional: true
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.25
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.26
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -423,4 +393,4 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  version: 0.0.25
+  version: 0.0.26
