@@ -153,6 +153,12 @@ spec:
                 name: susql-config
                 key: CARBON-QUERY-FILTER
                 optional: true
+          - name: CARBON-QUERY-CONV-2J
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-QUERY-CONV-2J
+                optional: true
         image: '<OPERATOR_IMG>'
         imagePullPolicy: IfNotPresent
         name: manager

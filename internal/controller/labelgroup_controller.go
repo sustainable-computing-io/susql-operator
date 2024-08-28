@@ -1,5 +1,5 @@
 /*
-Copyright 2024.
+Copyright 2023, 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,9 +45,11 @@ type LabelGroupReconciler struct {
 	CarbonMethod               string
 	CarbonIntensity            float64
 	CarbonIntensityUrl         string
+	CarbonIntensityTimeStamp   int64
 	CarbonLocation             string
-	CarbonQueryRate            time.Duration
+	CarbonQueryRate            int64
 	CarbonQueryFilter          string
+	CarbonQueryConv2J          float64
 	Logger                     logr.Logger
 }
 
@@ -106,6 +108,23 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		}
 
 		return ctrl.Result{}, nil
+	}
+
+	// Is it time to update the Carbon Intensity value?
+	// TODO: put this code only in Reloading and Aggregating cases
+	if r.CarbonMethod == "simpledynamic" {
+		currentEpoch := time.Now().Unix()
+		if (currentEpoch - r.CarbonIntensityTimeStamp) > r.CarbonQueryRate {
+			newCarbonIntensity, err := queryCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
+			if err == nil {
+				r.CarbonIntensity = newCarbonIntensity
+				r.CarbonIntensityTimeStamp = currentEpoch
+				r.Logger.V(5).Info("[Reconcile] Entered initializing case.")
+				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
+			} else {
+				r.Logger.V(0).Error(err, "[Reconcile] Unable to query carbon intensity.")
+			}
+		}
 	}
 
 	// Decide what action to take based on the state of the labelGroup
@@ -174,7 +193,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
 
-			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.CarbonIntensity)
+			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", float64(totalEnergy)*r.CarbonIntensity)
 		}
 
 		labelGroup.Status.Phase = susqlv1.Aggregating
@@ -254,7 +273,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
 
-		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.15f", float64(totalEnergy)*r.CarbonIntensity)
+		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", float64(totalEnergy)*r.CarbonIntensity)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err

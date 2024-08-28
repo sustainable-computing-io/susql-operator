@@ -70,12 +70,13 @@ func main() {
 	var samplingRate string = "2"
 	var susqlLogLevel string = "-5"
 	// Carbon Intensity Factor in grams CO2 / Joule
-	var carbonIntensity string = "0.00000000011583333"
 	var carbonMethod string = "static" // options: static, simpledynamic, sdk
+	var carbonIntensity string = "0.0001158333333333"
 	var carbonIntensityUrl string = "https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
 	var carbonLocation string = "JP-TK"
-	var carbonQueryRate string = "60"
-	var carbonQueryFilter string = ".carbonIntensity"
+	var carbonQueryRate string = "7200"
+	var carbonQueryFilter string = "carbonIntensity"
+	var carbonQueryConv2J string = "0.0000002777777778"
 
 	// NOTE: these can be set as env or flag, flag takes precedence over env
 	keplerPrometheusUrlEnv := getEnv("KEPLER-PROMETHEUS-URL", keplerPrometheusUrl)
@@ -85,12 +86,13 @@ func main() {
 	samplingRateEnv := getEnv("SAMPLING-RATE", samplingRate)
 	probeAddrEnv := getEnv("HEALTH-PROBE-BIND-ADDRESS", probeAddr)
 	susqlLogLevelEnv := getEnv("SUSQL-LOG-LEVEL", susqlLogLevel)
-	carbonIntensityEnv := getEnv("CARBON-INTENSITY", carbonIntensity)
 	carbonMethodEnv := getEnv("CARBON-METHOD", carbonMethod)
+	carbonIntensityEnv := getEnv("CARBON-INTENSITY", carbonIntensity)
 	carbonIntensityUrlEnv := getEnv("CARBON-INTENSITY-URL", carbonIntensityUrl)
 	carbonLocationEnv := getEnv("CARBON-LOCATION", carbonLocation)
 	carbonQueryRateEnv := getEnv("CARBON-QUERY-RATE", carbonQueryRate)
 	carbonQueryFilterEnv := getEnv("CARBON-QUERY-FILTER", carbonQueryFilter)
+	carbonQueryConv2JEnv := getEnv("CARBON-QUERY-CONV-2J", carbonQueryConv2J)
 	enableLeaderElectionEnv, err := strconv.ParseBool(getEnv("LEADER-ELECT", strconv.FormatBool(enableLeaderElection)))
 	if err != nil {
 		enableLeaderElectionEnv = false
@@ -103,12 +105,13 @@ func main() {
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", probeAddrEnv, "The address the probe endpoint binds to.")
 	flag.StringVar(&susqlLogLevel, "susql-log-level", susqlLogLevelEnv, "SusQL log level")
-	flag.StringVar(&carbonIntensity, "carbon-intensity", carbonIntensityEnv, "Carbon Intensity Factor in grams CO2 / Joule")
 	flag.StringVar(&carbonMethod, "carbon-method", carbonMethodEnv, "Method used to calculate CO2 emissions")
+	flag.StringVar(&carbonIntensity, "carbon-intensity", carbonIntensityEnv, "Carbon Intensity Factor in grams CO2 / Joule")
 	flag.StringVar(&carbonIntensityUrl, "carbon-intensity-url", carbonIntensityUrlEnv, "URL used to query calculate carbon intensity")
 	flag.StringVar(&carbonLocation, "carbon-location", carbonLocationEnv, "Location identfier used in carbon intensity query")
-	flag.StringVar(&carbonQueryRate, "carbon-query-rate", carbonQueryRateEnv, "How often to query carbon intensity query (minutes)")
-	flag.StringVar(&carbonQueryFilter, "carbon-query-filter", carbonQueryFilterEnv, "jq parameter to extract carbon intensity from JSON returned by query")
+	flag.StringVar(&carbonQueryRate, "carbon-query-rate", carbonQueryRateEnv, "How often to query carbon intensity query (seconds)")
+	flag.StringVar(&carbonQueryFilter, "carbon-query-filter", carbonQueryFilterEnv, "Parameter to extract carbon intensity from JSON returned by query")
+	flag.StringVar(&carbonQueryConv2J, "carbon-query-conv-2j", carbonQueryConv2JEnv, "Factor to convert carbon intensity returned by query to grams CO2 / Joule")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", enableLeaderElectionEnv,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
@@ -142,6 +145,7 @@ func main() {
 	susqlLog.Info("carbonLocation=" + carbonLocation)
 	susqlLog.Info("carbonQueryRate=" + carbonQueryRate)
 	susqlLog.Info("carbonQueryFilter=" + carbonQueryFilter)
+	susqlLog.Info("carbonQueryConv2J=" + carbonQueryConv2J)
 
 	// if the enable-http2 flag is false (the default), http/2 should be disabled
 	// due to its vulnerabilities. More specifically, disabling http/2 will
@@ -193,15 +197,21 @@ func main() {
 		samplingRateInteger = 2
 	}
 
-	carbonQueryRateInteger, err := strconv.Atoi(carbonQueryRate)
+	carbonQueryRateInteger, err := strconv.ParseInt(carbonQueryRate, 10, 64)
 	if err != nil {
-		carbonQueryRateInteger = 60
+		carbonQueryRateInteger = 7200
 	}
 
 	carbonIntensityFloat, err := strconv.ParseFloat(carbonIntensity, 64)
 	if err != nil {
 		susqlLog.Error(err, "Unable to obtain initial carbon intensity value. Using 0.0.")
 		carbonIntensityFloat = 0.0
+	}
+
+	carbonQueryConv2JFloat, err := strconv.ParseFloat(carbonQueryConv2J, 64)
+	if err != nil {
+		susqlLog.Error(err, "Unable to obtain carbon query Conv 2J value. Using 0.0.")
+		carbonQueryConv2JFloat = 0.0
 	}
 
 	susqlLog.Info("Setting up labelGroupReconciler.")
@@ -217,9 +227,11 @@ func main() {
 		CarbonMethod:               carbonMethod,
 		CarbonIntensity:            carbonIntensityFloat,
 		CarbonIntensityUrl:         carbonIntensityUrl,
+		CarbonIntensityTimeStamp:   0,
 		CarbonLocation:             carbonLocation,
-		CarbonQueryRate:            time.Duration(carbonQueryRateInteger) * time.Minute,
+		CarbonQueryRate:            carbonQueryRateInteger,
 		CarbonQueryFilter:          carbonQueryFilter,
+		CarbonQueryConv2J:          carbonQueryConv2JFloat,
 		Logger:                     susqlLog,
 	}).SetupWithManager(mgr); err != nil {
 		susqlLog.Error(err, "unable to create controller", "controller", "LabelGroup")

@@ -1,7 +1,7 @@
 # Simple SusQL FAQ
 
 - What is SusQL?
-  - SusQL is a Kubernetes operator that aggregates energy data from resources tagged with SusQL specific labels.
+  - SusQL is a Kubernetes operator that aggregates energy and CO2 emission data from resources tagged with SusQL specific labels.
 
 
 - What does SusQL require?
@@ -29,7 +29,7 @@ https://github.com/sustainable-computing-io/susql-operator/blob/main/doc/helm-in
 
 - Who uses SusQL?
   - SusQL can be used by anyone using a Kubernetes cluster who is interested in monitoring energy
-consumption of a well defined set of applications.
+consumption or carbon dioxide emission of a well defined set of applications.
 
 
 - Who works on SusQL?
@@ -61,11 +61,11 @@ spec:
 
 
 - Why is SusQL important?
-  - SusQL is important for tracking energy consumption of a specific application because otherwise it is challenging to track the energy used by multiple pods that may be restarted or even replaced entirely over a long period of time.
+  - SusQL is important for tracking both energy consumption and carbon dioxide emission of a specific application because otherwise it is challenging to track the energy used by multiple pods that may be restarted or even replaced entirely over a long period of time.
 
 
 - What can I do with SusQL?
-  - Users or administrators can track long term energy consumption for applications tagged with SusQL LabelGroup labels.
+  - Users or administrators can track long term energy consumption and carbon dioxide emission for applications tagged with SusQL LabelGroup labels.
 
 
 - How can I visualize SusQL data?

@@ -65,12 +65,12 @@ The following environment variables will influence the way that the SusQL Operat
 | SUSQL_REGISTRY              | quay.io/sustainable_computing_io | Container registry that SusQL is stored in    |
 | SUSQL_IMAGE_NAME            | susql_operator                | Image name used on SusQL container registry      |
 | SUSQL_IMAGE_TAG             | latest                        | Tag for SusQL container                          |
-| STATIC_CARBON_INTENSITY     | "0.00000000011583333"         | Static carbon intensity in grams CO2 / Joule     |
+| STATIC_CARBON_INTENSITY     | "0.00000011583333"            | Static carbon intensity in grams CO2 / Joule     |
 
 
 ## License
 
-Copyright 2024.
+Copyright 2023, 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
