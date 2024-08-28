@@ -86,7 +86,6 @@ func main() {
 	samplingRateEnv := getEnv("SAMPLING-RATE", samplingRate)
 	probeAddrEnv := getEnv("HEALTH-PROBE-BIND-ADDRESS", probeAddr)
 	susqlLogLevelEnv := getEnv("SUSQL-LOG-LEVEL", susqlLogLevel)
-	carbonIntensityEnv := getEnv("CARBON-INTENSITY", carbonIntensity)
 	carbonMethodEnv := getEnv("CARBON-METHOD", carbonMethod)
 	carbonIntensityEnv := getEnv("CARBON-INTENSITY", carbonIntensity)
 	carbonIntensityUrlEnv := getEnv("CARBON-INTENSITY-URL", carbonIntensityUrl)
