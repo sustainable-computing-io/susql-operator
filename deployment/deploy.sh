@@ -79,10 +79,33 @@ if [[ -z ${SUSQL_LOG_LEVEL} ]]; then
     SUSQL_LOG_LEVEL="-5"
 fi
 
-if [[ -z ${STATIC_CARBON_INTENSITY} ]]; then
-    STATIC_CARBON_INTENSITY="0.00000000011583333"
+if [[ -z ${CARBON_METHOD} ]]; then
+    CARBON_METHOD="static"
 fi
 
+if [[ -z ${CARBON_INTENSITY} ]]; then
+    CARBON_INTENSITY="0.0001158333333333"
+fi
+
+if [[ -z ${CARBON_INTENSITY_URL} ]]; then
+    CARBON_INTENSITY_URL="https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
+fi
+
+if [[ -z ${CARBON_LOCATION} ]]; then
+    CARBON_LOCATION="JP-TK"
+fi
+
+if [[ -z ${CARBON_QUERY_RATE} ]]; then
+    CARBON_QUERY_RATE="7200"
+fi
+
+if [[ -z ${CARBON_QUERY_FILTER} ]]; then
+    CARBON_QUERY_FILTER="carbonIntensity"
+fi
+
+if [[ -z ${CARBON_QAUERY_CONV_2J} ]]; then
+    CARBON_QAUERY_CONV_2J="0.0000002777777778"
+fi
 
 # Check if namespace exists
 if [[ -z $(kubectl get namespaces --no-headers -o custom-columns=':{.metadata.name}' | grep ${SUSQL_NAMESPACE}) ]]; then
@@ -115,7 +138,13 @@ echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
 echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
 echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
 echo "KEPLER_METRIC_NAME - '${KEPLER_METRIC_NAME}'"
-echo "STATIC_CARBON_INTENSITY - '${STATIC_CARBON_INTENSITY}'"
+echo "CARBON_METHOD - '${CARBON_METHOD}'"
+echo "CARBON_INTENSITY - '${CARBON_INTENSITY}'"
+echo "CARBON_INTENSITY_URL - '${CARBON_INTENSITY_URL}'"
+echo "CARBON_LOCATION - '${CARBON_LOCATION}'"
+echo "CARBON_QUERY_RATE - '${CARBON_QUERY_RATE}'"
+echo "CARBON_QUERY_FILTER - '${CARBON_QUERY_FILTER}'"
+echo "CARBON_QUERY_CONV_2J - '${CARBON_QUERY_CONV_2J}'"
 echo "SUSQL_PROMETHEUS_URL - '${SUSQL_PROMETHEUS_URL}'"
 echo "SUSQL_SAMPLING_RATE - '${SUSQL_SAMPLING_RATE}'"
 echo "SUSQL_ENHANCED - '${SUSQL_ENHANCED}'"
@@ -146,7 +175,13 @@ echo "export PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}" >> ${LOGFILE}
 echo "export PROMETHEUS_PORT=${PROMETHEUS_PORT}" >> ${LOGFILE}
 echo "export KEPLER_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}" >> ${LOGFILE}
 echo "export KEPLER_METRIC_NAME=${KEPLER_METRIC_NAME}" >> ${LOGFILE}
-echo "export STATIC_CARBON_INTENSITY=${STATIC_CARBON_INTENSITY}" >> ${LOGFILE}
+echo "export CARBON_METHOD=${CARBON_METHOD}" >> ${LOGFILE}
+echo "export CARBON_INTENSITY=${CARBON_INTENSITY}" >> ${LOGFILE}
+echo "export CARBON_INTENSITY_URL=${CARBON_INTENSITY_URL}" >> ${LOGFILE}
+echo "export CARBON_LOCATION=${CARBON_LOCATION}" >> ${LOGFILE}
+echo "export CARBON_QUERY_RATE=${CARBON_QUERY_RATE}" >> ${LOGFILE}
+echo "export CARBON_QUERY_FILTER=${CARBON_QUERY_FILTER}" >> ${LOGFILE}
+echo "export CARBON_QUERY_CONV_2J=${CARBON_QUERY_CONV_2J}" >> ${LOGFILE}
 echo "export SUSQL_PROMETHEUS_URL=${SUSQL_PROMETHEUS_URL}" >> ${LOGFILE}
 echo "export SUSQL_SAMPLING_RATE=${SUSQL_SAMPLING_RATE}" >> ${LOGFILE}
 echo "export SUSQL_ENHANCED=${SUSQL_ENHANCED}" >> ${LOGFILE}
@@ -240,7 +275,13 @@ do
             --set keplerMetricName="${KEPLER_METRIC_NAME}" \
             --set susqlPrometheusDatabaseUrl="${SUSQL_PROMETHEUS_URL}" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
-            --set staticCarbonIntensity="${STATIC_CARBON_INTENSITY}" \
+            --set CarbonMethod="${CARBON_METHOD}" \
+            --set CarbonIntensity="${CARBON_INTENSITY}" \
+            --set CarbonIntensityUrl="${CARBON_INTENSITY_URL}" \
+            --set CarbonLocation="${CARBON_LOCATION}" \
+            --set CarbonQueryRate="${CARBON_QUERY_RATE}" \
+            --set CarbonQueryFilter="${CARBON_QUERY_FILTER}" \
+            --set CarbonQueryConv2J="${CARBON_QUERY_CONV_2J}" \
             --set samplingRate="${SUSQL_SAMPLING_RATE}" \
             --set susqlLogLevel="${SUSQL_LOG_LEVEL}" \
             --set imagePullPolicy="Always" \

@@ -129,6 +129,36 @@ spec:
                 name: susql-config
                 key: CARBON-INTENSITY
                 optional: true
+          - name: CARBON-INTENSITY-URL
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-INTENSITY-URL
+                optional: true
+          - name: CARBON-LOCATION
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-LOCATION
+                optional: true
+          - name: CARBON-QUERY-RATE
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-QUERY-RATE
+                optional: true
+          - name: CARBON-QUERY-FILTER
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-QUERY-FILTER
+                optional: true
+          - name: CARBON-QUERY-CONV-2J
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: CARBON-QUERY-CONV-2J
+                optional: true
         image: '<OPERATOR_IMG>'
         imagePullPolicy: IfNotPresent
         name: manager
