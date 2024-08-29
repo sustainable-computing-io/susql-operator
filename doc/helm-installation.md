@@ -65,7 +65,14 @@ The following environment variables will influence the way that the SusQL Operat
 | SUSQL_REGISTRY              | quay.io/sustainable_computing_io | Container registry that SusQL is stored in    |
 | SUSQL_IMAGE_NAME            | susql_operator                | Image name used on SusQL container registry      |
 | SUSQL_IMAGE_TAG             | latest                        | Tag for SusQL container                          |
+| CARBON_METHOD               | static                        | "static", "simpledynamic", "sdk"                 |
 | CARBON_INTENSITY            | "0.00011583333"               | Carbon intensity in grams CO2 / Joule            |
+| CARBON_INTENSITY_URL        |                               | Web API to query carbon intensity                |
+| CARBON_LOCATION             |                               | Location for carbon intensity query              |
+| CARBON_QUERY_RATE           | 7200                          | # of seconds between carbon intensity queries    |
+| CARBON_QUERY_FILTER         | carbonIntensity               | JSON identifer of carbon intensity value         |
+| CARBON_QUERY_CONV_2J        |                               | Convert to grams CO2/J                           |
+
 
 
 ## License

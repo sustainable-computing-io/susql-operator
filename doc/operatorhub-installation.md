@@ -49,6 +49,11 @@ could create the configMap with `oc apply -n YOURNAMESPACE -f susql-config.yaml`
 If you update (or create) the configMap after the SusQL Operator has been installed, then restarting the SusQL Operator controller pod will
 enable the changes. (e.g., Delete the pod, and allow it to be recreated automatically.)
 
+# Post Installation Steps
+
+After installing the SusQL Operator be sure to enable the service monitor. This will enable energy and carbon data to be 
+viewed with cluster observability tools such as the "Observe->Metrics" graphs with OpenShift.
+`oc apply -n openshift-operators -f https://raw.githubusercontent.com/sustainable-computing-io/susql-operator/main/hack/susql-operator-susql-controller-manager-metrics-monitor_monitoring.coreos.com_v1_servicemonitor.yaml`
 
 ## License
 

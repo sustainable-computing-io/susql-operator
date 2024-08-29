@@ -24,7 +24,7 @@ The configmap user configurable items are:
   - `CARBON-LOCATION` - The location identifiers are defined by the API provider, but can be selected by he user.
   - `CARBON-QUERY-RATE` - Interval in seconds at which the carbon intensity is queried. The data available from the source is updated less than hourly, so an interval of greater than 3600 seconds is recommended.
   - `CARBON-QUERY-FILTER` - When the return value is embedded in a JSON object, this specification enables the extraction of the data. The default value matches the default provider.
-  - `CARBON-QUERY-CONV-2J` - If the carbon data provider does not provide data in the standard "grams of CO2 per Joule" then, this factor can be specified to normalize the units displayed. The default value ensures tha the default provider data is in the correct unit.
+  - `CARBON-QUERY-CONV-2J` - If the carbon data provider does not provide data in the standard "grams of CO2 per Joule" then this factor can be specified to normalize the units displayed. The default value ensures that the default provider data is in the correct unit.
 - The third method "sdk" is still under development, and will offer an integration with the Green Software Foundation's [Carbon Aware SDK](https://github.com/Green-Software-Foundation/carbon-aware-sdk).
 
 ### Prerequisites
