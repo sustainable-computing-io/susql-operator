@@ -40,7 +40,7 @@ type LabelGroupStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Transition phase of the label group
+	// Transition phase of the LabelGroup
 	Phase LabelGroupPhase `json:"phase,omitempty"`
 
 	// SusQL Kubernetes labels constructed from the spec
@@ -55,7 +55,7 @@ type LabelGroupStatus struct {
 	// TotalCarbon keeps track of the accumulated grams of carbon dioxide emission over time
 	TotalCarbon string `json:"totalCarbon,omitempty"`
 
-	// Prometheus query to get the total energy for this label group
+	// Prometheus query to get the total energy for this LabelGroup
 	SusQLPrometheusQuery string `json:"susqlPrometheusQuery,omitempty"`
 
 	// Active containers associated with these set of labels
@@ -66,13 +66,13 @@ type LabelGroupStatus struct {
 type LabelGroupPhase string
 
 const (
-	// Initializing: The label group is picked up for the first time and setup
+	// Initializing: The LabelGroup is picked up for the first time and setup
 	Initializing LabelGroupPhase = "Initializing"
 
 	// Reloading: Use most recent value in the database if requested
 	Reloading LabelGroupPhase = "Reloading"
 
-	// Aggregating: The label group is aggregating the energy for the registered labels
+	// Aggregating: The LabelGroup is aggregating the energy for the registered labels
 	Aggregating LabelGroupPhase = "Aggregating"
 )
 

@@ -41,7 +41,7 @@ type LabelGroupReconciler struct {
 	KeplerMetricName           string
 	SusQLPrometheusDatabaseUrl string
 	SusQLPrometheusMetricsUrl  string
-	SamplingRate               time.Duration // Sampling rate for all label groups
+	SamplingRate               time.Duration // Sampling rate for all LabelGroups
 	CarbonMethod               string
 	CarbonIntensity            float64
 	CarbonIntensityUrl         string
@@ -55,7 +55,7 @@ type LabelGroupReconciler struct {
 
 const (
 	susqlMetricName = "susql_total_energy_joules" // SusQL metric to query
-	fixingDelay     = 15 * time.Second            // Time to wait in the event the label group was badly constructed
+	fixingDelay     = 15 * time.Second            // Time to wait in the event the LabelGroup was badly constructed
 	nopodDelay      = 15 * time.Second            // Time to wait in the event no pods are found
 	errorDelay      = 1 * time.Second             // Time to wait when an error happens due to network connectivity issues
 )
@@ -87,7 +87,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	coreruntime.ReadMemStats(&m)
 	r.Logger.V(5).Info(fmt.Sprintf("Memory: Alloc=%.2f MB  TotalAlloc=%.2f MB  Sys= %.2f MB  NumGC=%v", float32(m.Alloc)/1024.0/1024.0, float32(m.TotalAlloc)/1024.0/1024.0, float32(m.Sys)/1024.0/1024.0, m.NumGC))
 
-	// Get label group object to process if it exists
+	// Get LabelGroup object to process if it exists
 	labelGroup := &susqlv1.LabelGroup{}
 
 	// Get deep copy of LabelGroup object in reconciler cache
@@ -209,7 +209,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	case susqlv1.Aggregating:
 		r.Logger.V(5).Info("[Reconcile-Aggregating] Entered aggregating case.") // trace
 
-		// Get list of pods matching the label group and namespace
+		// Get list of pods matching the LabelGroup and namespace
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
 
 		if err != nil || len(podsInNamespace) == 0 {

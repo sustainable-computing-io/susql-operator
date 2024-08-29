@@ -16,7 +16,7 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: LabelGroup is the Schema for the labelgroups API
+    - description: LabelGroup is the Schema for the LabelGroups API
       displayName: Label Group
       kind: LabelGroup
       name: labelgroups.susql.ibm.com

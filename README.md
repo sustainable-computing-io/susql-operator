@@ -13,11 +13,11 @@ SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You
 There are two currently CO2 emission calculation methods available, and an additional method is under development.
 - The default CO2 emission calculation method is called "static", and simply uses a grams of CO2 per Joule 
 of electricity consumed coefficient to calculate grams of CO2 emitted. This value is user tunable by
-modifying the `CARBON-INTENSITY` configmap value.  The default value is based on
+modifying the `CARBON-INTENSITY` ConfigMap value.  The default value is based on
 [US EPA](https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references)
 data.
 - The "simpledynamic" method periodically queries the carbon intensity value for a user specified location to provide a more accurate estimation of CO2 emission.
-The configmap user configurable items are:
+The ConfigMap user configurable items are:
   - `CARBON-METHOD` - The "simpledynamic" method is enabled when set to `simpledynamic`.
   - `CARBON-INTENSITY` - This value is set automatically. User specified values will be overwritten.
   - `CARBON-INTENSITY-URL` - Specifies a web API that returns carbon intensity. The default value works as of the date of this writing.
