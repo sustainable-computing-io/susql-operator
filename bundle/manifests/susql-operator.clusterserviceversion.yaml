@@ -17,13 +17,18 @@ metadata:
             },
             "name": "labelgroup-sample"
           },
-          "spec": null
+          "spec": {
+            "labels": [
+              "labelgroup-sample-1",
+              "labelgroup-sample-2"
+            ]
+          }
         }
       ]
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.26
-    createdAt: "2024-08-28T12:13:39Z"
+    createdAt: "2024-09-02T05:32:59Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
@@ -36,7 +41,7 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: LabelGroup is the Schema for the labelgroups API
+    - description: LabelGroup is the Schema for the LabelGroups API
       displayName: Label Group
       kind: LabelGroup
       name: labelgroups.susql.ibm.com

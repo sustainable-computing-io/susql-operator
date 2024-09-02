@@ -79,7 +79,7 @@ const (
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// LabelGroup is the Schema for the labelgroups API
+// LabelGroup is the Schema for the LabelGroups API
 type LabelGroup struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -17,7 +17,7 @@ spec:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: LabelGroup is the Schema for the labelgroups API
+        description: LabelGroup is the Schema for the LabelGroups API
         properties:
           apiVersion:
             description: |-
@@ -63,7 +63,7 @@ spec:
                 description: SusQL Kubernetes labels constructed from the spec
                 type: object
               phase:
-                description: Transition phase of the label group
+                description: Transition phase of the LabelGroup
                 type: string
               prometheusLabels:
                 additionalProperties:
@@ -71,8 +71,7 @@ spec:
                 description: SusQL Prometheus labels constructed from the spec
                 type: object
               susqlPrometheusQuery:
-                description: Prometheus query to get the total energy for this label
-                  group
+                description: Prometheus query to get the total energy for this LabelGroup
                 type: string
               totalCarbon:
                 description: TotalCarbon keeps track of the accumulated grams of carbon
