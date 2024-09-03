@@ -1,46 +1,21 @@
-# SusQL Operator Installation via OperatorHub.io
+# SusQL Operator Installation via OpenShift Community Operator Catalog
 
-Installation of the SusQL Operator via OperatorHub.io is fairly easy.
+Installation of the SusQL Operator on OpenShift is very easy.
 
 ## Prerequisites
 
 - [Kepler](https://sustainable-computing.io/) is assumed to be installed in the cluster. `oc` is assumed to be installed, and you are assumed to be logged in to the cluster in your CLI environment.
 - Installation of the SusQL Operator has been extensively used with Red Hat OpenShift clusters 4.14 and higher.
 - Consider enabling User Project Monitoring when using on OpenShift.  https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html
-- Other flavors and versions of Kubernetes clusters are also expected to function.
+- Other versions of OpenShift clusters are also expected to function.
 - Ensure that the following command is run to install the service monitor. Replace`<NAMESPACE>` with the namespace SusQL is installed into. (Usually `openshift-operators`)
 ```
 oc apply -n <NAMESPACE> -f oc apply -f https://raw.githubusercontent.com/sustainable-computing-io/susql-operator/main/hack/susql-servicemonitor.yaml
 ```
 
-
 ## Installation
 
-Create a file called `catalogsource.yaml` as follows:
-
-```
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: operatorhubio-catalog
-  namespace: openshift-marketplace
-spec:
-  sourceType: grpc
-  image: quay.io/operatorhubio/catalog:latest
-  displayName: Community Operators
-  publisher: OperatorHub.io
-  updateStrategy:
-    registryPoll:
-      interval: 10m
-```
-
-Apply this file with these commands:
-```
-oc apply -f catalogsource.yaml
-oc patch -n openshift-marketplace OperatorHub cluster --type merge -p '{"spec":{"sources":[{"name":"operatorhubio-catalog","disabled":false},{"name":"community-operators","disabled":false}]}}'
-```
-
-Next, use the OpenShift web console to install the SusQL Operator:
+Use the OpenShift web console to install the SusQL Operator:
 - Click on "Operator->OperatorHub"
 - Search for "SusQL"
 - Click on it, and follow the GUI prompts to install.

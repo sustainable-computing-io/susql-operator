@@ -33,11 +33,14 @@ Kepler is assumed to be installed in the cluster.
 
 ### Installation
 
-Follow these instructions to install the SusQL Operator with Helm.
-- [Installation with Helm](doc/helm-installation.md)
+Follow these instructions for easy SusQL installation from the Red Hat Community Operator catalog on an OpenShift cluster.
+- [Installation on OpenShift](doc/openshift-installation.md)
 
-Follow these instructions to install the SusQL Operator from [OperatorHub](https://operatorhub.io).
-- [Installation with OperatorHub](doc/operatorhub-installation.md)
+Follow these instructions to install the SusQL Operator from [OperatorHub.io](https://operatorhub.io) on a Kubernetes cluster including OpenShift.
+- [Installation from OperatorHub.io](doc/operatorhub-installation.md)
+
+Follow these instructions to install the SusQL Operator with Helm on a Kubernetes cluster including OpenShift.
+- [Installation with Helm](doc/helm-installation.md)
  
 
 ## Using SusQL
