@@ -33,14 +33,14 @@ Kepler is assumed to be installed in the cluster.
 
 ### Installation
 
-Follow these instructions for easy SusQL installation from the Red Hat Community Operator catalog on an OpenShift cluster.
-- [Installation on OpenShift](doc/openshift-installation.md)
+- Follow these instructions for easy SusQL installation from the Red Hat Community Operator catalog on an OpenShift cluster.
+  - [Installation on OpenShift](doc/openshift-installation.md)
 
-Follow these instructions to install the SusQL Operator from [OperatorHub.io](https://operatorhub.io) on a Kubernetes cluster including OpenShift.
-- [Installation from OperatorHub.io](doc/operatorhub-installation.md)
+- Follow these instructions to install the SusQL Operator from [OperatorHub.io](https://operatorhub.io) on a Kubernetes cluster including OpenShift.
+  - [Installation from OperatorHub.io](doc/operatorhub-installation.md)
 
-Follow these instructions to install the SusQL Operator with Helm on a Kubernetes cluster including OpenShift.
-- [Installation with Helm](doc/helm-installation.md)
+- Follow these instructions to install the SusQL Operator with Helm on a Kubernetes cluster including OpenShift.
+  - [Installation with Helm](doc/helm-installation.md)
  
 
 ## Using SusQL
@@ -77,7 +77,7 @@ spec:
           args: ["infinity"]
 ```
 
-Energy of the group of pods is exposed in 2 ways:
+Energy of the group of pods is exposed in two ways:
 
 * Through Prometheus at `http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090` using the query `susql_total_energy_joules{susql_label_1=my-label-1,susql_label_2=my-label-2}`
 * From `status` of the `LabelGroup` CRD given as `labelgroup.status.totalEnergy`
