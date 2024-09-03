@@ -288,6 +288,7 @@ do
             --set containerImage="${SUSQL_REGISTRY}/${SUSQL_IMAGE_NAME}:${SUSQL_IMAGE_TAG}"
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
             kubectl apply -f ../config/servicemonitor/susql-smon.yaml
+            kubectl apply -f ../hack/susql-operator-susql-controller-manager-metrics-monitor_monitoring.coreos.com_v1_servicemonitor.yaml
         fi
 
     elif [[ ${action} = "susql-undeploy" ]]; then
@@ -319,6 +320,7 @@ do
         if [[ ! -z ${SUSQL_ENHANCED} ]]; then
             kubectl delete -f ../config/rbac/susql-rbac.yaml
             kubectl delete -f ../config/servicemonitor/susql-smon.yaml
+            kubectl delete -f ../hack/susql-operator-susql-controller-manager-metrics-monitor_monitoring.coreos.com_v1_servicemonitor.yaml
         fi
 
     else
