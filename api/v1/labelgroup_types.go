@@ -56,7 +56,10 @@ type LabelGroupStatus struct {
 	TotalCarbon string `json:"totalCarbon,omitempty"`
 
 	// Prometheus query to get the total energy for this LabelGroup
-	SusQLPrometheusQuery string `json:"susqlPrometheusQuery,omitempty"`
+	SusQLPrometheusEnergyQuery string `json:"susqlPrometheusEnergyQuery,omitempty"`
+
+	// Prometheus query to get the total CO2 for this LabelGroup
+	SusQLPrometheusCarbonQuery string `json:"susqlPrometheusCarbonQuery,omitempty"`
 
 	// Active containers associated with these set of labels
 	ActiveContainerIds map[string]float64 `json:"activeContainerIds,omitempty"`

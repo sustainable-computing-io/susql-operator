@@ -39,7 +39,6 @@ func (r *LabelGroupReconciler) filterPodsInNamespace(ctx context.Context, namesp
 	var podList v1.PodList
 	if err := r.Client.List(ctx, &podList, listOptions); err != nil {
 		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] labelSelector: %#v", labelSelector))
-		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] ctx: %#v", ctx))
 		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] podList: %#v", podList))
 		r.Logger.V(5).Info(fmt.Sprintf("[filterPodsInNamespace] listOptions: %#v", listOptions))
 		r.Logger.V(0).Error(err, "[filterPodsInNamespace] List Error:")

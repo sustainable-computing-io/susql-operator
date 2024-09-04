@@ -54,10 +54,11 @@ type LabelGroupReconciler struct {
 }
 
 const (
-	susqlMetricName = "susql_total_energy_joules" // SusQL metric to query
-	fixingDelay     = 15 * time.Second            // Time to wait in the event the LabelGroup was badly constructed
-	nopodDelay      = 15 * time.Second            // Time to wait in the event no pods are found
-	errorDelay      = 1 * time.Second             // Time to wait when an error happens due to network connectivity issues
+	susqlEnergyMetricName = "susql_total_energy_joules"        // SusQL energy metric to query
+	susqlCarbonMetricName = "susql_total_carbon_dioxide_grams" // SusQL carbon metric to query
+	fixingDelay           = 15 * time.Second                   // Time to wait in the event the LabelGroup was badly constructed
+	nopodDelay            = 15 * time.Second                   // Time to wait in the event no pods are found
+	errorDelay            = 1 * time.Second                    // Time to wait when an error happens due to network connectivity issues
 )
 
 var (
@@ -81,12 +82,6 @@ var (
 func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	r.Logger.V(5).Info("[Reconcile] Entered Reconcile().")
-
-	var m coreruntime.MemStats
-	coreruntime.ReadMemStats(&m)
-	r.Logger.V(5).Info(fmt.Sprintf("Memory: Alloc=%.2f MB  TotalAlloc=%.2f MB  Sys= %.2f MB  NumGC=%v", float32(m.Alloc)/1024.0/1024.0, float32(m.TotalAlloc)/1024.0/1024.0, float32(m.Sys)/1024.0/1024.0, m.NumGC))
-
 	// Get LabelGroup object to process if it exists
 	labelGroup := &susqlv1.LabelGroup{}
 
@@ -96,6 +91,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// LabelGroup not found
 		return ctrl.Result{}, nil
 	}
+
+	r.Logger.V(1).Info(fmt.Sprintf("[Reconcile] Entered Reconcile() for LabelGroup '%s' in namespace '%s'.", labelGroup.Name, labelGroup.Namespace))
+
+	var m coreruntime.MemStats
+	coreruntime.ReadMemStats(&m)
+	r.Logger.V(5).Info(fmt.Sprintf("Memory: Alloc=%.2f MB  TotalAlloc=%.2f MB  Sys= %.2f MB  NumGC=%v", float32(m.Alloc)/1024.0/1024.0, float32(m.TotalAlloc)/1024.0/1024.0, float32(m.Sys)/1024.0/1024.0, m.NumGC))
 
 	// Check that the susql prometheus labels are created
 	if len(labelGroup.Status.PrometheusLabels) == 0 && labelGroup.Status.Phase != susqlv1.Initializing {
@@ -119,10 +120,9 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			if err == nil {
 				r.CarbonIntensity = newCarbonIntensity
 				r.CarbonIntensityTimeStamp = currentEpoch
-				r.Logger.V(5).Info("[Reconcile] Entered initializing case.")
-				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
+				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-simpledynamic] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
 			} else {
-				r.Logger.V(0).Error(err, "[Reconcile] Unable to query carbon intensity.")
+				r.Logger.V(0).Error(err, "[Reconcile-simpledynamic] Unable to query carbon intensity.")
 			}
 		}
 	}
@@ -152,24 +152,42 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			}
 		}
 
-		var susqlPrometheusQuery string
-		susqlPrometheusQuery = susqlMetricName
-		susqlPrometheusQuery += "{"
+		// Create energy query string
+		var susqlPrometheusEnergyQuery string
+		susqlPrometheusEnergyQuery = susqlEnergyMetricName
+		susqlPrometheusEnergyQuery += "{"
 		for ldx := 0; ldx < len(susqlKubernetesLabelNames); ldx++ {
 			if ldx < len(labelGroup.Spec.Labels) {
-				susqlPrometheusQuery += fmt.Sprintf("%s=\"%s\"", susqlPrometheusLabelNames[ldx], labelGroup.Spec.Labels[ldx])
+				susqlPrometheusEnergyQuery += fmt.Sprintf("%s=\"%s\"", susqlPrometheusLabelNames[ldx], labelGroup.Spec.Labels[ldx])
 			} else {
-				susqlPrometheusQuery += fmt.Sprintf("%s=\"\"", susqlPrometheusLabelNames[ldx])
+				susqlPrometheusEnergyQuery += fmt.Sprintf("%s=\"\"", susqlPrometheusLabelNames[ldx])
 			}
 			if ldx < len(susqlKubernetesLabelNames)-1 {
-				susqlPrometheusQuery += ","
+				susqlPrometheusEnergyQuery += ","
 			}
 		}
-		susqlPrometheusQuery += "}"
+		susqlPrometheusEnergyQuery += "}"
+
+		// Create carbon query string
+		var susqlPrometheusCarbonQuery string
+		susqlPrometheusCarbonQuery = susqlCarbonMetricName
+		susqlPrometheusCarbonQuery += "{"
+		for ldx := 0; ldx < len(susqlKubernetesLabelNames); ldx++ {
+			if ldx < len(labelGroup.Spec.Labels) {
+				susqlPrometheusCarbonQuery += fmt.Sprintf("%s=\"%s\"", susqlPrometheusLabelNames[ldx], labelGroup.Spec.Labels[ldx])
+			} else {
+				susqlPrometheusCarbonQuery += fmt.Sprintf("%s=\"\"", susqlPrometheusLabelNames[ldx])
+			}
+			if ldx < len(susqlKubernetesLabelNames)-1 {
+				susqlPrometheusCarbonQuery += ","
+			}
+		}
+		susqlPrometheusCarbonQuery += "}"
 
 		labelGroup.Status.KubernetesLabels = susqlKubernetesLabels
 		labelGroup.Status.PrometheusLabels = susqlPrometheusLabels
-		labelGroup.Status.SusQLPrometheusQuery = susqlPrometheusQuery
+		labelGroup.Status.SusQLPrometheusEnergyQuery = susqlPrometheusEnergyQuery
+		labelGroup.Status.SusQLPrometheusCarbonQuery = susqlPrometheusCarbonQuery
 		labelGroup.Status.Phase = susqlv1.Reloading
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
@@ -184,16 +202,23 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		r.Logger.V(5).Info("[Reconcile-Reloading] Entered reloading case.")
 		// Reload data from existing database
 		if !labelGroup.Spec.DisableUsingMostRecentValue {
-			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusQuery)
+			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusEnergyQuery)
 
 			if err != nil {
-				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Couldn't retrieve most recent value.")
+				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Couldn't retrieve most recent energy value.")
 				return ctrl.Result{RequeueAfter: fixingDelay}, nil
 			}
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
 
-			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", float64(totalEnergy)*r.CarbonIntensity)
+			totalCarbon, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusCarbonQuery)
+
+			if err != nil {
+				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Couldn't retrieve most recent carbon value.")
+				return ctrl.Result{RequeueAfter: fixingDelay}, nil
+			}
+
+			labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", float64(totalCarbon))
 		}
 
 		labelGroup.Status.Phase = susqlv1.Aggregating
@@ -213,14 +238,10 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		podsInNamespace, err := r.filterPodsInNamespace(ctx, labelGroup.Namespace, labelGroup.Status.KubernetesLabels)
 
 		if err != nil || len(podsInNamespace) == 0 {
-			r.Logger.V(5).Info("[Reconcile-Aggregating] Unable to get podlist.")                                                 // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] LabelName: %s", labelGroup.Name))                            // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Namespace: %s", labelGroup.Namespace))                       // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels)) // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] podNamesinNamespace: %s", podsInNamespace))                  // trace
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile] ctx: %#v", ctx))                                                         // trace
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Unable to get podlist: Namespace: %s  LabelName: %s", labelGroup.Namespace, labelGroup.Name))
+			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels))
 			if err != nil {
-				r.Logger.V(0).Error(err, "[Reconcile-Aggregating] ERROR: Couldn't get pods for the labels provided.")
+				r.Logger.V(0).Error(err, "[Reconcile-Aggregating] ERROR: Unable to get pods for the labels provided due to this error.")
 			}
 
 			return ctrl.Result{RequeueAfter: nopodDelay}, nil
@@ -243,6 +264,8 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		} else {
 			totalEnergy = 0.0
 		}
+
+		var originalTotalEnergy float64 = totalEnergy
 
 		if labelGroup.Status.ActiveContainerIds == nil {
 			// First pass with this pod group
@@ -273,7 +296,16 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		// 4) Update ETCD with the values
 		labelGroup.Status.TotalEnergy = fmt.Sprintf("%.2f", totalEnergy)
 
-		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", float64(totalEnergy)*r.CarbonIntensity)
+		var totalCarbon float64
+
+		if value, err := strconv.ParseFloat(labelGroup.Status.TotalCarbon, 64); err == nil {
+			totalCarbon = value
+		} else {
+			totalCarbon = 0.0
+		}
+
+		totalCarbon = totalCarbon + (totalEnergy-originalTotalEnergy)*r.CarbonIntensity
+		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", totalCarbon)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
 			return ctrl.Result{}, err
@@ -281,7 +313,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		// 5) Add energy aggregation to Prometheus table
 		r.SetAggregatedEnergyForLabels(totalEnergy, labelGroup.Status.PrometheusLabels)
-		r.SetAggregatedCarbonForLabels(float64(totalEnergy)*r.CarbonIntensity, labelGroup.Status.PrometheusLabels)
+		r.SetAggregatedCarbonForLabels(totalCarbon, labelGroup.Status.PrometheusLabels)
 
 		// Requeue
 		return ctrl.Result{RequeueAfter: r.SamplingRate}, nil
