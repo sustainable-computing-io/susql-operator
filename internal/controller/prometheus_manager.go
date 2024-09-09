@@ -47,7 +47,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	if susqlRoundTripper == nil {
 		if strings.HasPrefix(r.SusQLPrometheusDatabaseUrl, "https://") {
 			rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-			susqlRoundTripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+			susqlRoundTripper = config.NewAuthorizationCredentialsRoundTripper("Bearer", config.NewFileSecret("/var/run/secrets/kubernetes.io/serviceaccount/token"), rttls)
 		}
 	}
 	client, err := api.NewClient(api.Config{
@@ -96,7 +96,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	if keplerRoundTripper == nil {
 		if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
 			rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-			keplerRoundTripper = config.NewAuthorizationCredentialsFileRoundTripper("Bearer", "/var/run/secrets/kubernetes.io/serviceaccount/token", rttls)
+			keplerRoundTripper = config.NewAuthorizationCredentialsRoundTripper("Bearer", config.NewFileSecret("/var/run/secrets/kubernetes.io/serviceaccount/token"), rttls)
 		}
 	}
 	client, err := api.NewClient(api.Config{

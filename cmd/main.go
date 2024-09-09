@@ -1,5 +1,5 @@
 /*
-Copyright 2024.
+Copyright 2023, 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"flag"
 	"os"
@@ -36,14 +37,16 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
+	"github.com/operator-framework/operator-lib/leader"
 	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
 	"github.com/sustainable-computing-io/susql-operator/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	susqlLog = ctrl.Log.WithName("susql")
+	scheme       = runtime.NewScheme()
+	susqlLog     = ctrl.Log.WithName("susql")
+	leaderLockID = "cac735ee.ibm.com"
 )
 
 func init() {
@@ -147,6 +150,16 @@ func main() {
 	susqlLog.Info("carbonQueryFilter=" + carbonQueryFilter)
 	susqlLog.Info("carbonQueryConv2J=" + carbonQueryConv2J)
 
+	// If enebleLeaderElection is false, then set "Leader for Life" mode
+	if enableLeaderElection != true {
+		os.Setenv("POD_NAME", os.Getenv("HOSTNAME"))
+		err = leader.Become(context.TODO(), leaderLockID)
+		if err != nil {
+			susqlLog.Error(err, "Unable to obtain Leader for Life lock")
+			os.Exit(1)
+		}
+	}
+
 	// if the enable-http2 flag is false (the default), http/2 should be disabled
 	// due to its vulnerabilities. More specifically, disabling http/2 will
 	// prevent from being vulnerable to the HTTP/2 Stream Cancellation and
@@ -169,7 +182,7 @@ func main() {
 		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "cac735ee.ibm.com",
+		LeaderElectionID:       leaderLockID,
 		PprofBindAddress:       "127.0.0.1:6060",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
