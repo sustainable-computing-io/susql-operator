@@ -8,9 +8,12 @@ spec:
     spec:
       containers:
       - name: manager
-      securityContext:
-        allowPrivilegeEscalation: false
-        runAsNonRoot: true
-        capabilities:
-          drop:
-          - ALL
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 11001
+          runAsGroup: 11001
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+            - ALL
