@@ -8,6 +8,9 @@ spec:
     selector:
         matchLabels:
             sustainable-computing.io/app: {{ .Values.name }}
+    securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
     template:
         metadata:
             name: {{ .Values.name }}
@@ -23,6 +26,12 @@ spec:
                 - name: {{ .Values.name }}
                   image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
                   imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
+                  securityContext:
+                      allowPrivilegeEscalation: false
+                      runAsNonRoot: true
+                      capabilities:
+                          drop:
+                              - "ALL"
                   args:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
                       - "--kepler-metric-name={{ .Values.keplerMetricName }}"
