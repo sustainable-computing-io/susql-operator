@@ -8,9 +8,6 @@ spec:
     selector:
         matchLabels:
             sustainable-computing.io/app: {{ .Values.name }}
-    securityContext:
-        runAsUser: 10001
-        runAsGroup: 10001
     template:
         metadata:
             name: {{ .Values.name }}
@@ -27,6 +24,8 @@ spec:
                   image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
                   imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
                   securityContext:
+                      runAsUser: 10001
+                      runAsGroup: 10001
                       allowPrivilegeEscalation: false
                       runAsNonRoot: true
                       capabilities:
