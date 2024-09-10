@@ -117,3 +117,4 @@ spec:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
   version: 0.0.0
+  replaces: susql-operator.v0.0.27
