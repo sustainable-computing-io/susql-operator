@@ -22,7 +22,7 @@ spec:
             containers:
                 - name: {{ .Values.name }}
                   image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
-                  imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+                  imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
                   args:
                       - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
                       - "--kepler-metric-name={{ .Values.keplerMetricName }}"
