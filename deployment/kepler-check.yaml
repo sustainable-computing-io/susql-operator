@@ -7,10 +7,27 @@ spec:
     automountServiceAccountToken: true
     terminationGracePeriodSeconds: 1
     restartPolicy: Never
+    securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
     containers:
         - name: container
           image: curlimages/curl
           imagePullPolicy: IfNotPresent
+          securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              readOnlyRootFilesystem: true
+              capabilities:
+                  drop:
+                      - "ALL"
+          resources:
+              limits:
+                  cpu: 500m
+                  memory: 512Mi
+              requests:
+                  cpu: 250m
+                  memory: 512Mi
           command: ["sh"]
           args: ["-c", 'curl -k --max-time 1 KEPLER_PROMETHEUS_URL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"']
     dnsPolicy: ClusterFirst
