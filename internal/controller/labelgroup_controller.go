@@ -239,7 +239,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 		if err != nil || len(podsInNamespace) == 0 {
 			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] Unable to get podlist: Namespace: %s  LabelName: %s", labelGroup.Namespace, labelGroup.Name))
-			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels))
+			//			r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] KubernetesLabels: %#v", labelGroup.Status.KubernetesLabels))
 			if err != nil {
 				r.Logger.V(0).Error(err, "[Reconcile-Aggregating] ERROR: Unable to get pods for the labels provided due to this error.")
 			}
@@ -284,7 +284,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				delete(labelGroup.Status.ActiveContainerIds, containerId)
 			}
 		}
-		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] metricValues: %#v", metricValues))                               // trace
+		//		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] metricValues: %#v", metricValues))                               // trace
 		r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-Aggregating] ActiveContainerIds: %#v", labelGroup.Status.ActiveContainerIds)) // trace
 
 		// 3) Add the values of the remaining new containers to the total energy and update the list of active containers

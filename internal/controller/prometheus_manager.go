@@ -128,7 +128,6 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	results, warnings, err := v1api.Query(ctx, queryString, time.Now(), v1.WithTimeout(0*time.Second))
 
 	r.Logger.V(5).Info(fmt.Sprintf("[GetMetricValuesForPodNames] Query: %s", queryString)) // trace
-	r.Logger.V(5).Info(fmt.Sprintf("[GetMetricValuesForPodNames] Results: '%v'", results)) // trace
 
 	if err != nil {
 		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Querying Prometheus didn't work.\n"+
