@@ -171,7 +171,7 @@ define docker_push
 endef
 
 .PHONY: operator-build
-operator-build: manifests generate test ## Build docker image with the manager.
+operator-build: manifests generate ## Build docker image with the manager.
 	go mod tidy
 	$(CONTAINER_TOOL) build -t $(OPERATOR_IMG) \
 		--build-arg TARGETOS=$(GOOS) \
