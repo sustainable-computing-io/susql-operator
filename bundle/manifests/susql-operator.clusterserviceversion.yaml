@@ -28,7 +28,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.30
-    createdAt: "2024-09-11T00:19:43Z"
+    createdAt: "2024-09-12T05:06:08Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
@@ -408,4 +408,5 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
+  replaces: susql-operator.v0.0.29
   version: 0.0.30

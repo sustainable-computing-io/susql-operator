@@ -59,6 +59,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 11001
         runAsGroup: 11001
+        readOnlyRootFilesystem: true
         # TODO(user): For common cases that do not require escalating privileges
         # it is recommended to ensure that all your Pods/Containers are restrictive.
         # More info: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
