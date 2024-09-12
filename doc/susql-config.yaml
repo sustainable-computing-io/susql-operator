@@ -8,7 +8,7 @@ data:
   SUSQL-PROMETHEUS-DATABASE-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
   SUSQL-PROMETHEUS-METRICS-URL: "http://0.0.0.0:8082"
   SAMPLING-RATE: "2"
-  LEADER-ELECT: "true"
+  LEADER-ELECT: "false"
   HEALTH-PROBE-BIND-ADDRESS: ":8081"
   SUSQL-LOG-LEVEL: "-5"
   CARBON-METHOD: "static"
