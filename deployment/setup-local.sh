@@ -56,8 +56,8 @@ GF_POD=$(
 kubectl cp deployment/kepler_dashboard.json monitoring/$GF_POD:/tmp/dashboards/kepler_dashboard.json
 
 
-echo "> Install OLM"
-curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.28.0/install.sh | bash -s v0.28.0
+# echo "> Install OLM"
+# curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.28.0/install.sh | bash -s v0.28.0
 # operator-sdk olm install
 
 
