@@ -1,8 +1,11 @@
 # SusQL Operator
 
-SusQL is a Kubernetes operator that aggregates energy and estimated carbon dioxide emission data for pods tagged with SusQL specific labels. The energy measurements are taken from [Kepler](https://sustainable-computing.io/) which should be installed/deployed in the cluster before using SusQL. Watch a video with a demonstration by clicking on the image bellow.
+SusQL is a Kubernetes operator that aggregates energy and estimated carbon dioxide emission data for pods tagged with SusQL specific labels. The energy measurements are taken from [Kepler](https://sustainable-computing.io/) which should be deployed on the cluster before using SusQL. Watch a video with a demonstration by clicking the following link.
 
-[![Watch the video](https://img.youtube.com/vi/NRVD7gJECfA/maxresdefault.jpg)](https://youtu.be/NRVD7gJECfA)
+https://github.com/sustainable-computing-io/susql-operator/wiki/files/SusQL-Demo-Sept-2024.mp4
+
+![SusQL Architecture](https://github.com/sustainable-computing-io/susql-operator/wiki/files/SusQL-Demo-Thumbnail.png)
+
 
 ## Getting Started
 
