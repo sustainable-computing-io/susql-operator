@@ -56,10 +56,14 @@ Note the value reported for "HOST/PORT". This will be used in the next configura
 Update the following items in the `susql-config.yaml` file:
 ```
   CARBON-METHOD: "casdk"
-  CARBON-INTENSITY-URL: "http://<HOST/PORT-VALUE>/carbonn-intensity/latest?zone=%s"
-  CARBON-LOCATION: "<YOUR-LOCATION>"
+  CARBON-INTENSITY-URL: "http://<HOST/PORT-VALUE>/emissions/bylocation?location=%s"
+  CARBON-LOCATION: "<WORKLOAD-LOCATION>"
+  CARBON-QUERY-FILTER: "rating"
   more???: "more???"
 ```
+Tip: try this command to verify sdk container functionality and also view available locations: `curl -s "http:<HOST/PORT-VALUE>/locations"`
+
+
 Apply the updated `susql-config.yaml` file:
 ```
 oc apply -f susql-config.yaml -n <SUSQL-OPERATOR-NAMESPACE>
@@ -67,13 +71,13 @@ oc apply -f susql-config.yaml -n <SUSQL-OPERATOR-NAMESPACE>
 You are now ready to install and use the SusQL operator.
 If the SusQL Operator is alreay installed, then restart the control pod.
 
-
 #### `casdk` Method `ConfigMap` Configurable Items
   - `CARBON-METHOD` - The `casdk` method is enabled when this is set to `casdk`.
   - `CARBON-INTENSITY` - This value is set automatically with the `casdk` method. User specified values will be overwritten. The unit definition is grams of CO2 per Joule.
   - `CARBON-INTENSITY-URL` - Specifies the web API that returns carbon intensity. This is assumed to be a GSF Carbon Aware SDK prepared and configured by the user.
   - `CARBON-LOCATION` - The location identifiers are defined by the API provider, and should be specified by the user.
   - `CARBON-QUERY-RATE` - Interval in seconds at which the carbon intensity is queried.
+  - `CARBON-QUERY-FILTER` - When the return value is embedded in a JSON object, this specification enables the extraction of the data.
   - `CARBON-QUERY-CONV-2J` - The default values converts "grams of CO2 per KWH" (Carbon Aware SDK standard) to "grams of CO2 per Joule".
   - `more-more-more` - more more more more.
 

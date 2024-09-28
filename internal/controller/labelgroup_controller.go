@@ -116,6 +116,19 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	if r.CarbonMethod == "simpledynamic" {
 		currentEpoch := time.Now().Unix()
 		if (currentEpoch - r.CarbonIntensityTimeStamp) > r.CarbonQueryRate {
+			newCarbonIntensity, err := querySimpleCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
+			if err == nil {
+				r.CarbonIntensity = newCarbonIntensity
+				r.CarbonIntensityTimeStamp = currentEpoch
+				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-simpledynamic] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
+			} else {
+				r.Logger.V(0).Error(err, "[Reconcile-simpledynamic] Unable to query carbon intensity.")
+			}
+		}
+	}
+	if r.CarbonMethod == "casdk" {
+		currentEpoch := time.Now().Unix()
+		if (currentEpoch - r.CarbonIntensityTimeStamp) > r.CarbonQueryRate {
 			newCarbonIntensity, err := queryCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
 			if err == nil {
 				r.CarbonIntensity = newCarbonIntensity

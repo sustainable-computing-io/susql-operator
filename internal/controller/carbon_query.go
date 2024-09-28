@@ -26,6 +26,35 @@ import (
 
 func queryCarbonIntensity(url string, location string, filter string, conv2J float64) (float64, error) {
 
+	fmt.Println("CARBON QUERY: url=" + fmt.Sprintf(url, location))
+
+	response, err := http.Get(fmt.Sprintf(url, location))
+	if err != nil {
+		return 0.0, err
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return 0.0, err
+	}
+
+	length := gjson.Get(string(responseData), "#").Int() - 1
+	index := strconv.Itoa(int(length))
+
+	newFilter := index + "." + filter
+	carbonIntensityString := gjson.Get(string(responseData), newFilter).String()
+
+	carbonIntensityFloat, err := strconv.ParseFloat(carbonIntensityString, 64)
+	if err != nil {
+		return 0.0, err
+	}
+
+	// return nil error since no error
+	return carbonIntensityFloat * conv2J, nil
+}
+
+func querySimpleCarbonIntensity(url string, location string, filter string, conv2J float64) (float64, error) {
+
 	response, err := http.Get(fmt.Sprintf(url, location))
 	if err != nil {
 		return 0.0, err
