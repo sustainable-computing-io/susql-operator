@@ -27,8 +27,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/trent_s/susql-controller:0.0.31
-    createdAt: "2024-09-28T11:59:56Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.31
+    createdAt: "2024-09-28T12:08:54Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
@@ -301,7 +301,7 @@ spec:
                       key: CARBON-QUERY-CONV-2J
                       name: susql-config
                       optional: true
-                image: quay.io/trent_s/susql-controller:0.0.31
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.31
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
