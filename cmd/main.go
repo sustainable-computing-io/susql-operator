@@ -73,7 +73,7 @@ func main() {
 	var samplingRate string = "2"
 	var susqlLogLevel string = "-5"
 	// Carbon Intensity Factor in grams CO2 / Joule
-	var carbonMethod string = "static" // options: static, simpledynamic, sdk
+	var carbonMethod string = "static" // options: static, simpledynamic, casdk
 	var carbonIntensity string = "0.0001158333333333"
 	var carbonIntensityUrl string = "https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
 	var carbonLocation string = "JP-TK"
@@ -202,7 +202,7 @@ func main() {
 	}
 
 	// TODO: verify that carbonMethod is an expected value. If not log warning and set to default value.
-	// (static, simpledynamic, sdk)
+	// (static, simpledynamic, casdk)
 	// Note: assume that carbonIntensityUrl, carbonLocation, and carbonQueryFilter are OK. If not, we will log errors at runtime.
 
 	samplingRateInteger, err := strconv.Atoi(samplingRate)

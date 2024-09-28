@@ -16,8 +16,8 @@ SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You
 By default SusQL calculates carbon dioxide emission in grams of CO2 using a carbon intensity value from 
 [US EPA](https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references).
 
-Detailed information on configuration of CO2 emission calculation in SusQL is available in the SusQL carbon
-calculation [documentation](doc/carbon.md).
+Detailed information on configuration of CO2 emission calculation in SusQL is available in the [SusQL carbon
+calculation documentation.](doc/carbon.md)
 
 ### Prerequisites
 
