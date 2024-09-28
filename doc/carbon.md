@@ -59,7 +59,6 @@ Update the following items in the `susql-config.yaml` file:
   CARBON-INTENSITY-URL: "http://<HOST/PORT-VALUE>/emissions/bylocation?location=%s"
   CARBON-LOCATION: "<WORKLOAD-LOCATION>"
   CARBON-QUERY-FILTER: "rating"
-  more???: "more???"
 ```
 Tip: try this command to verify sdk container functionality and also view available locations: `curl -s "http:<HOST/PORT-VALUE>/locations"`
 
@@ -79,7 +78,6 @@ If the SusQL Operator is alreay installed, then restart the control pod.
   - `CARBON-QUERY-RATE` - Interval in seconds at which the carbon intensity is queried.
   - `CARBON-QUERY-FILTER` - When the return value is embedded in a JSON object, this specification enables the extraction of the data.
   - `CARBON-QUERY-CONV-2J` - The default values converts "grams of CO2 per KWH" (Carbon Aware SDK standard) to "grams of CO2 per Joule".
-  - `more-more-more` - more more more more.
 
 ## License
 
