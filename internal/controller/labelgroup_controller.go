@@ -36,21 +36,22 @@ import (
 // LabelGroupReconciler reconciles a LabelGroup object
 type LabelGroupReconciler struct {
 	client.Client
-	Scheme                     *runtime.Scheme
-	KeplerPrometheusUrl        string
-	KeplerMetricName           string
-	SusQLPrometheusDatabaseUrl string
-	SusQLPrometheusMetricsUrl  string
-	SamplingRate               time.Duration // Sampling rate for all LabelGroups
-	CarbonMethod               string
-	CarbonIntensity            float64
-	CarbonIntensityUrl         string
-	CarbonIntensityTimeStamp   int64
-	CarbonLocation             string
-	CarbonQueryRate            int64
-	CarbonQueryFilter          string
-	CarbonQueryConv2J          float64
-	Logger                     logr.Logger
+	Scheme                        *runtime.Scheme
+	KeplerPrometheusUrl           string
+	KeplerMetricName              string
+	SusQLPrometheusDatabaseUrl    string
+	SusQLPrometheusMetricsUrl     string
+	SamplingRate                  time.Duration // Sampling rate for all LabelGroups
+	CarbonMethod                  string
+	CarbonIntensity               float64
+	CarbonIntensityUrl            string
+	CarbonIntensityTimeStamp      int64
+	CarbonIntensityErrorTimeStamp int64
+	CarbonLocation                string
+	CarbonQueryRate               int64
+	CarbonQueryFilter             string
+	CarbonQueryConv2J             float64
+	Logger                        logr.Logger
 }
 
 const (
@@ -59,6 +60,7 @@ const (
 	fixingDelay           = 15 * time.Second                   // Time to wait in the event the LabelGroup was badly constructed
 	nopodDelay            = 15 * time.Second                   // Time to wait in the event no pods are found
 	errorDelay            = 1 * time.Second                    // Time to wait when an error happens due to network connectivity issues
+	carbonRetryDelay      = 300                                // Number of seconds to wait for retry after carbon query failure
 )
 
 var (
@@ -115,27 +117,31 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	// TODO: put this code only in Reloading and Aggregating cases
 	if r.CarbonMethod == "simpledynamic" {
 		currentEpoch := time.Now().Unix()
-		if (currentEpoch - r.CarbonIntensityTimeStamp) > r.CarbonQueryRate {
+		if (currentEpoch-r.CarbonIntensityTimeStamp) > r.CarbonQueryRate && (currentEpoch-r.CarbonIntensityErrorTimeStamp) > carbonRetryDelay {
 			newCarbonIntensity, err := querySimpleCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
 			if err == nil {
 				r.CarbonIntensity = newCarbonIntensity
 				r.CarbonIntensityTimeStamp = currentEpoch
+				r.CarbonIntensityErrorTimeStamp = 0
 				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-simpledynamic] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
 			} else {
+				r.CarbonIntensityErrorTimeStamp = currentEpoch
 				r.Logger.V(0).Error(err, "[Reconcile-simpledynamic] Unable to query carbon intensity.")
 			}
 		}
 	}
 	if r.CarbonMethod == "casdk" {
 		currentEpoch := time.Now().Unix()
-		if (currentEpoch - r.CarbonIntensityTimeStamp) > r.CarbonQueryRate {
+		if (currentEpoch-r.CarbonIntensityTimeStamp) > r.CarbonQueryRate && (currentEpoch-r.CarbonIntensityErrorTimeStamp) > carbonRetryDelay {
 			newCarbonIntensity, err := queryCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
 			if err == nil {
 				r.CarbonIntensity = newCarbonIntensity
 				r.CarbonIntensityTimeStamp = currentEpoch
-				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-simpledynamic] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
+				r.CarbonIntensityErrorTimeStamp = 0
+				r.Logger.V(5).Info(fmt.Sprintf("[Reconcile-casdk] Obtained dynamic carbon intensity of %.10f.", newCarbonIntensity))
 			} else {
-				r.Logger.V(0).Error(err, "[Reconcile-simpledynamic] Unable to query carbon intensity.")
+				r.CarbonIntensityErrorTimeStamp = currentEpoch
+				r.Logger.V(0).Error(err, "[Reconcile-casdk] Unable to query carbon intensity.")
 			}
 		}
 	}

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: susql-config
+data:
+  KEPLER-PROMETHEUS-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+  KEPLER-METRIC-NAME: "kepler_container_joules_total"
+  SUSQL-PROMETHEUS-DATABASE-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+  SUSQL-PROMETHEUS-METRICS-URL: "http://0.0.0.0:8082"
+  SAMPLING-RATE: "2"
+  LEADER-ELECT: "false"
+  HEALTH-PROBE-BIND-ADDRESS: ":8081"
+  SUSQL-LOG-LEVEL: "-5"
+  CARBON-METHOD: "casdk"
+  CARBON-INTENSITY: "0.0001158333333333"
+  CARBON-INTENSITY-URL: "https://api.electricitymap.org/v3/carbon-intensity/latest?zone=%s"
+  CARBON-INTENSITY-URL: "http://webapi-green-software-foundation.apps.multi-nic-v2.llmdev.res.ibm.com/emissions/bylocation?location=%s"
+  CARBON-LOCATION: "japanwestERROR"
+  CARBON-QUERY-RATE: "7200"
+  CARBON-QUERY-FILTER: "rating"
+  CARBON-QUERY-CONV-2J: "0.0000002777777778"
