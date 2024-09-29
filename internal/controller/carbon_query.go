@@ -25,17 +25,16 @@ import (
 )
 
 func queryCarbonIntensity(url string, location string, filter string, conv2J float64) (float64, error) {
+	queryUrl := fmt.Sprintf(url, location)
 
-	fmt.Println("CARBON QUERY: url=" + fmt.Sprintf(url, location))
-
-	response, err := http.Get(fmt.Sprintf(url, location))
+	response, err := http.Get(queryUrl)
 	if err != nil {
-		return 0.0, err
+		return 0.0, fmt.Errorf("queryCarbonIntensity: %w\nURL=%s", err, queryUrl)
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return 0.0, err
+		return 0.0, fmt.Errorf("queryCarbonIntensity: %w\nURL=%s\nresponse=%s", err, queryUrl, string(responseData))
 	}
 
 	length := gjson.Get(string(responseData), "#").Int() - 1
@@ -46,7 +45,7 @@ func queryCarbonIntensity(url string, location string, filter string, conv2J flo
 
 	carbonIntensityFloat, err := strconv.ParseFloat(carbonIntensityString, 64)
 	if err != nil {
-		return 0.0, err
+		return 0.0, fmt.Errorf("queryCarbonIntensity: %w\nURL=%s\nresponse=%s\nfilter=%s\nresult=%s", err, queryUrl, string(responseData), newFilter, carbonIntensityString)
 	}
 
 	// return nil error since no error
@@ -54,22 +53,23 @@ func queryCarbonIntensity(url string, location string, filter string, conv2J flo
 }
 
 func querySimpleCarbonIntensity(url string, location string, filter string, conv2J float64) (float64, error) {
+	queryUrl := fmt.Sprintf(url, location)
 
 	response, err := http.Get(fmt.Sprintf(url, location))
 	if err != nil {
-		return 0.0, err
+		return 0.0, fmt.Errorf("querySimpleCarbonIntensity: %w\nURL=%s", err, queryUrl)
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return 0.0, err
+		return 0.0, fmt.Errorf("queryCarbonSimpleIntensity: %w\nURL=%s\nresponse=%s", err, queryUrl, string(responseData))
 	}
 
 	carbonIntensityString := gjson.Get(string(responseData), filter).String()
 
 	carbonIntensityFloat, err := strconv.ParseFloat(carbonIntensityString, 64)
 	if err != nil {
-		return 0.0, err
+		return 0.0, fmt.Errorf("queryCarbonSimpleIntensity: %w\nURL=%s\nresponse=%s\nfilter=%s\nresult=%s", err, queryUrl, string(responseData), filter, carbonIntensityString)
 	}
 
 	// return nil error since no error

@@ -49,7 +49,7 @@ Next, use the OpenShift web console to install the SusQL Operator:
 
 Before deploying the SusQL Operator create a `ConfigMap` called `susql-config` in
 the same namespace that the operator will run in.
-[susql-config.yaml](susql-config.yaml) is a good starting point. If you download it first, you
+[susql-config.yaml](../samples/susql-config.yaml) is a good starting point. If you download it first, you
 could create the ConfigMap with `oc apply -n <NAMESPACE> -f susql-config.yaml`.
 If you update (or create) the ConfigMap after the SusQL Operator has been installed, then restarting the SusQL Operator controller pod will
 enable the changes. (e.g., Delete the pod, and allow it to be recreated automatically.)
