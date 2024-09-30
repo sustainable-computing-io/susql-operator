@@ -28,7 +28,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.32
-    createdAt: "2024-09-30T02:37:03Z"
+    createdAt: "2024-09-30T05:10:03Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     features.operators.openshift.io/disconnected: "false"
@@ -212,9 +212,7 @@ spec:
                     drop:
                     - ALL
                   readOnlyRootFilesystem: true
-                  runAsGroup: 14001
                   runAsNonRoot: true
-                  runAsUser: 14001
               - command:
                 - /manager
                 env:
@@ -339,12 +337,9 @@ spec:
                   capabilities:
                     drop:
                     - ALL
-                  runAsGroup: 12001
-                  runAsUser: 12001
+                  readOnlyRootFilesystem: true
               securityContext:
-                runAsGroup: 11001
                 runAsNonRoot: true
-                runAsUser: 11001
               serviceAccountName: susql-operator-susql-controller-manager
               terminationGracePeriodSeconds: 10
       permissions:

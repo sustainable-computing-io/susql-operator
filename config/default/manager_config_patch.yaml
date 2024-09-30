@@ -10,9 +10,8 @@ spec:
       - name: manager
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 11001
-          runAsGroup: 11001
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           capabilities:
             drop:
