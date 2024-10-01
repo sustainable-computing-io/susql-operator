@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# no matter how the script is invoked, TOP will point to the "deployment"
+# directory and hence can be used to access files relative
+# to the known directory of the setup-local.sh script.
+
+TOP=$(dirname $0)
+
 set -e
 set -o pipefail
 
@@ -17,7 +23,7 @@ export CLUSTER_NAME="local-cluster"
 if kind get clusters | grep -q "$CLUSTER_NAME"; then
     echo "> Kind cluster $CLUSTER_NAME already exists"
 else
-    kind create cluster --name="$CLUSTER_NAME" --config=./deployment/local-cluster-config.yaml
+    kind create cluster --name="$CLUSTER_NAME" --config=${TOP}/local-cluster-config.yaml
 fi
 
 # Install Prometheus via Helm
@@ -53,7 +59,7 @@ GF_POD=$(
         -l app.kubernetes.io/name=grafana \
         -o jsonpath="{.items[0].metadata.name}"
 )
-kubectl cp deployment/kepler_dashboard.json monitoring/$GF_POD:/tmp/dashboards/kepler_dashboard.json
+kubectl cp ${TOP}/kepler_dashboard.json monitoring/$GF_POD:/tmp/dashboards/kepler_dashboard.json
 
 
 # echo "> Install OLM"
@@ -65,7 +71,7 @@ kubectl cp deployment/kepler_dashboard.json monitoring/$GF_POD:/tmp/dashboards/k
 # kubectl create -f https://operatorhub.io/install/susql-operator.yaml
 
 # echo "> Wait for susql to be ready"
-# kubectl wait --for=condition=Installed csv/susql-operator.v0.0.30 -n operators --timeout=300s
+# kubectl wait --for=condition=Installed csv/susql-operator.v$(cat ${TOP}/../VERSION) -n operators --timeout=300s
 
 
 # Optional: Delete Kind cluster after use
