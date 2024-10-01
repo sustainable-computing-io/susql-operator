@@ -1,6 +1,7 @@
-# SusQL Operator Installation via OpenShift Community Operator Catalog
+# SusQL Operator Installation via OpenShift Red Hat Community Operator Catalog
 
-Installation of the SusQL Operator on OpenShift is very easy.
+Installation of the SusQL Operator on OpenShift using the OpenShift
+Red Hat Community Opertor Catalog is very easy.
 
 ## Prerequisites
 
