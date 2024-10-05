@@ -1,16 +1,19 @@
 # Carbon Dioxide Emission Estimation
 
-There are three primary CO2 emission calculation methods.
+SusQL supports three primary CO2 emission calculation methods.
 
 "Out-of-the-box" SusQL reports an estimated CO2 emission value for all measured workloads using the `static` method:
+
+The behavior of SusQL carbon calculation can be tuned by modifying the `susql-config` `ConfigMap` in the same namespace that the SusQL operator is running in.
+A sample file is provided in `samples/susql-config.yaml`.
 
 ## `static` Method
 - This `static` method uses a static "carbon intensity value" as a coefficient to calculate grams of CO2 emitted.
   This calculation method is used when the `CARBON-METHOD` `ConfigMap` value is set to `static`.
 
-#### `static` Method `ConfigMap` Configurable items
+#### `static` Method `ConfigMap` Configurable Items
   - `CARBON-METHOD` - The `static` method is enabled when this is set to `static`.
-  - `CARBON-INTENSITY` - Carbon intensity value. A coefficient used to convert Joules to grams of CO2 per Joule. The unit definition is grams of CO2 per Joule.
+  - `CARBON-INTENSITY` - Carbon intensity value. A coefficient used to convert Joules to grams of CO2 per Joule. The unit definition is grams of CO2 per Joule. (If you have a custom grams per KWH carbon intensity value, you can multiple it times 0.0000002777777778 to get grams CO2 per Joule.)
     The default carbon intensity value is based on [US EPA](https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references) data.
 
 ## `simpledynamic` Method
@@ -34,7 +37,7 @@ There are three primary CO2 emission calculation methods.
 #### Configuring and installing Carbon Aware SDK
 - Following guidance in https://github.com/Green-Software-Foundation/carbon-aware-sdk/blob/dev/casdk-docs/docs/overview/enablement.md,
 the Carbon Aware SDK can be easily installed on a Kubernetes cluster such as OpenShift.
-- Preparation: clone the repository and edit `helm-chart/values.yaml` as needed to reflect private password, configuration, etc.
+- Preparation: clone the Carbon Aware SDK repository and edit `helm-chart/values.yaml` as needed to reflect private password, configuration, etc.
 (Useful configuration tips available at https://github.com/Green-Software-Foundation/carbon-aware-sdk/blob/dev/casdk-docs/docs/tutorial-extras/configuration.md )
 
 ```
@@ -43,8 +46,8 @@ vi helm-chart/values.yaml
 ```
 - Preparation: required software and permission
   - Ensure that `helm`, and `kubectl` (or `oc`) are installed
-  - Ensure that CLI user is logged in to cluster with sufficient permissions
-- Perform installation
+  - Ensure that the CLI user is logged in to the cluster with sufficient permissions
+- Perform installation: (The example installs into namespace `gsf`. However, other namespaces may be used.)
 ```
 cd carbon-aware-sdk
 helm upgrade --install --wait carbon-aware-sdk helm-chart --create-namespace gsf
@@ -56,11 +59,11 @@ Note the value reported for "HOST/PORT". This will be used in the next configura
 Update the following items in the `susql-config.yaml` file:
 ```
   CARBON-METHOD: "casdk"
-  CARBON-INTENSITY-URL: "http://<HOST/PORT-VALUE>/emissions/bylocation?location=%s"
+  CARBON-INTENSITY-URL: "http://<HOST/PORT>/emissions/bylocation?location=%s"
   CARBON-LOCATION: "<WORKLOAD-LOCATION>"
   CARBON-QUERY-FILTER: "rating"
 ```
-Tip: try this command to verify sdk container functionality and also view available locations: `curl -s "http:<HOST/PORT-VALUE>/locations"`
+Tip: try this command to verify sdk container functionality and also view available locations: `curl -s "http:<HOST/PORT>/locations"`
 
 
 Apply the updated `susql-config.yaml` file:
@@ -68,7 +71,7 @@ Apply the updated `susql-config.yaml` file:
 oc apply -f susql-config.yaml -n <SUSQL-OPERATOR-NAMESPACE>
 ```
 You are now ready to install and use the SusQL operator.
-If the SusQL Operator is alreay installed, then restart the control pod.
+If the SusQL Operator is already installed, then restart the control pod to enable new `susql-config` values.
 
 #### `casdk` Method `ConfigMap` Configurable Items
   - `CARBON-METHOD` - The `casdk` method is enabled when this is set to `casdk`.

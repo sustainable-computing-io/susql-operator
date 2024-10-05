@@ -1,29 +1,29 @@
 # SusQL Operator
 
-SusQL is a Kubernetes operator that aggregates energy and estimated carbon dioxide emission data for pods tagged with SusQL specific labels. The energy measurements are taken from [Kepler](https://sustainable-computing.io/) which should be deployed on the cluster before using SusQL. Watch a video with a demonstration by clicking the following link.
+SusQL is a Kubernetes operator that aggregates energy and estimated carbon dioxide emission data for pods tagged with SusQL specific labels. The energy measurements are obtained from [Kepler](https://sustainable-computing.io/) which should be deployed on the cluster before using SusQL. Click the picture below to watch the demo video.
 
-https://github.com/sustainable-computing-io/susql-operator/wiki/files/SusQL-Demo-2024-09.mp4
-
-![SusQL Architecture](https://github.com/sustainable-computing-io/susql-operator/wiki/files/SusQL-Demo-Thumbnail.png)
-
+[![SusQL Demo](https://github.com/sustainable-computing-io/susql-operator/wiki/files/SusQL-Demo-2024-10-Thumbnail.png)](https://youtu.be/9CwuhOfVtjE)
 
 ## Getting Started
 
-SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You can use [kind](https://sigs.k8s.io/kind) or [minikube](https://minikube.sigs.k8s.io/) to get a local cluster for testing, or run against a remote cluster.
+SusQL is an operator that can be deployed in a Kubernetes/OpenShift cluster. You can also use [kind](https://sigs.k8s.io/kind) or [minikube](https://minikube.sigs.k8s.io/) as a local cluster for testing, or run against a remote cluster.
 
 ## Carbon Dioxide Emission Calculation
 
 By default SusQL calculates carbon dioxide emission in grams of CO2 using a carbon intensity value from 
 [US EPA](https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references).
+SusQL can be configured to use other static carbon intensity values or query carbon intensity values for a
+given location from web API's such as those provided by
+the Green Software Foundation's [Carbon Aware SDK](https://github.com/Green-Software-Foundation/carbon-aware-sdk).
 
 Detailed information on configuration of CO2 emission calculation in SusQL is available in the [SusQL carbon
 calculation documentation.](doc/carbon.md)
 
-### Prerequisites
+## Prerequisites
 
 Kepler is assumed to be installed in the cluster.
 
-### Installation
+## Installation
 
 - Follow these instructions for easy SusQL installation from the Red Hat Community Operator catalog on an OpenShift cluster.
   - [Installation on OpenShift](doc/openshift-installation.md)
@@ -31,7 +31,7 @@ Kepler is assumed to be installed in the cluster.
 - Follow these instructions to install the SusQL Operator from [OperatorHub.io](https://operatorhub.io) on a Kubernetes cluster including OpenShift.
   - [Installation from OperatorHub.io](doc/operatorhub-installation.md)
 
-- Follow these instructions to install the SusQL Operator with Helm on a Kubernetes cluster including OpenShift.
+- Follow these instructions to install the SusQL Operator from a Helm chart on a Kubernetes cluster, including OpenShift.
   - [Installation with Helm](doc/helm-installation.md)
  
 

@@ -30,3 +30,4 @@ volume
 temp-prometheus.yaml
 .susql-deploy-info.txt
 .susql-deploy-info-last.txt
+c3-susql-config.yaml

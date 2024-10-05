@@ -24,9 +24,8 @@ spec:
                   image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
                   imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
                   securityContext:
-                      runAsUser: 10001
-                      runAsGroup: 10001
                       allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
                       runAsNonRoot: true
                       capabilities:
                           drop:

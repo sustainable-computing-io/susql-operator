@@ -27,15 +27,22 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.31
-    createdAt: "2024-09-28T12:08:54Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.32
+    createdAt: "2024-09-30T05:10:03Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
+    features.operators.openshift.io/disconnected: "false"
+    features.operators.openshift.io/fips-compliant: "false"
+    features.operators.openshift.io/proxy-aware: "false"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.31
+  name: susql-operator.v0.0.32
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -205,9 +212,7 @@ spec:
                     drop:
                     - ALL
                   readOnlyRootFilesystem: true
-                  runAsGroup: 14001
                   runAsNonRoot: true
-                  runAsUser: 14001
               - command:
                 - /manager
                 env:
@@ -301,7 +306,7 @@ spec:
                       key: CARBON-QUERY-CONV-2J
                       name: susql-config
                       optional: true
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.31
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.32
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -332,12 +337,9 @@ spec:
                   capabilities:
                     drop:
                     - ALL
-                  runAsGroup: 12001
-                  runAsUser: 12001
+                  readOnlyRootFilesystem: true
               securityContext:
-                runAsGroup: 11001
                 runAsNonRoot: true
-                runAsUser: 11001
               serviceAccountName: susql-operator-susql-controller-manager
               terminationGracePeriodSeconds: 10
       permissions:
@@ -408,5 +410,5 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  replaces: susql-operator.v0.0.29
-  version: 0.0.31
+  replaces: susql-operator.v0.0.30
+  version: 0.0.32
