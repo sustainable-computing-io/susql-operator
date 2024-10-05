@@ -6,6 +6,8 @@ set -o pipefail
 KEPLER_NS=kepler
 PROMETHEUS_NS=monitoring
 
+export PATH=$PATH:/usr/local/bin
+
 echo "> Creating Kind cluster"
 echo "> Configure cluster to run Kepler"
 echo "> Mount /proc - to expose information about processes running on the host"
