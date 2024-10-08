@@ -20,6 +20,9 @@
 - `training-job-2.yaml`
 - `rhosaij.yaml`
 
+## directories
+- `impact-framework` - sample files for using SusQL with the [Green Software Impact Framework](https://if.greensoftware.foundation).
+
 
 ## License
 
