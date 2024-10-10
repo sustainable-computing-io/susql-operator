@@ -7,16 +7,16 @@ initialize:
       path: 'https://github.com/Shivani-G/prometheus-importer'
       global-config:
         step: '1h'
-        start: '2024-08-01T23:50:30.781Z'
-        end: '2024-08-31T00:00:30.781Z'
+        start: '2024-09-01T23:50:30.781Z'
+        end: '2024-09-30T00:00:30.781Z'
         query: 'rate(susql_container_joules_total)[1m])'
         metricLabels:
           - name
-        metricName: 'cpu/utilization'
+        metricName: 'energy'
         defaultLabels:
           duration: 3600
           cloud/vendor: 'ibm'
-          cloud/instance-type: medium'
+          cloud/instance-type: 'medium'
   outputs: 
     - yaml
 tree:
