@@ -4,7 +4,7 @@ ENV NPM_CONFIG_PREFIX=/usr/local
 ARG NPM_CONFIG_PREFIX=/usr/local
 
 WORKDIR /work
-COPY ptest.yaml demo.yaml .
+COPY ptest.yaml .
 
 RUN apt-get update -y && \
 apt-get upgrade -y && \
