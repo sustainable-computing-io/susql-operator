@@ -1,6 +1,6 @@
 name: prometheus importer test
 description: simple susql demo invoking prometheus-importer plugin
-tags: susql
+tags: null
 initialize:
   plugins:
     prometheus-importer:
