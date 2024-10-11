@@ -1,14 +1,15 @@
 name: prometheus importer test
 description: simple susql demo invoking prometheus-importer plugin
+tags: susql
 initialize:
   plugins:
     prometheus-importer:
       method: PrometheusImporter
-      path: 'https://github.com/Shivani-G/prometheus-importer'
+      path: 'prometheus-importer'
       global-config:
         step: '1h'
-        start: '2024-09-01T23:50:30.781Z'
-        end: '2024-09-30T00:00:30.781Z'
+        start: '2024-09-14T23:50:30.781Z'
+        end: '2024-10-14T00:00:30.781Z'
         query: 'rate(susql_container_joules_total)[1m])'
         metricLabels:
           - name
