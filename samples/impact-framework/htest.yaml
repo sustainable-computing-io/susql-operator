@@ -1,0 +1,22 @@
+name: hello plugin test
+description: simple verification of plugin tech
+tags: null
+initialize:
+  plugins:
+    hello-plugin:
+      method: HelloPlugin
+      path: "https://github.com/trent-s/hello-plugin"
+  outputs: 
+    - yaml
+tree:
+  children:
+    child:
+      pipeline:
+        - hello-plugin
+      inputs:
+        - timestamp: 2023-08-06T00:00
+          duration: 3600
+          carbon: 30
+        - timestamp: 2023-09-06T00:00
+          duration: 3600
+          carbon: 30
