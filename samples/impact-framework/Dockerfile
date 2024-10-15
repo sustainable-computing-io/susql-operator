@@ -8,8 +8,15 @@ COPY ?test.yaml .
 
 RUN apt-get update -y && \
 apt-get upgrade -y && \
-apt-get install git npm vim lsb-release -y && \
+apt-get install git curl vim lsb-release -y && \
 echo "    --- Finished apt-get install" && \
+# npm install -g npm@latest  && \
+# echo "    --- Finished npm update" && \
+curl -fsSL https://deb.nodesource.com/setup_lts.x | bash && \
+apt-get upgrade -y && \
+apt-get install nodejs  -y && \
+npm install -g npm@10.9.0 && \
+echo "    --- Finished node update" && \
 npm install -g typescript  && \
 echo "    --- Finished typescript install" && \
 npm install -g rimraf  && \
