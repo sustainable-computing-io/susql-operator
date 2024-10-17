@@ -3,9 +3,11 @@ description: simple verification of plugin tech
 tags: null
 initialize:
   plugins:
-    hello-plugin:
+    'hello-plugin':
       method: HelloPlugin
-      path: "https://github.com/trent-s/hello-plugin"
+      path: 'https://github.com/trent-s/hello-plugin'
+      config:
+        allow-padding: true
   outputs: 
     - yaml
 tree:
