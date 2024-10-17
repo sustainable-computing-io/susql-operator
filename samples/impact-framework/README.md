@@ -1,31 +1,10 @@
 # Using SusQL with the Green Software Foundation's Impact Framework
 
-### Using prebuilt container image:
-- Ensure that you are logged into your cluster, then start the Impact Framework container: `oc apply -f impact-framework.yaml`
-- Log into the newly created container: `oc rsh impact-framework bash`
-- Try simple unit test:
-```
-cd if
-npm run if-run -- --manifest manifests/examples/builtins/sum/success.yml
-```
-- Use SusQL data: (Edit HOST and BEARER_TOKEN as necessary.)
-```
-cd if
-echo "BEARER_TOKEN="$(cat  /var/run/secrets/kubernetes.io/serviceaccount/token) >>.env
-echo "HOST=https://thanos-querier.openshift-monitoring.svc.cluster.local:9091" >>.env
-npm run if-run -- --manifest ../ptest.yaml
-```
+A large design point in using SusQL data with the Green Software Foundation's
+Impact Framework is whether to run in a container ON the cluster, or run on a machine
+external to the cluster.
 
-### Building your own container image
-For those who wish to build their own Impact Framework, log into both your 
-cluster and your container image repository, and run the following commands:
-```
-export IMG=<YOURIMAGEREPO>/<YOURID>/<YOURIMAGENAME
-podman build --tag ${IMG} .
-podman push ${IMG}
-```
-Then edit `impact-framework.yaml` so that `image` points to your newly built image.
+This directory contains two directories with experiments into both approaches:
 
-Notes:
-- `oc` and `kubectl` are (should be) interchangable in this context.
-- `podman` and `docker` are (should be) interchangable in this context.
+- [onClusterApproach](onClusterApproach)
+- [offClusterApproach](offClusterApproach)
