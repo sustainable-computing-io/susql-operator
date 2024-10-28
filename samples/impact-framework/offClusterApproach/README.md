@@ -5,9 +5,9 @@ however, any OS that supports a sufficiently recent version of `nodejs` should
 work in principle.
 
 The key to importing data from SusQL is a Prometheus Importer Plugin for the GSF Impact Framework.
-Currently there are two such plugins described in the (IF Explorer)[https://explorer.if.greensoftware.foundation]:
-- (`Prometheus Importer`)[https://github.com/andreic94/if-prometheus-importer/blob/main/README.md] by `andreic94`, et al.
-- (`prometheus-importer`)[https://github.com/Shivani-G/prometheus-importer/blob/main/README.md] by `Shibani-G`.
+Currently there are two such plugins described in the [IF Explorer](https://explorer.if.greensoftware.foundation):
+- [`Prometheus Importer`](https://github.com/andreic94/if-prometheus-importer/blob/main/README.md) by `andreic94`, et al.
+- [`prometheus-importer`](https://github.com/Shivani-G/prometheus-importer/blob/main/README.md) by `Shivani-G`.
 
 The following is an approach using the later plugin:
 

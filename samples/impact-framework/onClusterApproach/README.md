@@ -6,9 +6,9 @@ of the PrometheusImporter plugin.  The fundamental focus of this particular
 approach is to run entirely on Cluster, and is based on OpenShift.
 
 The key to importing data from SusQL is a Prometheus Importer Plugin for the GSF Impact Framework.
-Currently there are two such plugins described in the (IF Explorer)[https://explorer.if.greensoftware.foundation]:
-- (`Prometheus Importer`)[https://github.com/andreic94/if-prometheus-importer/blob/main/README.md] by `andreic94`, et al.
-- (`prometheus-importer`)[https://github.com/Shivani-G/prometheus-importer/blob/main/README.md] by `Shibani-G`.
+Currently there are two such plugins described in the [IF Explorer](https://explorer.if.greensoftware.foundation):
+- [`Prometheus Importer`](https://github.com/andreic94/if-prometheus-importer/blob/main/README.md) by `andreic94`, et al.
+- [`prometheus-importer`](https://github.com/Shivani-G/prometheus-importer/blob/main/README.md) by `Shivani-G`.
 
 This approach uses the later plugin.
 
