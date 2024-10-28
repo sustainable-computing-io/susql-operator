@@ -33,3 +33,4 @@ temp-prometheus.yaml
 c3-susql-config.yaml
 nohup.out
 .env
+node_modules

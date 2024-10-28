@@ -6,7 +6,7 @@ initialize:
     prometheus-importer:
       method: PrometheusImporter
       path: 'https://github.com/Shivani-G/prometheus-importer'
-      config:
+      global-config:
         step: '1h'
         start: '2024-09-16T23:50:30.000Z'
         end: '2024-10-16T00:00:30.000Z'
@@ -17,6 +17,7 @@ initialize:
         defaultLabels:
           duration: 3600
           cloud/vendor: 'ibm'
+          cloud/instance-type: 'medium'
   outputs: 
     - yaml
 tree:

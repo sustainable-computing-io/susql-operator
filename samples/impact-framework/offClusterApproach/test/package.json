@@ -10,6 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "prometheus-importer": "github:trent-s/prometheus-importer"
+    "prometheus-importer": "github:Shivani-G/prometheus-importer"
   }
 }

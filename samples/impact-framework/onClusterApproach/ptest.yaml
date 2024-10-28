@@ -5,7 +5,7 @@ initialize:
   plugins:
     prometheus-importer:
       method: PrometheusImporter
-      path: 'https://github.com/trent-s/prometheus-importer'
+      path: 'https://github.com/Shivani-G/prometheus-importer'
       config:
         step: '1h'
         start: '2024-09-16T23:50:30.000Z'
