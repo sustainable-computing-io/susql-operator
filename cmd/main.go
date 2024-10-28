@@ -150,7 +150,7 @@ func main() {
 	susqlLog.Info("carbonQueryFilter=" + carbonQueryFilter)
 	susqlLog.Info("carbonQueryConv2J=" + carbonQueryConv2J)
 
-	// If enebleLeaderElection is false, then set "Leader for Life" mode
+	// If enableLeaderElection is false, then set "Leader for Life" mode
 	if enableLeaderElection != true {
 		os.Setenv("POD_NAME", os.Getenv("HOSTNAME"))
 		err = leader.Become(context.TODO(), leaderLockID)
