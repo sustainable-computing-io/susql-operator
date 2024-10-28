@@ -1,0 +1,20 @@
+# in this directory
+npm init -y
+npm install -g husky
+npm install -g @grnsft/if
+# npm remove -g "https://github.com/trent-s/prometheus-importer"
+npm remove -g prometheus-importer
+npm remove prometheus-importer
+npm install -g "https://github.com/Shivani-G/prometheus-importer"
+npm update
+echo "BEARER_TOKEN="$(oc whoami -t) >.env
+echo HOST=https://$(oc get routes -n openshift-monitoring thanos-querier -o jsonpath='{.status.ingress[0].host}') >>.env
+if-run --manifest  pi1test.yaml --debug
+
+
+
+
+## troubleshootign
+# npm cache verify
+# npm install npm@latest -g
+

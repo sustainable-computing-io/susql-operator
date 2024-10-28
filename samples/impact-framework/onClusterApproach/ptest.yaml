@@ -1,0 +1,27 @@
+name: prometheus importer test
+description: simple susql demo invoking prometheus-importer plugin
+tags: null
+initialize:
+  plugins:
+    prometheus-importer:
+      method: PrometheusImporter
+      path: 'https://github.com/Shivani-G/prometheus-importer'
+      config:
+        step: '1h'
+        start: '2024-09-16T23:50:30.000Z'
+        end: '2024-10-16T00:00:30.000Z'
+        query: 'rate(susql_container_joules_total)[1m])'
+        metricLabels:
+          - name
+        metricName: 'energy'
+        defaultLabels:
+          duration: 3600
+          cloud/vendor: 'ibm'
+  outputs: 
+    - yaml
+tree:
+  children:
+    child:
+      pipeline:
+        - prometheus-importer
+      inputs:
