@@ -25,7 +25,7 @@ else # continue
 fi
 
 export SUSQL_NAMESPACE="openshift-kepler-operator"
-export KEPLER_PROMETHEUS_NAMESPACE="openshift-monitoring"
+export SOURSE_PROMETHEUS_NAMESPACE="openshift-monitoring"
 
 if [[ -z ${PROMETHEUS_PROTOCOL} ]]; then
     PROMETHEUS_PROTOCOL="http"
@@ -53,12 +53,16 @@ else
     sed -i -e 's/svc.cluster.local/'${PROMETHEUS_DOMAIN}'/g' susql-controller/values.yaml
 fi
 
-if [[ -z ${KEPLER_PROMETHEUS_URL} ]]; then
-    KEPLER_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:${PROMETHEUS_PORT}"
+if [[ -z ${SOURCE_PROMETHEUS_URL} ]]; then
+    SOURCE_PROMETHEUS_URL="${PROMETHEUS_PROTOCOL}://${PROMETHEUS_SERVICE}.${PROMETHEUS_NAMESPACE}.${PROMETHEUS_DOMAIN}:${PROMETHEUS_PORT}"
 fi
 
-if [[ -z ${KEPLER_METRIC_NAME} ]]; then
-    KEPLER_METRIC_NAME="kepler_container_joules_total"
+if [[ -z ${ENERGY_METRIC_NAME} ]]; then
+    ENERGY_METRIC_NAME="kepler_container_joules_total"
+fi
+
+if [[ -z ${ENERGY_CONVERSION} ]]; then
+    ENERGY_CONVERSION="1.0"
 fi
 
 if [[ -z ${SUSQL_PROMETHEUS_URL} ]]; then
@@ -67,7 +71,7 @@ if [[ -z ${SUSQL_PROMETHEUS_URL} ]]; then
         SUSQL_PROMETHEUS_URL="http://prometheus-susql.${SUSQL_NAMESPACE}.${PROMETHEUS_DOMAIN}:9090"
     else
         # using shared prometheus instance
-        SUSQL_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}
+        SUSQL_PROMETHEUS_URL=${SOURCE_PROMETHEUS_URL}
     fi
 fi
 
@@ -130,14 +134,14 @@ fi
 # display configured variables 
 echo "==================================================================================================="
 echo "SUSQL_NAMESPACE - '${SUSQL_NAMESPACE}'"
-echo "KEPLER_PROMETHEUS_NAMESPACE - '${KEPLER_PROMETHEUS_NAMESPACE}'"
+echo "SOURCE_PROMETHEUS_NAMESPACE - '${SOURCE_PROMETHEUS_NAMESPACE}'"
 echo "PROMETHEUS_PROTOCOL - '${PROMETHEUS_PROTOCOL}'"
 echo "PROMETHEUS_SERVICE - '${PROMETHEUS_SERVICE}'"
 echo "PROMETHEUS_NAMESPACE - '${PROMETHEUS_NAMESPACE}'"
 echo "PROMETHEUS_DOMAIN - '${PROMETHEUS_DOMAIN}'"
 echo "PROMETHEUS_PORT - '${PROMETHEUS_PORT}'"
-echo "KEPLER_PROMETHEUS_URL - '${KEPLER_PROMETHEUS_URL}'"
-echo "KEPLER_METRIC_NAME - '${KEPLER_METRIC_NAME}'"
+echo "SOURCE_PROMETHEUS_URL - '${SOURCE_PROMETHEUS_URL}'"
+echo "ENERGY_METRIC_NAME - '${ENERGY_METRIC_NAME}'"
 echo "CARBON_METHOD - '${CARBON_METHOD}'"
 echo "CARBON_INTENSITY - '${CARBON_INTENSITY}'"
 echo "CARBON_INTENSITY_URL - '${CARBON_INTENSITY_URL}'"
@@ -167,14 +171,14 @@ fi
 echo "# SusQL Deployment on "$(hostname)" at "$(date) > ${LOGFILE}
 echo "# deploy action was: '${action}'" >> ${LOGFILE}
 echo "export SUSQL_NAMESPACE=${SUSQL_NAMESPACE}" >> ${LOGFILE}
-echo "export KEPLER_PROMETHEUS_NAMESPACE=${KEPLER_PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
+echo "export SOURCE_PROMETHEUS_NAMESPACE=${SOURCE_PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
 echo "export PROMETHEUS_PROTOCOL=${PROMETHEUS_PROTOCOL}" >> ${LOGFILE}
 echo "export PROMETHEUS_SERVICE=${PROMETHEUS_SERVICE}" >> ${LOGFILE}
 echo "export PROMETHEUS_NAMESPACE=${PROMETHEUS_NAMESPACE}" >> ${LOGFILE}
 echo "export PROMETHEUS_DOMAIN=${PROMETHEUS_DOMAIN}" >> ${LOGFILE}
 echo "export PROMETHEUS_PORT=${PROMETHEUS_PORT}" >> ${LOGFILE}
-echo "export KEPLER_PROMETHEUS_URL=${KEPLER_PROMETHEUS_URL}" >> ${LOGFILE}
-echo "export KEPLER_METRIC_NAME=${KEPLER_METRIC_NAME}" >> ${LOGFILE}
+echo "export SOURCE_PROMETHEUS_URL=${SOURCE_PROMETHEUS_URL}" >> ${LOGFILE}
+echo "export ENERGY_METRIC_NAME=${ENERGY_METRIC_NAME}" >> ${LOGFILE}
 echo "export CARBON_METHOD=${CARBON_METHOD}" >> ${LOGFILE}
 echo "export CARBON_INTENSITY=${CARBON_INTENSITY}" >> ${LOGFILE}
 echo "export CARBON_INTENSITY_URL=${CARBON_INTENSITY_URL}" >> ${LOGFILE}
@@ -196,13 +200,13 @@ do
         # Check if Kepler is serving metrics through prometheus
         echo "->Checking if Kepler is deployed..."
 
-        sed "s|KEPLER_PROMETHEUS_URL|${KEPLER_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply --namespace ${KEPLER_PROMETHEUS_NAMESPACE} -f -
+        sed "s|SOURCE_PROMETHEUS_URL|${SOURCE_PROMETHEUS_URL}|g" kepler-check.yaml | kubectl apply --namespace ${SOURCE_PROMETHEUS_NAMESPACE} -f -
 
         echo "->Checking kepler-check status";
         while true
         do
             echo -n "." && sleep 1;
-            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${KEPLER_PROMETHEUS_NAMESPACE})
+            phase=$(kubectl get pod kepler-check -o jsonpath='{.status.phase}' --namespace ${SOURCE_PROMETHEUS_NAMESPACE})
 
             if [[ ${phase} != "Pending" ]] && [[ ${phase} != "Running" ]]; then
                 break
@@ -212,9 +216,9 @@ do
         echo ""
         echo "Kepler check '${phase}'"
 
-        logs=$(kubectl logs -f kepler-check --namespace ${KEPLER_PROMETHEUS_NAMESPACE})
+        logs=$(kubectl logs -f kepler-check --namespace ${SOURCE_PROMETHEUS_NAMESPACE})
         echo "->Deleting kepler-check pod..."
-        kubectl delete -f kepler-check.yaml --namespace ${KEPLER_PROMETHEUS_NAMESPACE}
+        kubectl delete -f kepler-check.yaml --namespace ${SOURCE_PROMETHEUS_NAMESPACE}
 
         echo "->Kepler service"
         if [[ ${phase} == "Failed" ]]; then
@@ -222,10 +226,10 @@ do
             echo "Kepler check logs"
             echo "-----------------"
             echo ${logs}
-            echo "Kepler service at '${KEPLER_PROMETHEUS_URL}' was not found. Check values and try again."
+            echo "Kepler service at '${SOURCE_PROMETHEUS_URL}' was not found. Check values and try again."
             exit 1
         else
-            echo "Kepler service at '${KEPLER_PROMETHEUS_URL}' was found. Using it to collect SusQL data."
+            echo "Kepler service at '${SOURCE_PROMETHEUS_URL}' was found. Using it to collect SusQL data."
         fi
 
     elif [[ ${action} = "prometheus-deploy" ]]; then
@@ -271,8 +275,9 @@ do
         cd ${SUSQL_DIR} && make manifests && make install
         cd -
         helm upgrade --install --wait susql-controller ${SUSQL_DIR}/deployment/susql-controller --namespace ${SUSQL_NAMESPACE} \
-            --set keplerPrometheusUrl="${KEPLER_PROMETHEUS_URL}" \
-            --set keplerMetricName="${KEPLER_METRIC_NAME}" \
+            --set sourcePrometheusUrl="${SOURCE_PROMETHEUS_URL}" \
+            --set energyMetricName="${ENERGY_METRIC_NAME}" \
+            --set energyConversion="${ENERGY_CONVERSION}" \
             --set susqlPrometheusDatabaseUrl="${SUSQL_PROMETHEUS_URL}" \
             --set susqlPrometheusMetricsUrl="http://0.0.0.0:8082" \
             --set CarbonMethod="${CARBON_METHOD}" \

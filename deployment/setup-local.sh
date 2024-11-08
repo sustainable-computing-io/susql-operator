@@ -9,7 +9,7 @@ TOP=$(dirname $0)
 set -e
 set -o pipefail
 
-KEPLER_NS=kepler
+SOURCE_NS=kepler
 PROMETHEUS_NS=monitoring
 
 export PATH=$PATH:/usr/local/bin
@@ -42,7 +42,7 @@ echo "> Install Kepler"
 helm repo add kepler https://sustainable-computing-io.github.io/kepler-helm-chart
 helm repo update
 helm install kepler kepler/kepler \
-    --namespace="$KEPLER_NS" \
+    --namespace="$SOURCE_NS" \
     --create-namespace \
     --set serviceMonitor.enabled=true \
     --set serviceMonitor.labels.release=prometheus

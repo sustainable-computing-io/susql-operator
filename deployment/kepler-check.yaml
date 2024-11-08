@@ -29,7 +29,7 @@ spec:
                   cpu: 250m
                   memory: 512Mi
           command: ["sh"]
-          args: ["-c", 'curl -k --max-time 1 KEPLER_PROMETHEUS_URL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"']
+          args: ["-c", 'curl -k --max-time 1 SOURCE_PROMETHEUS_URL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"']
     dnsPolicy: ClusterFirst
     serviceAccount: prometheus-k8s
     serviceAccountName: prometheus-k8s

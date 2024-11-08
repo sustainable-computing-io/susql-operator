@@ -37,7 +37,7 @@ import (
 
 var (
 	maxQueryTime                         = "1y" // Look back 'maxQueryTime' for the most recent value
-	keplerRoundTripper http.RoundTripper = nil
+	sourceRoundTripper http.RoundTripper = nil
 	susqlRoundTripper  http.RoundTripper = nil
 )
 
@@ -93,21 +93,21 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 }
 
 func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, podNames []string, namespaceName string) (map[string]float64, error) {
-	if keplerRoundTripper == nil {
-		if strings.HasPrefix(r.KeplerPrometheusUrl, "https://") {
+	if sourceRoundTripper == nil {
+		if strings.HasPrefix(r.SourcePrometheusUrl, "https://") {
 			rttls := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-			keplerRoundTripper = config.NewAuthorizationCredentialsRoundTripper("Bearer", config.NewFileSecret("/var/run/secrets/kubernetes.io/serviceaccount/token"), rttls)
+			sourceRoundTripper = config.NewAuthorizationCredentialsRoundTripper("Bearer", config.NewFileSecret("/var/run/secrets/kubernetes.io/serviceaccount/token"), rttls)
 		}
 	}
 	client, err := api.NewClient(api.Config{
-		Address:      r.KeplerPrometheusUrl,
-		RoundTripper: keplerRoundTripper,
+		Address:      r.SourcePrometheusUrl,
+		RoundTripper: sourceRoundTripper,
 	})
 
 	if err != nil {
 		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Couldn't create an HTTP client.\n"+
 			fmt.Sprintf("\tmetricName: %s\n", metricName)+
-			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl))
+			fmt.Sprintf("\tSourcePrometheusUrl: %s\n", r.SourcePrometheusUrl))
 		os.Exit(1)
 	}
 
@@ -132,7 +132,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	if err != nil {
 		r.Logger.V(0).Error(err, "[GetMetricValuesForPodNames] Querying Prometheus didn't work.\n"+
 			fmt.Sprintf("\tmetricName: %s\n", metricName)+
-			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl)+
+			fmt.Sprintf("\tSourcePrometheusUrl: %s\n", r.SourcePrometheusUrl)+
 			fmt.Sprintf("\tqueryString: %s\n", queryString))
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (r *LabelGroupReconciler) GetMetricValuesForPodNames(metricName string, pod
 	if len(warnings) > 0 {
 		r.Logger.V(0).Info(fmt.Sprintf("WARNING [GetMetricValuesForPodNames] %v\n", warnings) +
 			fmt.Sprintf("\tmetricName: %s\n", metricName) +
-			fmt.Sprintf("\tKeplerPrometheusUrl: %s\n", r.KeplerPrometheusUrl) +
+			fmt.Sprintf("\tSourcePrometheusUrl: %s\n", r.SourcePrometheusUrl) +
 			fmt.Sprintf("\tqueryString: %s", queryString))
 	}
 

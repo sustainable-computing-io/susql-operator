@@ -27,8 +27,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.32
-    createdAt: "2024-09-30T05:10:03Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.33
+    createdAt: "2024-11-08T08:32:58Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     features.operators.openshift.io/disconnected: "false"
@@ -42,7 +42,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.32
+  name: susql-operator.v0.0.33
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -216,16 +216,28 @@ spec:
               - command:
                 - /manager
                 env:
-                - name: KEPLER-PROMETHEUS-URL
+                - name: SOURCE-PROMETHEUS-URL
                   valueFrom:
                     configMapKeyRef:
-                      key: KEPLER-PROMETHEUS-URL
+                      key: SOURCE-PROMETHEUS-URL
                       name: susql-config
                       optional: true
-                - name: KEPLER-METRIC-NAME
+                - name: ENERGY-METRIC-NAME
                   valueFrom:
                     configMapKeyRef:
-                      key: KEPLER-METRIC-NAME
+                      key: ENERGY-METRIC-NAME
+                      name: susql-config
+                      optional: true
+                - name: ENERGY-CONVERSION
+                  valueFrom:
+                    configMapKeyRef:
+                      key: ENERGY-CONVERSION
+                      name: susql-config
+                      optional: true
+                - name: TUNING-METRIC-NAME1
+                  valueFrom:
+                    configMapKeyRef:
+                      key: TUNING-METRIC-NAME1
                       name: susql-config
                       optional: true
                 - name: SUSQL-PROMETHEUS-DATABASE-URL
@@ -306,7 +318,7 @@ spec:
                       key: CARBON-QUERY-CONV-2J
                       name: susql-config
                       optional: true
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.32
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.33
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -411,4 +423,4 @@ spec:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
   replaces: susql-operator.v0.0.30
-  version: 0.0.32
+  version: 0.0.33

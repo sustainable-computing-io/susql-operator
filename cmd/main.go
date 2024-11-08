@@ -66,8 +66,10 @@ func getEnv(key, defval string) string {
 func main() {
 	var enableLeaderElection bool = true
 	var probeAddr string = ":8081"
-	var keplerPrometheusUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
-	var keplerMetricName string = "kepler_container_joules_total"
+	var sourcePrometheusUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+	var energyMetricName string = "kepler_container_joules_total"
+	var energyConversion string = "1.0"
+	var tuningMetricName1 string = ""
 	var susqlPrometheusMetricsUrl string = "http://0.0.0.0:8082"
 	var susqlPrometheusDatabaseUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
 	var samplingRate string = "2"
@@ -82,8 +84,10 @@ func main() {
 	var carbonQueryConv2J string = "0.0000002777777778"
 
 	// NOTE: these can be set as env or flag, flag takes precedence over env
-	keplerPrometheusUrlEnv := getEnv("KEPLER-PROMETHEUS-URL", keplerPrometheusUrl)
-	keplerMetricNameEnv := getEnv("KEPLER-METRIC-NAME", keplerMetricName)
+	sourcePrometheusUrlEnv := getEnv("SOURCE-PROMETHEUS-URL", sourcePrometheusUrl)
+	energyMetricNameEnv := getEnv("ENERGY-METRIC-NAME", energyMetricName)
+	energyConversionEnv := getEnv("ENERGY-CONVERSION", energyConversion)
+	tuningMetricName1Env := getEnv("TUNING-METRIC-NAME1", tuningMetricName1)
 	susqlPrometheusDatabaseUrlEnv := getEnv("SUSQL-PROMETHEUS-DATABASE-URL", susqlPrometheusDatabaseUrl)
 	susqlPrometheusMetricsUrlEnv := getEnv("SUSQL-PROMETHEUS-METRICS-URL", susqlPrometheusMetricsUrl)
 	samplingRateEnv := getEnv("SAMPLING-RATE", samplingRate)
@@ -101,8 +105,10 @@ func main() {
 		enableLeaderElectionEnv = false
 	}
 
-	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", keplerPrometheusUrlEnv, "The URL for the Prometheus server where Kepler stores the energy data")
-	flag.StringVar(&keplerMetricName, "kepler-metric-name", keplerMetricNameEnv, "The metric name to be queried in the kepler Prometheus server")
+	flag.StringVar(&sourcePrometheusUrl, "source-prometheus-url", sourcePrometheusUrlEnv, "The URL for the Prometheus server where energy data is originally stored")
+	flag.StringVar(&energyMetricName, "energy-metric-name", energyMetricNameEnv, "The metric name to be queried to obtain energy data from the source Prometheus server")
+	flag.StringVar(&energyConversion, "energy-conversion", energyConversionEnv, "A conversion factor to convert the energy metric into Joules")
+	flag.StringVar(&tuningMetricName1, "tuning-metric-name1", tuningMetricName1Env, "An optional metric name to be queried from the source Prometheus server")
 	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", susqlPrometheusDatabaseUrlEnv, "The URL for the Prometheus database where SusQL stores the energy data")
 	flag.StringVar(&susqlPrometheusMetricsUrl, "susql-prometheus-metrics-url", susqlPrometheusMetricsUrlEnv, "The URL for the Prometheus metrics where SusQL exposes the energy data")
 	flag.StringVar(&samplingRate, "sampling-rate", samplingRateEnv, "Sampling rate in seconds")
@@ -136,8 +142,10 @@ func main() {
 	susqlLog.Info("SusQL configuration values at runtime")
 	susqlLog.Info("enableLeaderElection=" + strconv.FormatBool(enableLeaderElection))
 	susqlLog.Info("probeAddr=" + probeAddr)
-	susqlLog.Info("keplerPrometheusUrl=" + keplerPrometheusUrl)
-	susqlLog.Info("keplerMetricName=" + keplerMetricName)
+	susqlLog.Info("sourcePrometheusUrl=" + sourcePrometheusUrl)
+	susqlLog.Info("energyMetricName=" + energyMetricName)
+	susqlLog.Info("energyConversion=" + energyConversion)
+	susqlLog.Info("tuningMetricName1=" + tuningMetricName1)
 	susqlLog.Info("susqlPrometheusMetricsUrl=" + susqlPrometheusMetricsUrl)
 	susqlLog.Info("susqlPrometheusDatabaseUrl=" + susqlPrometheusDatabaseUrl)
 	susqlLog.Info("samplingRate=" + samplingRate)
@@ -205,6 +213,12 @@ func main() {
 	// (static, simpledynamic, casdk)
 	// Note: assume that carbonIntensityUrl, carbonLocation, and carbonQueryFilter are OK. If not, we will log errors at runtime.
 
+	energyConversionFloat, err := strconv.ParseFloat(energyConversion, 64)
+	if err != nil {
+		susqlLog.Error(err, "Unable to obtain initial energy conversion value. Using 1.0.")
+		energyConversionFloat = 1.0
+	}
+
 	samplingRateInteger, err := strconv.Atoi(samplingRate)
 	if err != nil {
 		samplingRateInteger = 2
@@ -232,8 +246,10 @@ func main() {
 	if err = (&controller.LabelGroupReconciler{
 		Client:                        mgr.GetClient(),
 		Scheme:                        mgr.GetScheme(),
-		KeplerPrometheusUrl:           keplerPrometheusUrl,
-		KeplerMetricName:              keplerMetricName,
+		SourcePrometheusUrl:           sourcePrometheusUrl,
+		EnergyMetricName:              energyMetricName,
+		EnergyConversion:              energyConversionFloat,
+		TuningMetricName1:             tuningMetricName1,
 		SusQLPrometheusDatabaseUrl:    susqlPrometheusDatabaseUrl,
 		SusQLPrometheusMetricsUrl:     susqlPrometheusMetricsUrl,
 		SamplingRate:                  time.Duration(samplingRateInteger) * time.Second,

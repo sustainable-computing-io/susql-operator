@@ -19,8 +19,9 @@ requests:
 #####################
 # Communication with Kepler and Prometheus
 #####################
-keplerPrometheusUrl: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
-keplerMetricName: "kepler_container_joules_total"
+sourcePrometheusUrl: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
+energyMetricName: "kepler_container_joules_total"
+energyConversion: "1.0"
 susqlPrometheusDatabaseUrl: "http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090"
 susqlPrometheusMetricsUrl: "http://0.0.0.0:8082"
 samplingRate: "2"

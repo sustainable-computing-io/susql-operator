@@ -37,8 +37,10 @@ import (
 type LabelGroupReconciler struct {
 	client.Client
 	Scheme                        *runtime.Scheme
-	KeplerPrometheusUrl           string
-	KeplerMetricName              string
+	SourcePrometheusUrl           string
+	EnergyMetricName              string
+	EnergyConversion              float64
+	TuningMetricName1             string
 	SusQLPrometheusDatabaseUrl    string
 	SusQLPrometheusMetricsUrl     string
 	SamplingRate                  time.Duration // Sampling rate for all LabelGroups
@@ -266,8 +268,8 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			return ctrl.Result{RequeueAfter: nopodDelay}, nil
 		}
 
-		// Aggregate Kepler measurements for these set of pods
-		metricValues, err := r.GetMetricValuesForPodNames(r.KeplerMetricName, podsInNamespace, labelGroup.Namespace)
+		// Aggregate Energy measurements for these set of pods
+		metricValues, err := r.GetMetricValuesForPodNames(r.EnergyMetricName, podsInNamespace, labelGroup.Namespace)
 
 		if err != nil {
 			r.Logger.V(0).Error(err, "[Reconcile-Aggregating] Querying Prometheus didn't work.")

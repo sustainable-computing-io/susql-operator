@@ -6,7 +6,7 @@ Instructions to install SusQL via Helm.
 
 ### Prerequisites
 
-* Kepler is assumed to be installed in the cluster.
+* By default, Kepler is assumed to be installed in the cluster. But other sources can be used.
 * `helm`, `kubectl`, and `go` are also required to deploy with Helm.
 * Consider enabling User Project Monitoring when using on OpenShift.
     * https://docs.openshift.com/container-platform/latest/monitoring/enabling-monitoring-for-user-defined-projects.html
@@ -47,31 +47,32 @@ To install SusQL via Helm go to the `deployment` directory and run the command `
 
 The following environment variables will influence the way that the SusQL Operator is installed via Helm.
 
-| Environment Variable        | Default Value                 | Description                                      |
-|:---------------------------:|:-----------------------------:|:------------------------------------------------:|
-| SUSQL_NAMESPACE             | openshift-kepler-operator     | namespace that SusQL resources run in            |
-| KEPLER_PROMETHEUS_NAMESPACE | openshift-monitoring          | namespace that Kepler Prometheus runs in         |
-| PROMETHEUS_PROTOCOL         | http                          | Either http or https for Kepler Prometheus access|
-| PROMETHEUS_SERVICE          | prometheus-k8s                | service name for the Kepler Prometheus           |
-| PROMETHEUS_NAMESPACE        | monitoring                    | namespace used by the Kepler Prometheus          |
-| PROMETHEUS_DOMAIN           | svc.cluster.local             | Domain used by the Kepler Prometheus             |
-| PROMETHEUS_PORT             | 9090                          | Port used by the Kepler Prometheus               |
-| KEPLER_PROMETHEUS_URL       | http://prometheus-k8s.monitoring.svc.cluster.local:9090 | A shortcut to specify final Kepler Prometheus URL |
-| KEPLER_METRIC_NAME          | kepler_container_joules_total | Metric queried in the Kepler Prometheus          |
+| Environment Variable        | Default Value                 | Description                                           |
+|:---------------------------:|:-----------------------------:|:-----------------------------------------------------:|
+| SUSQL_NAMESPACE             | openshift-kepler-operator     | namespace that SusQL resources run in                 |
+| SOURCE_PROMETHEUS_NAMESPACE | openshift-monitoring          | namespace that energy data source Prometheus runs in  |
+| PROMETHEUS_PROTOCOL         | http                          | Either http or https for energy data source Prometheus access|
+| PROMETHEUS_SERVICE          | prometheus-k8s                | service name for the energy data source Prometheus    |
+| PROMETHEUS_NAMESPACE        | monitoring                    | namespace used by the data source Prometheus          |
+| PROMETHEUS_DOMAIN           | svc.cluster.local             | Domain used by the data source Prometheus             |
+| PROMETHEUS_PORT             | 9090                          | Port used by the energy data source  Prometheus       |
+| SOURCE_PROMETHEUS_URL       | http://prometheus-k8s.monitoring.svc.cluster.local:9090 | A shortcut to specify energy data source Prometheus URL |
+| ENERGY_METRIC_NAME          | kepler_container_joules_total | Metric queried in the energy source Prometheus        |
+| ENERGY_CONVERSION           | 1.0                           | Factor to convert energy to Joules                    |
 | SUSQL_PROMETHEUS_URL        | http://prometheus-susql.openshift-kepler-operator.svc.cluster.local:9090 | SusQL Prometheus URL |
-| SUSQL_SAMPLING_RATE         | 2                             | Sampling rate in seconds                         |
-| SUSQL_LOG_LEVEL             | -5                            | Log level                                        |
+| SUSQL_SAMPLING_RATE         | 2                             | Sampling rate in seconds                              |
+| SUSQL_LOG_LEVEL             | -5                            | Log level                                             |
 | SUSQL_ENHANCED              |                               | If set to any string, then use enhanced RBAC and SMON configuration |
-| SUSQL_REGISTRY              | quay.io/sustainable_computing_io | Container registry that SusQL is stored in    |
-| SUSQL_IMAGE_NAME            | susql_operator                | Image name used on SusQL container registry      |
-| SUSQL_IMAGE_TAG             | latest                        | Tag for SusQL container                          |
-| CARBON_METHOD               | static                        | "static", "simpledynamic", "casdk"               |
-| CARBON_INTENSITY            | "0.00011583333"               | Carbon intensity in grams CO2 / Joule            |
-| CARBON_INTENSITY_URL        |                               | Web API to query carbon intensity                |
-| CARBON_LOCATION             |                               | Location for carbon intensity query              |
-| CARBON_QUERY_RATE           | 7200                          | # of seconds between carbon intensity queries    |
-| CARBON_QUERY_FILTER         | carbonIntensity               | JSON identifer of carbon intensity value         |
-| CARBON_QUERY_CONV_2J        |                               | Convert to grams CO2/J                           |
+| SUSQL_REGISTRY              | quay.io/sustainable_computing_io | Container registry that SusQL is stored in         |
+| SUSQL_IMAGE_NAME            | susql_operator                | Image name used on SusQL container registry           |
+| SUSQL_IMAGE_TAG             | latest                        | Tag for SusQL container                               |
+| CARBON_METHOD               | static                        | "static", "simpledynamic", "casdk"                    |
+| CARBON_INTENSITY            | "0.00011583333"               | Carbon intensity in grams CO2 / Joule                 |
+| CARBON_INTENSITY_URL        |                               | Web API to query carbon intensity                     |
+| CARBON_LOCATION             |                               | Location for carbon intensity query                   |
+| CARBON_QUERY_RATE           | 7200                          | # of seconds between carbon intensity queries         |
+| CARBON_QUERY_FILTER         | carbonIntensity               | JSON identifer of carbon intensity value              |
+| CARBON_QUERY_CONV_2J        |                               | Convert to grams CO2/J                                |
 
 
 

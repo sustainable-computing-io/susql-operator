@@ -69,17 +69,29 @@ spec:
         - /manager
         # - /debug-entrypoint.sh
         env:
-          - name: KEPLER-PROMETHEUS-URL
+          - name: SOURCE-PROMETHEUS-URL
             valueFrom:
               configMapKeyRef:
                 name: susql-config
-                key: KEPLER-PROMETHEUS-URL
+                key: SOURCE-PROMETHEUS-URL
                 optional: true
-          - name: KEPLER-METRIC-NAME
+          - name: ENERGY-METRIC-NAME
             valueFrom:
               configMapKeyRef:
                 name: susql-config
-                key: KEPLER-METRIC-NAME
+                key: ENERGY-METRIC-NAME
+                optional: true
+          - name: ENERGY-CONVERSION
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: ENERGY-CONVERSION
+                optional: true
+          - name: TUNING-METRIC-NAME1
+            valueFrom:
+              configMapKeyRef:
+                name: susql-config
+                key: TUNING-METRIC-NAME1
                 optional: true
           - name: SUSQL-PROMETHEUS-DATABASE-URL
             valueFrom:

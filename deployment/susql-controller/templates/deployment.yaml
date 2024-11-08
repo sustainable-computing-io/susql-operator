@@ -31,8 +31,9 @@ spec:
                           drop:
                               - "ALL"
                   args:
-                      - "--kepler-prometheus-url={{ .Values.keplerPrometheusUrl }}"
-                      - "--kepler-metric-name={{ .Values.keplerMetricName }}"
+                      - "--source-prometheus-url={{ .Values.sourcePrometheusUrl }}"
+                      - "--energy-metric-name={{ .Values.energyMetricName }}"
+                      - "--energy-conversion={{ .Values.energyConversion }}"
                       - "--susql-prometheus-database-url={{ .Values.susqlPrometheusDatabaseUrl }}"
                       - "--susql-prometheus-metrics-url={{ .Values.susqlPrometheusMetricsUrl }}"
                       - "--susql-log-level={{ .Values.susqlLogLevel }}"
