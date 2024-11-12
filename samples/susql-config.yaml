@@ -5,7 +5,8 @@ metadata:
 data:
   SOURCE-PROMETHEUS-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
   ENERGY-METRIC-NAME: "kepler_container_joules_total"
-  ENERGY-CONVERSION: "1.0"
+  ENERGY-CONVERSION: "1.0" ### joules to joules
+# ENERGY-CONVERSION: "3600" ### watt hours to joules
 # TUNING-METRIC-NAME-1: "tokens_processed"
   SUSQL-PROMETHEUS-DATABASE-URL: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
   SUSQL-PROMETHEUS-METRICS-URL: "http://0.0.0.0:8082"
