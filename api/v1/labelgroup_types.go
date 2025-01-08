@@ -1,5 +1,5 @@
 /*
-Copyright 2024.
+Copyright 2024, 2025.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -79,8 +79,8 @@ const (
 	Aggregating LabelGroupPhase = "Aggregating"
 )
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // LabelGroup is the Schema for the LabelGroups API
 type LabelGroup struct {
@@ -91,7 +91,7 @@ type LabelGroup struct {
 	Status LabelGroupStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // LabelGroupList contains a list of LabelGroup
 type LabelGroupList struct {
