@@ -4,7 +4,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     control-plane: susql-controller-manager
-    app.kubernetes.io/name: servicemonitor
+    app.kubernetes.io/name: susql-operator
     app.kubernetes.io/instance: susql-controller-manager-metrics-monitor
     app.kubernetes.io/component: metrics
     app.kubernetes.io/created-by: susql-operator

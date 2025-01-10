@@ -35,7 +35,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
+	//	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
@@ -66,6 +66,7 @@ func getEnv(key, defval string) string {
 }
 
 func main() {
+	var noopValue bool = true
 	var enableLeaderElection bool = true
 	var probeAddr string = ":8081"
 	var keplerPrometheusUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
@@ -103,6 +104,7 @@ func main() {
 		enableLeaderElectionEnv = false
 	}
 
+	flag.BoolVar(&noopValue, "noop", true, "No Operation. Does nothing.")
 	flag.StringVar(&keplerPrometheusUrl, "kepler-prometheus-url", keplerPrometheusUrlEnv, "The URL for the Prometheus server where Kepler stores the energy data")
 	flag.StringVar(&keplerMetricName, "kepler-metric-name", keplerMetricNameEnv, "The metric name to be queried in the kepler Prometheus server")
 	flag.StringVar(&susqlPrometheusDatabaseUrl, "susql-prometheus-database-url", susqlPrometheusDatabaseUrlEnv, "The URL for the Prometheus database where SusQL stores the energy data")
@@ -181,8 +183,8 @@ func main() {
 	})
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme: 		scheme,
-		Metrics: 		metricsserver.Options{
+		Scheme: scheme,
+		Metrics: metricsserver.Options{
 			BindAddress:   "0", // was: tunable metricsAddr
 			SecureServing: false,
 			TLSOpts:       tlsOpts,

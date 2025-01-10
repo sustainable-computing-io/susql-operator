@@ -24,3 +24,4 @@ resources:
 # if you do not want those helpers be installed with your Project.
 - labelgroup_editor_role.yaml
 - labelgroup_viewer_role.yaml
+
