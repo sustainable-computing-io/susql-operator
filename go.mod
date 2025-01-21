@@ -7,7 +7,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.20.1
 	github.com/onsi/gomega v1.34.1
 	github.com/operator-framework/operator-lib v0.15.0
-	github.com/prometheus/client_golang v1.20.2
+	github.com/prometheus/client_golang v1.20.5
 	github.com/prometheus/common v0.55.0
 	github.com/tidwall/gjson v1.17.3
 	go.uber.org/zap v1.26.0
