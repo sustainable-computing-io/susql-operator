@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   labels:
     control-plane: susql-controller-manager
-    app.kubernetes.io/name: namespace
+    app.kubernetes.io/name: susql-operator
     app.kubernetes.io/instance: system
     app.kubernetes.io/component: manager
     app.kubernetes.io/created-by: susql-operator
@@ -17,7 +17,8 @@ metadata:
   name: susql-controller-manager
   namespace: system
   labels:
-    app.kubernetes.io/name: deployment
+    control-plane: susql-controller-manager
+    app.kubernetes.io/name: controller-manager
     app.kubernetes.io/instance: susql-controller-manager
     app.kubernetes.io/component: manager
     app.kubernetes.io/part-of: susql-operator
@@ -62,12 +63,16 @@ spec:
         # More info: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
         # Please uncomment the following code if your project does NOT have to work on old Kubernetes
         # versions < 1.19 or on vendors versions which do NOT support this field by default (i.e. OpenShift < 4.11 ).
-        # seccompProfile:
-        #   type: RuntimeDefault
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - command:
         - /manager
+        args:
+          - --noop
         # - /debug-entrypoint.sh
+        image: '<OPERATOR_IMG>'
+        imagePullPolicy: Always
         env:
           - name: KEPLER-PROMETHEUS-URL
             valueFrom:
@@ -159,8 +164,6 @@ spec:
                 name: susql-config
                 key: CARBON-QUERY-CONV-2J
                 optional: true
-        image: '<OPERATOR_IMG>'
-        imagePullPolicy: Always
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
