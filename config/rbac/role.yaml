@@ -5,6 +5,14 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - susql.ibm.com
   resources:
   - labelgroups
