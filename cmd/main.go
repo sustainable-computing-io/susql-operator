@@ -1,5 +1,5 @@
 /*
-Copyright 2023, 2024.
+Copyright 2023, 2024, 2025.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,12 +35,14 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	//	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/operator-framework/operator-lib/leader"
 	susqlv1 "github.com/sustainable-computing-io/susql-operator/api/v1"
 	"github.com/sustainable-computing-io/susql-operator/internal/controller"
-	//+kubebuilder:scaffold:imports
+	// +kubebuilder:scaffold:imports
 )
 
 var (
@@ -53,7 +55,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(susqlv1.AddToScheme(scheme))
-	//+kubebuilder:scaffold:scheme
+	// +kubebuilder:scaffold:scheme
 }
 
 func getEnv(key, defval string) string {
@@ -64,6 +66,7 @@ func getEnv(key, defval string) string {
 }
 
 func main() {
+	var noopValue bool = true
 	var enableLeaderElection bool = true
 	var probeAddr string = ":8081"
 	var sourcePrometheusUrl string = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
@@ -105,6 +108,7 @@ func main() {
 		enableLeaderElectionEnv = false
 	}
 
+	flag.BoolVar(&noopValue, "noop", true, "No Operation. Does nothing.")
 	flag.StringVar(&sourcePrometheusUrl, "source-prometheus-url", sourcePrometheusUrlEnv, "The URL for the Prometheus server where energy data is originally stored")
 	flag.StringVar(&energyMetricName, "energy-metric-name", energyMetricNameEnv, "The metric name to be queried to obtain energy data from the source Prometheus server")
 	flag.StringVar(&energyConversion, "energy-conversion", energyConversionEnv, "A conversion factor to convert the energy metric into Joules")
@@ -181,6 +185,11 @@ func main() {
 
 	tlsOpts := []func(*tls.Config){}
 	tlsOpts = append(tlsOpts, disableHTTP2)
+
+	webhookServer := webhook.NewServer(webhook.Options{
+		TLSOpts: tlsOpts,
+	})
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
 		Metrics: metricsserver.Options{
@@ -188,6 +197,7 @@ func main() {
 			SecureServing: false,
 			TLSOpts:       tlsOpts,
 		},
+		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       leaderLockID,
@@ -267,7 +277,7 @@ func main() {
 		susqlLog.Error(err, "unable to create controller", "controller", "LabelGroup")
 		os.Exit(1)
 	}
-	//+kubebuilder:scaffold:builder
+	// +kubebuilder:scaffold:builder
 
 	susqlLog.Info("Adding healthz check.")
 

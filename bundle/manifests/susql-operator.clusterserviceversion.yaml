@@ -12,7 +12,7 @@ metadata:
               "app.kubernetes.io/created-by": "susql-operator",
               "app.kubernetes.io/instance": "labelgroup-sample",
               "app.kubernetes.io/managed-by": "kustomize",
-              "app.kubernetes.io/name": "labelgroup",
+              "app.kubernetes.io/name": "susql-operator",
               "app.kubernetes.io/part-of": "susql-operator"
             },
             "name": "labelgroup-sample"
@@ -27,8 +27,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.32
-    createdAt: "2024-12-24T07:43:05Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.33
+    createdAt: "2025-01-21T08:10:22Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     features.operators.openshift.io/disconnected: "false"
@@ -38,7 +38,7 @@ metadata:
     features.operators.openshift.io/token-auth-aws: "false"
     features.operators.openshift.io/token-auth-azure: "false"
     features.operators.openshift.io/token-auth-gcp: "false"
-    operators.operatorframework.io/builder: operator-sdk-v1.36.1
+    operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
@@ -116,6 +116,28 @@ spec:
       clusterPermissions:
       - rules:
         - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - prometheuses/api
+          verbs:
+          - create
+          - get
+          - update
+        - apiGroups:
           - susql.ibm.com
           resources:
           - labelgroups
@@ -141,29 +163,6 @@ spec:
           - get
           - patch
           - update
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          - pods/status
-          - namespaces
-          - namespaces/status
-          verbs:
-          - get
-          - list
-          - watch
         serviceAccountName: susql-operator-susql-controller-manager
       deployments:
       - label:
@@ -171,8 +170,9 @@ spec:
           app.kubernetes.io/created-by: susql-operator
           app.kubernetes.io/instance: susql-controller-manager
           app.kubernetes.io/managed-by: kustomize
-          app.kubernetes.io/name: deployment
+          app.kubernetes.io/name: controller-manager
           app.kubernetes.io/part-of: susql-operator
+          control-plane: susql-controller-manager
         name: susql-operator-susql-controller-manager
         spec:
           replicas: 1
@@ -189,31 +189,8 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8082/
-                - --logtostderr=true
-                - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.16.0
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources:
-                  limits:
-                    cpu: 500m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-                  capabilities:
-                    drop:
-                    - ALL
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-              - command:
+                - --noop
+                command:
                 - /manager
                 env:
                 - name: SOURCE-PROMETHEUS-URL
@@ -352,6 +329,8 @@ spec:
                   readOnlyRootFilesystem: true
               securityContext:
                 runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
               serviceAccountName: susql-operator-susql-controller-manager
               terminationGracePeriodSeconds: 10
       permissions:
@@ -422,5 +401,5 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  replaces: susql-operator.v0.0.30
+  replaces: susql-operator.v0.0.32
   version: 0.0.33

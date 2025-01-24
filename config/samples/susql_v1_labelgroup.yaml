@@ -2,7 +2,7 @@ apiVersion: susql.ibm.com/v1
 kind: LabelGroup
 metadata:
   labels:
-    app.kubernetes.io/name: labelgroup
+    app.kubernetes.io/name: susql-operator
     app.kubernetes.io/instance: labelgroup-sample
     app.kubernetes.io/part-of: susql-operator
     app.kubernetes.io/managed-by: kustomize
