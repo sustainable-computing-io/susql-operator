@@ -27,8 +27,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Monitoring
-    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.33
-    createdAt: "2025-01-21T08:10:22Z"
+    containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.34
+    createdAt: "2025-01-28T05:25:50Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     features.operators.openshift.io/disconnected: "false"
@@ -42,7 +42,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/sustainable-computing-io/susql-operator
     support: https://github.com/sustainable-computing-io/susql-operator/issues
-  name: susql-operator.v0.0.33
+  name: susql-operator.v0.0.34
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -283,7 +283,7 @@ spec:
                       key: CARBON-QUERY-CONV-2J
                       name: susql-config
                       optional: true
-                image: quay.io/sustainable_computing_io/susql_operator:0.0.33
+                image: quay.io/sustainable_computing_io/susql_operator:0.0.34
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -389,5 +389,5 @@ spec:
   provider:
     name: SusQL Operator Contributors
     url: https://github.com/sustainable-computing-io/susql-operator
-  replaces: susql-operator.v0.0.32
-  version: 0.0.33
+  replaces: susql-operator.v0.0.33
+  version: 0.0.34
