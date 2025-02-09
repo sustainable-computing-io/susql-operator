@@ -28,7 +28,7 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring
     containerImage: quay.io/sustainable_computing_io/susql_operator:0.0.33
-    createdAt: "2025-01-21T08:10:22Z"
+    createdAt: "2025-01-28T07:27:19Z"
     description: 'Aggregates energy and CO2 emission data for pods tagged with SusQL
       labels '
     features.operators.openshift.io/disconnected: "false"
