@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.23-alpine as builder
+FROM golang:1.24-alpine as builder
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -14,7 +14,7 @@ RUN apk upgrade --no-cache && \
 # Copy the go source
 COPY cmd/ cmd/
 COPY api/ api/
-COPY internal/controller/ internal/controller/
+COPY internal/ internal/
 
 # Build
 # the GOARCH has not a default value to allow the binary be built according to the host where the command
