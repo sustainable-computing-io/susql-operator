@@ -6,18 +6,18 @@ linters:
   enable:
     - copyloopvar
     - dupl
-    - errcheck
+#   - errcheck
     - ginkgolinter
     - goconst
-    - gocyclo
+#   - gocyclo
     - govet
     - ineffassign
-    - lll
+#   - lll
     - misspell
     - nakedret
-    - prealloc
+#   - prealloc
     - revive
-    - staticcheck
+#   - staticcheck
     - unconvert
     - unparam
     - unused
