@@ -56,7 +56,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	})
 
 	if err != nil {
-		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Couldn't create HTTP client.\n")+
+		r.Logger.V(0).Error(err, "[GetMostRecentValue] Couldn't create HTTP client.\n"+
 			fmt.Sprintf("\tQuery:  %s\n", susqlPrometheusQuery)+
 			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl))
 		os.Exit(1)
@@ -79,7 +79,7 @@ func (r *LabelGroupReconciler) GetMostRecentValue(susqlPrometheusQuery string) (
 	}
 
 	if err != nil {
-		r.Logger.V(0).Error(err, fmt.Sprintf("[GetMostRecentValue] Querying Prometheus didn't work.\n")+
+		r.Logger.V(0).Error(err, "[GetMostRecentValue] Querying Prometheus didn't work.\n"+
 			fmt.Sprintf("\tQuery:  %s\n", queryString)+
 			fmt.Sprintf("\tSusQLPrometheusDatabaseUrl:  %s\n", r.SusQLPrometheusDatabaseUrl))
 		return 0.0, err
