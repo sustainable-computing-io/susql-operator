@@ -18,7 +18,7 @@ metadata:
   namespace: system
   labels:
     control-plane: susql-controller-manager
-    app.kubernetes.io/name: controller-manager
+    app.kubernetes.io/name: susql-operator
     app.kubernetes.io/instance: susql-controller-manager
     app.kubernetes.io/component: manager
     app.kubernetes.io/part-of: susql-operator
@@ -35,6 +35,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         control-plane: susql-controller-manager
+        app.kubernetes.io/name: susql-operator
     spec:
       # TODO(user): Uncomment the following code to configure the nodeAffinity expression
       # according to the platforms which are supported by your solution.

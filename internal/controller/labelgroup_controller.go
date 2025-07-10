@@ -361,6 +361,7 @@ func (r *LabelGroupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&susqlv1.LabelGroup{}).
 		// Watch for changes to Pods and enqueue requests for LabelGroup owners
 		Owns(&corev1.Pod{}).
+		Named("susql").
 		Complete(r)
 
 	r.Logger.V(5).Info("[SetupWithManager] Initializing Metrics Exporter.")
