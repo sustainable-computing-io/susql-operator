@@ -18,10 +18,11 @@ package controller
 
 import (
 	"fmt"
-	"github.com/tidwall/gjson"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/tidwall/gjson"
 )
 
 func queryCarbonIntensity(url string, location string, filter string, conv2J float64) (float64, error) {
@@ -32,7 +33,7 @@ func queryCarbonIntensity(url string, location string, filter string, conv2J flo
 		return 0.0, fmt.Errorf("queryCarbonIntensity: %w\nURL=%s", err, queryUrl)
 	}
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
 		return 0.0, fmt.Errorf("queryCarbonIntensity: %w\nURL=%s\nresponse=%s", err, queryUrl, string(responseData))
 	}
@@ -60,7 +61,7 @@ func querySimpleCarbonIntensity(url string, location string, filter string, conv
 		return 0.0, fmt.Errorf("querySimpleCarbonIntensity: %w\nURL=%s", err, queryUrl)
 	}
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
 		return 0.0, fmt.Errorf("queryCarbonSimpleIntensity: %w\nURL=%s\nresponse=%s", err, queryUrl, string(responseData))
 	}
