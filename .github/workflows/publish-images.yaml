@@ -40,4 +40,9 @@ jobs:
   else:
       if: github.repository_owner != 'sustainable-computing-io'
       name: forked repository
-      run: echo "Skipping official publish image step on forked repo."
+      environment: SusQL-Environment
+      runs-on: ubuntu-latest
+      steps:
+        - name: Update the log
+          shell: bash
+          run: echo "Skipping official publish image step on forked repo."
