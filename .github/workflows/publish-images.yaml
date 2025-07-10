@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish:
-    if: github.repository_owner == 'sustainable-computing-io'
+      if: github.repository_owner == 'sustainable-computing-io'
       name: Publish operator container images
       environment: SusQL-Environment
       runs-on: ubuntu-latest
@@ -36,3 +36,13 @@ jobs:
             registry_token: ${{ secrets.QUAY_BOT_TOKEN }}
             version: ${{ steps.version.outputs.version }}
             additional_tags: ${{ steps.additional_tags.outputs.result }}
+
+  else:
+      if: github.repository_owner != 'sustainable-computing-io'
+      name: forked repository
+      environment: SusQL-Environment
+      runs-on: ubuntu-latest
+      steps:
+        - name: Update the log
+          shell: bash
+          run: echo "Skipping official publish image step on forked repo."
