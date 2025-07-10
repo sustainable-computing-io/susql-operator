@@ -37,6 +37,7 @@ jobs:
             version: ${{ steps.version.outputs.version }}
             additional_tags: ${{ steps.additional_tags.outputs.result }}
 
+  else:
       if: github.repository_owner != 'sustainable-computing-io'
       name: forked repository
       run: echo "Skipping official publish image step on forked repo."
