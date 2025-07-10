@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish:
-    if: github.repository_owner == 'sustainable-computing-io'
+      if: github.repository_owner == 'sustainable-computing-io'
       name: Publish operator container images
       environment: SusQL-Environment
       runs-on: ubuntu-latest
