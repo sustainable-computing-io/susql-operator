@@ -1,5 +1,5 @@
 /*
-Copyright 2023, 2024, 2025.
+Copyright 2023, 2024, 2025, 2026.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -116,7 +117,7 @@ func main() {
 	flag.StringVar(&carbonMethod, "carbon-method", carbonMethodEnv, "Method used to calculate CO2 emissions")
 	flag.StringVar(&carbonIntensity, "carbon-intensity", carbonIntensityEnv, "Carbon Intensity Factor in grams CO2 / Joule")
 	flag.StringVar(&carbonIntensityUrl, "carbon-intensity-url", carbonIntensityUrlEnv, "URL used to query calculate carbon intensity")
-	flag.StringVar(&carbonLocation, "carbon-location", carbonLocationEnv, "Location identfier used in carbon intensity query")
+	flag.StringVar(&carbonLocation, "carbon-location", carbonLocationEnv, "Location identifier used in carbon intensity query")
 	flag.StringVar(&carbonQueryRate, "carbon-query-rate", carbonQueryRateEnv, "How often to query carbon intensity query (seconds)")
 	flag.StringVar(&carbonQueryFilter, "carbon-query-filter", carbonQueryFilterEnv, "Parameter to extract carbon intensity from JSON returned by query")
 	flag.StringVar(&carbonQueryConv2J, "carbon-query-conv-2j", carbonQueryConv2JEnv, "Factor to convert carbon intensity returned by query to grams CO2 / Joule")
@@ -212,9 +213,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: verify that carbonMethod is an expected value. If not log warning and set to default value.
-	// (static, simpledynamic, casdk)
-	// Note: assume that carbonIntensityUrl, carbonLocation, and carbonQueryFilter are OK. If not, we will log errors at runtime.
+	// Validate carbonMethod
+	validCarbonMethods := map[string]bool{
+		"static":        true,
+		"simpledynamic": true,
+		"casdk":         true,
+	}
+	if !validCarbonMethods[carbonMethod] {
+		susqlLog.Info(fmt.Sprintf("WARNING: Invalid carbon-method '%s'. Valid options are: static, simpledynamic, casdk. Defaulting to 'static'.", carbonMethod))
+		carbonMethod = "static"
+	}
 
 	samplingRateInteger, err := strconv.Atoi(samplingRate)
 	if err != nil {

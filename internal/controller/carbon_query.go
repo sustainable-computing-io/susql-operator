@@ -1,5 +1,5 @@
 /*
-Copyright 2023, 2024.
+Copyright 2023, 2024, 2025, 2026.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,6 +32,11 @@ func queryCarbonIntensity(url string, location string, filter string, conv2J flo
 	if err != nil {
 		return 0.0, fmt.Errorf("queryCarbonIntensity: %w\nURL=%s", err, queryUrl)
 	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return 0.0, fmt.Errorf("queryCarbonIntensity: HTTP request failed with status %d\nURL=%s", response.StatusCode, queryUrl)
+	}
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -56,14 +61,19 @@ func queryCarbonIntensity(url string, location string, filter string, conv2J flo
 func querySimpleCarbonIntensity(url string, location string, filter string, conv2J float64) (float64, error) {
 	queryUrl := fmt.Sprintf(url, location)
 
-	response, err := http.Get(fmt.Sprintf(url, location))
+	response, err := http.Get(queryUrl)
 	if err != nil {
 		return 0.0, fmt.Errorf("querySimpleCarbonIntensity: %w\nURL=%s", err, queryUrl)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return 0.0, fmt.Errorf("querySimpleCarbonIntensity: HTTP request failed with status %d\nURL=%s", response.StatusCode, queryUrl)
 	}
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
-		return 0.0, fmt.Errorf("queryCarbonSimpleIntensity: %w\nURL=%s\nresponse=%s", err, queryUrl, string(responseData))
+		return 0.0, fmt.Errorf("querySimpleCarbonIntensity: %w\nURL=%s\nresponse=%s", err, queryUrl, string(responseData))
 	}
 
 	carbonIntensityString := gjson.Get(string(responseData), filter).String()

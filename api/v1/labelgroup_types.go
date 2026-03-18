@@ -1,5 +1,5 @@
 /*
-Copyright 2024, 2025.
+Copyright 2024, 2025, 2026.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ type LabelGroupSpec struct {
 	// Do not use the most recent value stored in the database
 	DisableUsingMostRecentValue bool `json:"disableUsingMostRecentValue,omitempty"`
 
-	// List of labels to be tracked for energy measurments (up to 5)
+	// List of labels to be tracked for energy measurements (up to 6)
 	Labels []string `json:"labels,omitempty"`
 }
 
