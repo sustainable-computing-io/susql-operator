@@ -43,8 +43,8 @@ spec:
                 description: Do not use the most recent value stored in the database
                 type: boolean
               labels:
-                description: List of labels to be tracked for energy measurments (up
-                  to 5)
+                description: List of labels to be tracked for energy measurements
+                  (up to 6)
                 items:
                   type: string
                 type: array

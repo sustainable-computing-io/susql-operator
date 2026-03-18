@@ -1,5 +1,5 @@
 /*
-Copyright 2023, 2024, 2025.
+Copyright 2023, 2024, 2025, 2026.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import (
 	"fmt"
 	coreruntime "runtime"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -52,6 +53,7 @@ type LabelGroupReconciler struct {
 	CarbonQueryFilter             string
 	CarbonQueryConv2J             float64
 	Logger                        logr.Logger
+	carbonMutex                   sync.RWMutex // Protects carbon intensity fields
 }
 
 const (
@@ -119,9 +121,14 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	// Is it time to update the Carbon Intensity value?
 	// TODO: put this code only in Reloading and Aggregating cases
 	if r.CarbonMethod == "simpledynamic" {
+		r.carbonMutex.RLock()
 		currentEpoch := time.Now().Unix()
-		if (currentEpoch-r.CarbonIntensityTimeStamp) > r.CarbonQueryRate && (currentEpoch-r.CarbonIntensityErrorTimeStamp) > carbonRetryDelay {
+		shouldUpdate := (currentEpoch-r.CarbonIntensityTimeStamp) > r.CarbonQueryRate && (currentEpoch-r.CarbonIntensityErrorTimeStamp) > carbonRetryDelay
+		r.carbonMutex.RUnlock()
+
+		if shouldUpdate {
 			newCarbonIntensity, err := querySimpleCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
+			r.carbonMutex.Lock()
 			if err == nil {
 				r.CarbonIntensity = newCarbonIntensity
 				r.CarbonIntensityTimeStamp = currentEpoch
@@ -131,12 +138,18 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				r.CarbonIntensityErrorTimeStamp = currentEpoch
 				r.Logger.V(0).Error(err, "[Reconcile-simpledynamic] Unable to query carbon intensity.")
 			}
+			r.carbonMutex.Unlock()
 		}
 	}
 	if r.CarbonMethod == "casdk" {
+		r.carbonMutex.RLock()
 		currentEpoch := time.Now().Unix()
-		if (currentEpoch-r.CarbonIntensityTimeStamp) > r.CarbonQueryRate && (currentEpoch-r.CarbonIntensityErrorTimeStamp) > carbonRetryDelay {
+		shouldUpdate := (currentEpoch-r.CarbonIntensityTimeStamp) > r.CarbonQueryRate && (currentEpoch-r.CarbonIntensityErrorTimeStamp) > carbonRetryDelay
+		r.carbonMutex.RUnlock()
+
+		if shouldUpdate {
 			newCarbonIntensity, err := queryCarbonIntensity(r.CarbonIntensityUrl, r.CarbonLocation, r.CarbonQueryFilter, r.CarbonQueryConv2J)
+			r.carbonMutex.Lock()
 			if err == nil {
 				r.CarbonIntensity = newCarbonIntensity
 				r.CarbonIntensityTimeStamp = currentEpoch
@@ -146,6 +159,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				r.CarbonIntensityErrorTimeStamp = currentEpoch
 				r.Logger.V(0).Error(err, "[Reconcile-casdk] Unable to query carbon intensity.")
 			}
+			r.carbonMutex.Unlock()
 		}
 	}
 
@@ -224,7 +238,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		r.Logger.V(5).Info("[Reconcile-Reloading] Entered reloading case.")
 		// Reload data from existing database
 		if !labelGroup.Spec.DisableUsingMostRecentValue {
-			totalEnergy, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusEnergyQuery)
+			totalEnergy, err := r.GetMostRecentValueWithContext(ctx, labelGroup.Status.SusQLPrometheusEnergyQuery)
 
 			if err != nil {
 				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Couldn't retrieve most recent energy value.")
@@ -233,7 +247,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 			labelGroup.Status.TotalEnergy = fmt.Sprintf("%f", totalEnergy)
 
-			totalCarbon, err := r.GetMostRecentValue(labelGroup.Status.SusQLPrometheusCarbonQuery)
+			totalCarbon, err := r.GetMostRecentValueWithContext(ctx, labelGroup.Status.SusQLPrometheusCarbonQuery)
 
 			if err != nil {
 				r.Logger.V(0).Error(err, "[Reconcile-Reloading] Couldn't retrieve most recent carbon value.")
@@ -270,7 +284,7 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		}
 
 		// Aggregate Kepler measurements for these set of pods
-		metricValues, err := r.GetMetricValuesForPodNames(r.KeplerMetricName, podsInNamespace, labelGroup.Namespace)
+		metricValues, err := r.GetMetricValuesForPodNamesWithContext(ctx, r.KeplerMetricName, podsInNamespace, labelGroup.Namespace)
 
 		if err != nil {
 			r.Logger.V(0).Error(err, "[Reconcile-Aggregating] Querying Prometheus didn't work.")
@@ -326,7 +340,12 @@ func (r *LabelGroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			totalCarbon = 0.0
 		}
 
-		totalCarbon = totalCarbon + (totalEnergy-originalTotalEnergy)*r.CarbonIntensity
+		// Read carbon intensity with lock protection
+		r.carbonMutex.RLock()
+		currentCarbonIntensity := r.CarbonIntensity
+		r.carbonMutex.RUnlock()
+
+		totalCarbon = totalCarbon + (totalEnergy-originalTotalEnergy)*currentCarbonIntensity
 		labelGroup.Status.TotalCarbon = fmt.Sprintf("%.10f", totalCarbon)
 
 		if err := r.Status().Update(ctx, labelGroup); err != nil {
@@ -365,7 +384,9 @@ func (r *LabelGroupReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	r.Logger.V(5).Info("[SetupWithManager] Initializing Metrics Exporter.")
 
 	// Start server to export metrics
-	r.InitializeMetricsExporter()
+	if err := r.InitializeMetricsExporter(); err != nil {
+		return err
+	}
 
 	return controllerManager
 }
