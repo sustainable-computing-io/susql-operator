@@ -1,18 +1,11 @@
 # Security Policy
 
-Our intent is to address security issues in a timely manner. 
-Since we can release frequently, security issues will be fixed in the next minor release.
+Please do not report security issues in public issues, pull requests or Slack.
 
-## Supported Versions
+**[Open a private report on the Kepler repository](https://github.com/sustainable-computing-io/kepler/security/advisories/new)**
+for any repository in the sustainable-computing-io organization, and say which
+one is affected.
 
-| Version   | Supported          |
-| -------   | ------------------ |
-| >=latest  | :white_check_mark: |
-| < latest  | :x:                |
-
-## Reporting a Vulnerability
-
-Please open an issue to report security vulnerabilities with this project.
-
-- https://github.com/sustainable-computing-io/susql-operator/issues
-
+The [Kepler security policy](https://github.com/sustainable-computing-io/kepler/blob/main/SECURITY.md)
+covers who handles reports, what to expect, and who to email if you can't use
+GitHub.
