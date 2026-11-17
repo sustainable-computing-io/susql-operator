@@ -16,8 +16,8 @@ The following is an approach using the later plugin:
 - Make sure that a recent version of `node` is installed.  (This test used v22.9.0)
 - Install Impact Framework
   - `npm install -g @grnsft/if`
-- Install Prometheus Importer
-  - `npm install -g "https://github.com/Shivani-G/prometheus-importer"`
+- Install Prometheus Importer, from a fork of the plugin that uses a `zod` release without a known vulnerability
+  - `npm install -g "https://github.com/trent-s/prometheus-importer"`
 - Update, just to be sure: (Starting from the directory that contains this README...)
   - `cd test; npm update; cd -`
 
