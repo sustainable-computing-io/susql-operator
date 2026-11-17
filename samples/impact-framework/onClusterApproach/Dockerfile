@@ -3,6 +3,9 @@ FROM ubuntu:latest
 ENV NPM_CONFIG_PREFIX=/usr/local
 ARG NPM_CONFIG_PREFIX=/usr/local
 
+# The plugin only writes its debug log when PI_LOG_FILE is set.
+ENV PI_LOG_FILE=/work/pi-log.txt
+
 WORKDIR /work
 COPY ?test.yaml .
 
@@ -19,6 +22,6 @@ npm install -g npm@10.9.0 && \
 echo "    --- Finished node update" && \
 npm install -g typescript rimraf husky @grnsft/if && \
 echo "    --- Finished if install" && \
-npm install -g "https://github.com/Shivani-G/prometheus-importer" && \
+npm install -g "https://github.com/trent-s/prometheus-importer" && \
 echo "    --- Finished PI install" && \
 chown -R 1000:1000 /work /usr/local/

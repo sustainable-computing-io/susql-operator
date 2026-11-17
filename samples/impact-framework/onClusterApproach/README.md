@@ -10,7 +10,10 @@ Currently there are two such plugins described in the [IF Explorer](https://expl
 - [`Prometheus Importer`](https://github.com/andreic94/if-prometheus-importer/blob/main/README.md) by `andreic94`, et al.
 - [`prometheus-importer`](https://github.com/Shivani-G/prometheus-importer/blob/main/README.md) by `Shivani-G`.
 
-This approach uses the later plugin.
+This approach uses the later plugin, installed from a fork
+(`trent-s/prometheus-importer`) that uses a `zod` release without a known
+vulnerability.  The image sets `PI_LOG_FILE=/work/pi-log.txt`, which makes the
+plugin write its debug output to that file.
 
 However, this is a work in progress related to an apparent limitation
 in the use of certain required global`nodejs` functionality within a container.
